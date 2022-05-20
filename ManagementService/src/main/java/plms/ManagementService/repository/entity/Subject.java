@@ -19,6 +19,6 @@ public class Subject {
     private Integer id;
     @Column
     private String name;
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
-//    private List<Student> studentList;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
+    private List<Class> classList;
 }

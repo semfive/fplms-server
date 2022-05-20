@@ -1,10 +1,12 @@
 package plms.ManagementService.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "CLASS")
@@ -23,7 +25,10 @@ public class Class {
     private String semester;
     @Column(name = "is_disable")
     private Boolean isDisable;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "SUBJECT_id")
     private Subject subject;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "classSet")
+            @JsonManagedReference
+    Set<Student> studentSet;
 }
