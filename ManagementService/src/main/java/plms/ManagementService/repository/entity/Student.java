@@ -1,6 +1,7 @@
 package plms.ManagementService.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,8 +33,9 @@ public class Student {
             name = "STUDENT_CLASS",
             joinColumns = @JoinColumn(name = "STUDENT_id"),
             inverseJoinColumns = @JoinColumn(name = "CLASS_id"))
-            @JsonBackReference
+    @JsonBackReference
     Set<Class> classSet;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
+    @JsonBackReference
     private Set<StudentGroup> studentGroupSet;
 }

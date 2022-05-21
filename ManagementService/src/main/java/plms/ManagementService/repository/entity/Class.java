@@ -29,6 +29,9 @@ public class Class {
     @JoinColumn(name = "SUBJECT_id")
     private Subject subject;
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "classSet")
-            @JsonManagedReference
+    @JsonManagedReference
     Set<Student> studentSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "classEntity")
+    @JsonManagedReference
+    private Set<Group> groupSet;
 }
