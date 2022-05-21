@@ -34,4 +34,6 @@ public class Student {
             inverseJoinColumns = @JoinColumn(name = "CLASS_id"))
             @JsonBackReference
     Set<Class> classSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
+    private Set<StudentGroup> studentGroupSet;
 }
