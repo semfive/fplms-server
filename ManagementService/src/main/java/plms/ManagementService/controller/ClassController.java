@@ -21,5 +21,9 @@ public class ClassController {
     public Response<String> removeStudentInClass(@PathVariable int classId,@PathVariable int studentId){
         return classService.removeStudentInClass(studentId,classId);
     }
+    @PutMapping(value = "/{classId}/students/{studentId}/groups/{groupNumber}")
+    public Response<String> changeStudentGroup(@PathVariable int classId,@PathVariable int studentId,@PathVariable int groupNumber){
+        return classService.changeStudentGroup(studentId,classId,groupNumber);
+    }
 
 }

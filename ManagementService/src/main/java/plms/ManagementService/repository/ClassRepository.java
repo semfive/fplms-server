@@ -18,4 +18,5 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Transactional
     @Query(nativeQuery = true, value = "DELETE FROM STUDENT_CLASS WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
     void deleteStudentInClass(Integer studentId, Integer classId);
+
 }

@@ -15,5 +15,8 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup,Integ
     @Transactional
     @Query(nativeQuery = true, value = "DELETE FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
     void deleteStudentInGroup(Integer studentId, Integer classId);
-
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE `STUDENT_GROUP` SET GROUP_id = (SELECT id FROM `GROUP` WHERE CLASS_id = ?2 AND number = ?3) WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
+    void updateStudentGroup(Integer studentId, Integer classId, Integer groupNumber);
 }

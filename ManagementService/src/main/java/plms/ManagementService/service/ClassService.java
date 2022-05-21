@@ -37,6 +37,7 @@ public class ClassService {
     private static final String INVALID_ARGUMENT_MESSAGE = "Invalid argument";
     private static final String GET_STUDENT_IN_CLASS_MESSAGE = "Get student in class: ";
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
+    private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
 
     public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {
         if (classId == null) {
@@ -76,5 +77,15 @@ public class ClassService {
         }
     }
 
-
+    public Response<String> changeStudentGroup(Integer classId,Integer studentId,Integer groupNumber){
+        if (classRepository.existsInClass(studentId, classId) != null) //exist
+        {
+            studentGroupRepository.updateStudentGroup(studentId,classId,groupNumber);
+            logger.info("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, SUCCESS_MESSAGE);
+            return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
+        } else {
+            logger.warn("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ID_NOT_EXIST_MESSAGE);
+            return new Response<>(GatewayConstant.NOT_FOUND_STATUS, ID_NOT_EXIST_MESSAGE);
+        }
+    }
 }
