@@ -10,4 +10,7 @@ public interface StudentRepository extends JpaRepository<Student,Integer> {
 
     @Query(nativeQuery = true, value = "SELECT number FROM `GROUP` WHERE id = (SELECT GROUP_id FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND GROUP_id = ?2)")
     Integer findGroupByStudentIdAndClassId(Integer studentId, Integer classId);
+    
+    @Query(nativeQuery = true, value = "select id from STUDENT where email = ?1")
+    Integer getStudentIdByEmail(String email);
 }
