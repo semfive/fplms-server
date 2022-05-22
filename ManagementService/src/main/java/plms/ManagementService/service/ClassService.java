@@ -52,8 +52,12 @@ public class ClassService {
             Set<StudentInClassResponse> studentInClassResponseSet = studentSet.stream()
                     .map(student -> modelMapper.map(student, StudentInClassResponse.class)).collect(Collectors.toSet());
             studentInClassResponseSet.stream()
-                    .forEach(studentInClassResponse -> studentInClassResponse
-                            .setGroupNumber(studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId)));
+                    .forEach(studentInClassResponse -> {
+                        studentInClassResponse
+                                .setGroupNumber(studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId));
+                        studentInClassResponse
+                                .setVote(studentRepository.findStudentVoteInClass(studentInClassResponse.getId(), classId));
+                    });
             logger.info("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, SUCCESS_MESSAGE);
             return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE, studentInClassResponseSet);
         }
@@ -77,10 +81,10 @@ public class ClassService {
         }
     }
 
-    public Response<String> changeStudentGroup(Integer classId,Integer studentId,Integer groupNumber){
+    public Response<String> changeStudentGroup(Integer classId, Integer studentId, Integer groupNumber) {
         if (classRepository.existsInClass(studentId, classId) != null) //exist
         {
-            studentGroupRepository.updateStudentGroup(studentId,classId,groupNumber);
+            studentGroupRepository.updateStudentGroup(studentId, classId, groupNumber);
             logger.info("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, SUCCESS_MESSAGE);
             return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
         } else {

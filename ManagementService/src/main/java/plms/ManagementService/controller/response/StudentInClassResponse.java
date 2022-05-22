@@ -10,9 +10,6 @@ import plms.ManagementService.dto.StudentDTO;
 @Setter
 @NoArgsConstructor
 public class StudentInClassResponse extends StudentDTO {
-    public StudentInClassResponse(Integer id, String name, String email, String code, Integer groupNumber) {
-        super(id, name, email, code);
-        this.groupNumber = groupNumber;
-    }
     Integer groupNumber;
+    Integer vote;
 }
