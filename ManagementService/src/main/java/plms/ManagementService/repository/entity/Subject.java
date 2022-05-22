@@ -21,4 +21,8 @@ public class Subject {
     private String name;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
     private List<Class> classList;
+
+    public Subject(Integer id) {
+        this.id = id;
+    }
 }

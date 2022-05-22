@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.controller.response.Response;
 import plms.ManagementService.controller.response.StudentInClassResponse;
+import plms.ManagementService.dto.ClassDTO;
 import plms.ManagementService.dto.GroupDTO;
 import plms.ManagementService.dto.StudentDTO;
 import plms.ManagementService.interceptor.GatewayConstant;
@@ -15,7 +16,9 @@ import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
+import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Student;
+import plms.ManagementService.repository.entity.Subject;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +42,14 @@ public class ClassService {
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
 
+    public Response<String> createClass(ClassDTO classDTO){
+        classDTO.setId(null);//jpa create class without id only
+        Class classEntity = modelMapper.map(classDTO,Class.class);
+        classEntity.setSubject(new Subject(classDTO.getSubjectId()));
+        classRepository.save(classEntity);
+        logger.info("Create class success");
+        return new Response<>(GatewayConstant.OK_STATUS,SUCCESS_MESSAGE);
+    }
     public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {
         if (classId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, INVALID_ARGUMENT_MESSAGE);

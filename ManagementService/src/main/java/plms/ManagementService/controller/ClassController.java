@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import plms.ManagementService.controller.response.Response;
 import plms.ManagementService.controller.response.StudentInClassResponse;
+import plms.ManagementService.dto.ClassDTO;
 import plms.ManagementService.service.ClassService;
 
 import java.util.Set;
@@ -25,5 +26,8 @@ public class ClassController {
     public Response<String> changeStudentGroup(@PathVariable int classId,@PathVariable int studentId,@PathVariable int groupNumber){
         return classService.changeStudentGroup(studentId,classId,groupNumber);
     }
-
+    @PostMapping
+    public Response<String> createClass(@RequestBody ClassDTO classDTO){
+        return classService.createClass(classDTO);
+    }
 }
