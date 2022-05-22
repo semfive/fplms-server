@@ -25,6 +25,11 @@ public class ClassController {
         return classService.updateClass(classDTO);
     }
 
+    @DeleteMapping(value = "/{classId}")
+    public Response<String> deleteClass(@PathVariable int classId){
+        return classService.deleteClass(classId);
+    }
+
     @GetMapping(value = "/{id}/students")
     public Response<Set<StudentInClassResponse>> getStudentInClass(@PathVariable int id) {
         return classService.getStudentInClass(id);

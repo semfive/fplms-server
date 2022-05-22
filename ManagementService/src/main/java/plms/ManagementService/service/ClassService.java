@@ -61,6 +61,18 @@ public class ClassService {
         return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
     }
 
+    public Response<String> deleteClass(Integer classId) {
+        Class classEntity = classRepository.findOneById(classId);
+        if (classEntity == null) {
+            logger.warn("Delete class: {}", ID_NOT_EXIST_MESSAGE);
+            return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, ID_NOT_EXIST_MESSAGE);
+        }
+        classEntity.setIsDisable(true); // delete class
+        classRepository.save(classEntity);
+        logger.info("Delete class success");
+        return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
+    }
+
     public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {
         if (classId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, INVALID_ARGUMENT_MESSAGE);
