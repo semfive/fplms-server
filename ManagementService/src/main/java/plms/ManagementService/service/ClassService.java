@@ -9,11 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.controller.response.Response;
 import plms.ManagementService.controller.response.StudentInClassResponse;
 import plms.ManagementService.dto.ClassDTO;
-import plms.ManagementService.dto.GroupDTO;
-import plms.ManagementService.dto.StudentDTO;
 import plms.ManagementService.interceptor.GatewayConstant;
 import plms.ManagementService.repository.ClassRepository;
-import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.entity.Class;
@@ -42,14 +39,28 @@ public class ClassService {
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
 
-    public Response<String> createClass(ClassDTO classDTO){
+    public Response<String> createClass(ClassDTO classDTO) {
         classDTO.setId(null);//jpa create class without id only
-        Class classEntity = modelMapper.map(classDTO,Class.class);
+        Class classEntity = modelMapper.map(classDTO, Class.class);
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
         classRepository.save(classEntity);
         logger.info("Create class success");
-        return new Response<>(GatewayConstant.OK_STATUS,SUCCESS_MESSAGE);
+        return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
     }
+
+    public Response<String> updateClass(ClassDTO classDTO) {
+        if (!classRepository.existsById(classDTO.getId())) {
+            logger.warn("Update class: {}", ID_NOT_EXIST_MESSAGE);
+            return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, ID_NOT_EXIST_MESSAGE);
+        }
+        Class classEntity = modelMapper.map(classDTO, Class.class);
+        classEntity.setSubject(new Subject(classDTO.getSubjectId()));
+        classEntity.setIsDisable(false); // class is always not disable until being deleted
+        classRepository.save(classEntity);
+        logger.info("Update class success");
+        return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
+    }
+
     public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {
         if (classId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, INVALID_ARGUMENT_MESSAGE);
@@ -58,7 +69,7 @@ public class ClassService {
         Set<Student> studentSet = classRepository.findOneById(classId).getStudentSet();
         if (studentSet == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ID_NOT_EXIST_MESSAGE);
-            return new Response<>(GatewayConstant.NOT_FOUND_STATUS, ID_NOT_EXIST_MESSAGE);
+            return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, ID_NOT_EXIST_MESSAGE);
         } else {
             Set<StudentInClassResponse> studentInClassResponseSet = studentSet.stream()
                     .map(student -> modelMapper.map(student, StudentInClassResponse.class)).collect(Collectors.toSet());
@@ -88,7 +99,7 @@ public class ClassService {
             return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
         } else {
             logger.warn("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ID_NOT_EXIST_MESSAGE);
-            return new Response<>(GatewayConstant.NOT_FOUND_STATUS, ID_NOT_EXIST_MESSAGE);
+            return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, ID_NOT_EXIST_MESSAGE);
         }
     }
 
@@ -100,7 +111,7 @@ public class ClassService {
             return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
         } else {
             logger.warn("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ID_NOT_EXIST_MESSAGE);
-            return new Response<>(GatewayConstant.NOT_FOUND_STATUS, ID_NOT_EXIST_MESSAGE);
+            return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, ID_NOT_EXIST_MESSAGE);
         }
     }
 }

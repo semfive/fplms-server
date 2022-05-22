@@ -6,10 +6,11 @@ import org.springframework.stereotype.Repository;
 import plms.ManagementService.repository.entity.Student;
 
 @Repository
-public interface StudentRepository extends JpaRepository<Student,Integer> {
+public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     @Query(nativeQuery = true, value = "SELECT number FROM `GROUP` WHERE id = (SELECT GROUP_id FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND GROUP_id = ?2)")
     Integer findGroupByStudentIdAndClassId(Integer studentId, Integer classId);
+
     @Query(nativeQuery = true, value = "SELECT vote FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND GROUP_id = ?2")
     Integer findStudentVoteInClass(Integer studentId, Integer classId);
 }
