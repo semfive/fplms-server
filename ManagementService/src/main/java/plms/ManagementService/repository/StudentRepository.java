@@ -13,4 +13,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     @Query(nativeQuery = true, value = "SELECT vote FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND GROUP_id = ?2")
     Integer findStudentVoteInClass(Integer studentId, Integer classId);
+
+    Student findOneById(Integer studentId);
 }
