@@ -36,4 +36,7 @@ public class Class {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "classEntity")
     @JsonManagedReference
     private Set<Group> groupSet;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "LECTURER_id")
+    private Lecturer lecturer;
 }

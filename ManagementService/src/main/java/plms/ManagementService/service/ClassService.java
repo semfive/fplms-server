@@ -11,9 +11,11 @@ import plms.ManagementService.controller.response.StudentInClassResponse;
 import plms.ManagementService.dto.ClassDTO;
 import plms.ManagementService.interceptor.GatewayConstant;
 import plms.ManagementService.repository.ClassRepository;
+import plms.ManagementService.repository.LecturerRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.entity.Class;
+import plms.ManagementService.repository.entity.Lecturer;
 import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.repository.entity.Subject;
 
@@ -29,6 +31,8 @@ public class ClassService {
     @Autowired
     StudentGroupRepository studentGroupRepository;
     @Autowired
+    LecturerRepository lecturerRepository;
+    @Autowired
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(ClassService.class);
@@ -36,6 +40,7 @@ public class ClassService {
     private static final String ID_NOT_EXIST_MESSAGE = "Id is not exist";
     private static final String INVALID_ARGUMENT_MESSAGE = "Invalid argument";
     private static final String GET_STUDENT_IN_CLASS_MESSAGE = "Get student in class: ";
+    private static final String GET_CLASS_OF_LECTURER_MESSAGE = "Get class of lecturer: ";
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
 
@@ -71,6 +76,21 @@ public class ClassService {
         classRepository.save(classEntity);
         logger.info("Delete class success");
         return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
+    }
+
+    public Response<Set<ClassDTO>> getClassOfLecture(String lectureEmail) {
+        Lecturer lecturer = lecturerRepository.findOneByEmail(lectureEmail);
+        if (lecturer == null) {
+            logger.warn("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(GatewayConstant.UNAUTHENTICATED_STATUS, INVALID_ARGUMENT_MESSAGE);
+        }
+        Set<ClassDTO> classDTOSet = lecturer.getClassSet().stream().map(classEntity -> {
+            ClassDTO classDTO = modelMapper.map(classEntity, ClassDTO.class);
+            classDTO.setSubjectId(classEntity.getSubject().getId());
+            return classDTO;
+        }).collect(Collectors.toSet());
+        logger.info("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, SUCCESS_MESSAGE);
+        return new Response<>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE, classDTOSet);
     }
 
     public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {

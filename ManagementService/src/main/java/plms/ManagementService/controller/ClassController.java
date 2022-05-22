@@ -26,8 +26,13 @@ public class ClassController {
     }
 
     @DeleteMapping(value = "/{classId}")
-    public Response<String> deleteClass(@PathVariable int classId){
+    public Response<String> deleteClass(@PathVariable int classId) {
         return classService.deleteClass(classId);
+    }
+
+    @GetMapping
+    public Response<Set<ClassDTO>> getClassOfLecturer(@RequestHeader String token) {
+        return classService.getClassOfLecture("t@gmail.com");// mock data
     }
 
     @GetMapping(value = "/{id}/students")
