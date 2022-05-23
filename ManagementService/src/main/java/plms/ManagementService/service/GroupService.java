@@ -85,23 +85,13 @@ public class GroupService {
     		return new Response<String>(GatewayConstant.BAD_REQUEST_STATUS, NOT_IN_GROUP_MESSGAE);
     	} else {
     		studentGroupRepository.deleteStudentInGroup(studentId, classId);
-    		logger.info("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, SUCCESS_MESSAGE);
+    		logger.info("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, SUCCESS_MESSAGE);
     		return new Response<String>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE);
     	}
     	
     }
     
-    @Transactional
-    public Response<String> removeStudentFromGroupByLeader(Integer classId, Integer groupId, Integer leaderStudentId, Integer removeStudentId) {
-    	if (studentRepository.getGroupLeaderByClassIdAndGroupId(classId, groupId) == leaderStudentId)
-    		return removeStudentFromGroup(classId, groupId, removeStudentId);
-    	else {
-    		logger.info("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_LEADER_MESSAGE);
-    		return new Response<String>(GatewayConstant.BAD_REQUEST_STATUS, NOT_LEADER_MESSAGE);
-    	}
-    }
-    
-    public Response<Group> getGroupByGroupIdAndClassId(Integer groupId, Integer classId) {
+    public Response<GroupDTO> getGroupByGroupIdAndClassId(Integer groupId, Integer classId) {
     	if (classId == null || groupId == null) {
     		logger.warn("{}{}",  GET_GROUP_IN_CLASS_MESSAGE, INVALID_ARGUMENT_MESSAGE);
     		return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, INVALID_ARGUMENT_MESSAGE);
@@ -110,8 +100,9 @@ public class GroupService {
     		return new Response<>(GatewayConstant.NOT_FOUND_STATUS, ID_NOT_EXIST_MESSAGE);
     	} else {
     		Group group = groupRepository.getGroupById(groupId);
+    		GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
     		logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, SUCCESS_MESSAGE);
-    		return new Response<Group>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE, group);
+    		return new Response<GroupDTO>(GatewayConstant.OK_STATUS, SUCCESS_MESSAGE, groupDTO);
     	}
     	
     }
