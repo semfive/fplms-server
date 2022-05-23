@@ -28,4 +28,6 @@ public class StudentGroup {
     @JsonBackReference
     @JoinColumn(name = "GROUP_id")
     private Group group;
+    @Column(name = "is_leader")
+    private Boolean isLeader;
 }

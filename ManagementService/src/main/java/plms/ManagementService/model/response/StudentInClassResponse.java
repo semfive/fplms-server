@@ -10,5 +10,5 @@ import plms.ManagementService.model.dto.StudentDTO;
 @NoArgsConstructor
 public class StudentInClassResponse extends StudentDTO {
     Integer groupNumber;
-    Integer vote;
+    Boolean isLeader;
 }

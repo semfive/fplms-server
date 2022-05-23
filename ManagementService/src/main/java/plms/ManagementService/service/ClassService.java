@@ -108,7 +108,7 @@ public class ClassService {
                         studentInClassResponse
                                 .setGroupNumber(studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId));
                         studentInClassResponse
-                                .setVote(studentRepository.findStudentVoteInClass(studentInClassResponse.getId(), classId));
+                                .setIsLeader(studentGroupRepository.findStudentLeaderInClass(studentInClassResponse.getId(), classId) == 1); // change to boolean type
                     });
             logger.info("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, studentInClassResponseSet);

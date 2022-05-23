@@ -26,4 +26,6 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Inte
     @Transactional
     @Query(nativeQuery = true, value = "insert into STUDENT_GROUP(STUDENT_id, GROUP_id, CLASS_id) values (?1, ?2, ?3)")
     void addStudentInGroup(Integer studentId, Integer groupId, Integer classId);
+    @Query(nativeQuery = true, value = "SELECT isLeader FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
+    Integer findStudentLeaderInClass(Integer studentId, Integer classId);//boolean
 }
