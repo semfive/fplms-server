@@ -13,14 +13,10 @@ namespace DiscussionService.Models
 
         [Required]
         public DateTime CreatedDate { get; set; }
-
         public DateTime? ModifiedDate { get; set; }
 
-        [Required]
-        public bool Removed { get; set; }
-
+        public bool Removed { get; set; } = false;
         public string? RemovedBy { get; set; }
-
 
         [ForeignKey(nameof(Subject))]
         public Guid SubjectId { get; set; }

@@ -8,6 +8,8 @@ namespace DiscussionService.Repositories
         private RepositoryContext _repositoryContext;
         private IQuestionRepository _questionRepository;
         private IAnswerRepository _answerRepository;
+        private ISubjectRepository _subjectRepository;
+        private IStudentRepository _studentRepository;
 
         public RepositoryWrapper(RepositoryContext repositoryContext)
         {
@@ -40,9 +42,35 @@ namespace DiscussionService.Repositories
             }
         }
 
-        public void Save()
+        public IStudentRepository StudentRepository
         {
-            _repositoryContext.SaveChanges();
+            get
+            {
+                if (_studentRepository == null)
+                {
+                    _studentRepository = new StudentRepository(_repositoryContext);
+                }
+
+                return _studentRepository;
+            }
+        }
+
+        public ISubjectRepository SubjectRepository
+        {
+            get
+            {
+                if (_subjectRepository == null)
+                {
+                    _subjectRepository = new SubjectRepository(_repositoryContext);
+                }
+
+                return _subjectRepository;
+            }
+        }
+
+        public async Task SaveAsync()
+        {
+            await _repositoryContext.SaveChangesAsync();
         }
     }
 }

@@ -4,6 +4,8 @@ namespace DiscussionService.Contracts
     {
         IQuestionRepository QuestionRepository { get; }
         IAnswerRepository AnswerRepository { get; }
-        void Save();
+        IStudentRepository StudentRepository { get; }
+        ISubjectRepository SubjectRepository { get; }
+        Task SaveAsync();
     }
 }
