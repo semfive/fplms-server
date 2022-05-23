@@ -80,7 +80,7 @@ public class GroupService {
     			groupRepository.isGroupExistsInClass(groupId, classId) == null) {
     		logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ID_NOT_EXIST_MESSAGE);
     		return new Response<>(GatewayConstant.NOT_FOUND_STATUS, ID_NOT_EXIST_MESSAGE);
-    	} else if (groupRepository.findGroupByStudentIdAndClassId(studentId, classId).equals(groupId)) {
+    	} else if (!groupRepository.findGroupByStudentIdAndClassId(studentId, classId).equals(groupId)) {
     		logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_IN_GROUP_MESSGAE);
     		return new Response<String>(GatewayConstant.BAD_REQUEST_STATUS, NOT_IN_GROUP_MESSGAE);
     	} else {

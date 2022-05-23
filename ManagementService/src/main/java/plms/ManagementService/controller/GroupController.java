@@ -32,11 +32,11 @@ public class GroupController {
 			@PathVariable("classId") Integer classId,
 			@PathVariable("groupId") Integer groupId) {
 		//get email and role from token
-		/*String email = "";
+		String email = "";
 		String role = "student";
 		
-		Integer studentId = studentService.validateStudent(role, email);*/
-		return groupService.addStudentToGroup(classId, groupId, 1);
+		Integer studentId = studentService.validateStudent(role, email);
+		return groupService.addStudentToGroup(classId, groupId, studentId);
 		
 	}
 	
@@ -45,11 +45,11 @@ public class GroupController {
 			@PathVariable("classId") Integer classId,
 			@PathVariable("groupId") Integer groupId) {
 		//get email and role from token
-		/*String email = "";
+		String email = "";
 		String role = "student";
 		
-		Integer studentId = studentService.validateStudent(role, email);*/
-		return groupService.removeStudentFromGroup(classId, groupId, 1);
+		Integer studentId = studentService.validateStudent(role, email);
+		return groupService.removeStudentFromGroup(classId, groupId, studentId);
 		
 	}
 	
