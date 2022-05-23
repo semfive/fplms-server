@@ -1,17 +1,19 @@
 package plms.ManagementService.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
+
 @Entity
-@Table(name = "SUBJECT")
+@Table(name = "LECTURER")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Subject {
+public class Lecturer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -19,10 +21,11 @@ public class Subject {
     private Integer id;
     @Column
     private String name;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
-    private List<Class> classList;
-
-    public Subject(Integer id) {
-        this.id = id;
-    }
+    @Column
+    private String email;
+    @Column(name = "is_disable")
+    private Boolean isDisable;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
+    @JsonManagedReference
+    private Set<Class> classSet;
 }

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import plms.ManagementService.repository.entity.Subject;
 
 @Repository
-public interface SubjectRepository extends JpaRepository<Subject,Integer> {
+public interface SubjectRepository extends JpaRepository<Subject, Integer> {
 }
