@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.repository.entity.Class;
 
-import java.util.Set;
-
 @Repository
 public interface ClassRepository extends JpaRepository<Class, Integer> {
     Class findOneById(Integer classId);

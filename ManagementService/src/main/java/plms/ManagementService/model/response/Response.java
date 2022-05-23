@@ -1,4 +1,4 @@
-package plms.ManagementService.controller.response;
+package plms.ManagementService.model.response;
 
 import lombok.Getter;
 import lombok.Setter;
