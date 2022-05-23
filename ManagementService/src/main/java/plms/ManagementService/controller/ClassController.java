@@ -2,15 +2,15 @@ package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import plms.ManagementService.controller.response.Response;
-import plms.ManagementService.controller.response.StudentInClassResponse;
-import plms.ManagementService.dto.ClassDTO;
+import plms.ManagementService.model.response.Response;
+import plms.ManagementService.model.response.StudentInClassResponse;
+import plms.ManagementService.model.dto.ClassDTO;
 import plms.ManagementService.service.ClassService;
 
 import java.util.Set;
 
 @RestController
-@RequestMapping(value = "/management/classes")
+@RequestMapping(value = "/api/management/classes")
 public class ClassController {
     @Autowired
     ClassService classService;

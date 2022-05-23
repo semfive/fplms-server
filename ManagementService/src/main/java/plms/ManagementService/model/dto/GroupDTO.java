@@ -1,4 +1,4 @@
-package plms.ManagementService.dto;
+package plms.ManagementService.model.dto;
 
 
 import lombok.AllArgsConstructor;
