@@ -14,12 +14,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Response<String> handleUnwantedException(Exception e) {
         logger.error(e.getMessage());
-        return new Response<>(500,"Unknown error");
+        return new Response<>(500, "Unknown error");
     }
 
     @ExceptionHandler(CustomException.class)
-    public Response<String> handleCustomException(CustomException e){
-        logger.warn("{}: {}",e.getCode(),e.getMessage());
-        return new Response<>(e.getCode(),e.getMessage());
+    public Response<String> handleCustomException(CustomException e) {
+        logger.warn("{}: {}", e.getCode(), e.getMessage());
+        return new Response<>(e.getCode(), e.getMessage());
     }
 }
