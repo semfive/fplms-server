@@ -29,7 +29,7 @@ public class StudentService {
             logger.warn("{}{}", GET_STUDENT_BY_ID_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.UNAUTHENTICATED_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        logger.info("{}}{}", GET_STUDENT_BY_ID_MESSAGE, SUCCESS_MESSAGE);
+        logger.info("{}{}", GET_STUDENT_BY_ID_MESSAGE, SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, SUCCESS_MESSAGE, studentDTO);
     }
 }

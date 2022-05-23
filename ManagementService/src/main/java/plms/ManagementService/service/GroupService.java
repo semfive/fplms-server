@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
+import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.entity.Group;
+
+import java.util.Set;
 
 @Service
 public class GroupService {
@@ -27,6 +30,7 @@ public class GroupService {
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(GroupService.class);
+    private static final String GET_GROUP_OF_CLASS = "Get group of class";
     private static final String JOINED_OTHER_GROUP_MESSAGE = "Student already joined other group";
     //private static final String NOT_LEADER_MESSAGE = "Only leader is allowed to remove";
     private static final String NOT_IN_GROUP_MESSAGE = "Student not in group";
@@ -93,7 +97,6 @@ public class GroupService {
             logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTO);
         }
-
     }
 
 

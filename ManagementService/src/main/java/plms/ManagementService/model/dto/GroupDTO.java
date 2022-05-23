@@ -15,5 +15,7 @@ import java.util.Set;
 public class GroupDTO {
     private Integer id;
     private Integer number;
+    private Integer memberQuantity;
+
     private Boolean isEmpty;
 }

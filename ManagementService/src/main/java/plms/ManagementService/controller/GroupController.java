@@ -53,6 +53,5 @@ public class GroupController {
         //get email and role from token
          //used to check group leader
         return groupService.removeStudentFromGroup(classId, groupId, removeStudentId);
-
     }
 }
