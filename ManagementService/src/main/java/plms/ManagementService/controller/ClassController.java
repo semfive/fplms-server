@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import plms.ManagementService.controller.response.Response;
 import plms.ManagementService.controller.response.StudentInClassResponse;
 import plms.ManagementService.dto.ClassDTO;
+import plms.ManagementService.dto.EnrollKeyDTO;
 import plms.ManagementService.service.ClassService;
 
 import java.util.Set;
@@ -48,6 +49,13 @@ public class ClassController {
     @PutMapping(value = "/{classId}/students/{studentId}/groups/{groupNumber}")
     public Response<String> changeStudentGroup(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber) {
         return classService.changeStudentGroup(studentId, classId, groupNumber);
+    }
+    
+    @PostMapping("/{classId}/enroll")
+    public Response<String> enrollStudentToGroup(@RequestHeader String token,
+    		@PathVariable("classId") Integer classId,
+    		@RequestBody EnrollKeyDTO enrollKey) {
+    	return classService.enrollStudentToClass(classId, 1, enrollKey);
     }
 
 }

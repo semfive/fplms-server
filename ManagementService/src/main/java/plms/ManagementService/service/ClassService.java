@@ -9,14 +9,17 @@ import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.controller.response.Response;
 import plms.ManagementService.controller.response.StudentInClassResponse;
 import plms.ManagementService.dto.ClassDTO;
+import plms.ManagementService.dto.EnrollKeyDTO;
 import plms.ManagementService.interceptor.GatewayConstant;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.LecturerRepository;
+import plms.ManagementService.repository.StudentClassRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Lecturer;
 import plms.ManagementService.repository.entity.Student;
+import plms.ManagementService.repository.entity.StudentClass;
 import plms.ManagementService.repository.entity.Subject;
 
 import java.util.Set;
@@ -33,13 +36,17 @@ public class ClassService {
     @Autowired
     LecturerRepository lecturerRepository;
     @Autowired
+    StudentClassRepository studentClassRepository;
+    @Autowired
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(ClassService.class);
+    private static final String INVALID_ENROLL_KEY_MESSGAE = "Enroll key is not correct";
     private static final String GET_STUDENT_IN_CLASS_MESSAGE = "Get student in class: ";
     private static final String GET_CLASS_OF_LECTURER_MESSAGE = "Get class of lecturer: ";
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
+    private static final String ENROLL_STUDENT_TO_GROUP_MESSAGE = "Enroll student to group: "; 
 
     public Response<String> createClass(ClassDTO classDTO) {
         classDTO.setId(null);//jpa create class without id only
@@ -142,5 +149,19 @@ public class ClassService {
             logger.warn("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(GatewayConstant.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
+    }
+    
+    public Response<String> enrollStudentToClass(Integer classId, Integer studentId, EnrollKeyDTO enrollKey) {
+    	if (classId == null || studentId == null) {
+    		logger.warn("{}{}", ENROLL_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    		return new Response<String>(GatewayConstant.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    	} else if (!classRepository.getClassEnrollKey(classId).equals(enrollKey.getEnrollKey())) {
+    		logger.warn("{}{}", ENROLL_STUDENT_TO_GROUP_MESSAGE, INVALID_ENROLL_KEY_MESSGAE);
+    		return new Response<String>(GatewayConstant.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSGAE);
+    	} else {
+    		studentClassRepository.insertClassIdAndStudentId(classId, studentId);
+    		logger.info("{}{}", ENROLL_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+    		return new Response<String>(GatewayConstant.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    	}
     }
 }
