@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
-@Table(name = "GROUP")
+@Table(name = "`GROUP`")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,4 +34,8 @@ public class Group {
     @JoinColumn(name = "CLASS_id")
     @JsonIgnore
     private Class classEntity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROJECT_id")
+    private Project project;
+
 }

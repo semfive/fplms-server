@@ -13,12 +13,17 @@ import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.service.GroupService;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/management/classes/{classId}/groups")
 public class GroupController {
     @Autowired
     GroupService groupService;
-
+    @GetMapping
+    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable("classId") int classId){
+        return groupService.getGroupOfClass(classId);
+    }
     @GetMapping("/{groupId}")
     public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable("classId") Integer classId,
                                                           @PathVariable("groupId") Integer groupId) {

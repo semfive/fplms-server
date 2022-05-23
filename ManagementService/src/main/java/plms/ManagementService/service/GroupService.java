@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plms.ManagementService.model.dto.ProjectDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.repository.entity.Class;
@@ -17,6 +18,7 @@ import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.entity.Group;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupService {
@@ -30,7 +32,7 @@ public class GroupService {
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(GroupService.class);
-    private static final String GET_GROUP_OF_CLASS = "Get group of class";
+    private static final String GET_GROUP_OF_CLASS = "Get group of class: ";
     private static final String JOINED_OTHER_GROUP_MESSAGE = "Student already joined other group";
     //private static final String NOT_LEADER_MESSAGE = "Only leader is allowed to remove";
     private static final String NOT_IN_GROUP_MESSAGE = "Student not in group";
@@ -38,6 +40,23 @@ public class GroupService {
     private static final String ADD_STUDENT_TO_GROUP_MESSAGE = "Add student to group: ";
     private static final String REMOVE_STUDENT_FROM_GROUP_MESSAGE = "Remove student from group: ";
     private static final String GET_GROUP_IN_CLASS_MESSAGE = "Get group in class: ";
+
+    public Response<Set<GroupDTO>> getGroupOfClass(Integer classId) {
+        Class classEntity = classRepository.findOneById(classId);
+        if (classEntity == null) {
+            logger.warn("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
+            GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+           if(group.getProject() != null)
+               groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+            return groupDTO;
+        })
+                .collect(Collectors.toSet());
+        logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE,groupDTOSet);
+    }
 
     @Transactional
     public Response<String> addStudentToGroup(Integer classId, Integer groupId, Integer studentId) {
