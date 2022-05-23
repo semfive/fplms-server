@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "STUDENT_GROUP")
 @Getter
@@ -23,6 +25,7 @@ public class StudentGroup {
     @JoinColumn(name = "STUDENT_id")
     private Student student;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonBackReference
     @JoinColumn(name = "GROUP_id")
     private Group group;
 }
