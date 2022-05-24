@@ -9,7 +9,7 @@ namespace DiscussionService.Controllers
 {
 
     [ApiController]
-    [Route("api/questions")]
+    [Route("api/discussion/questions")]
     public class QuestionsController : ControllerBase
     {
 
