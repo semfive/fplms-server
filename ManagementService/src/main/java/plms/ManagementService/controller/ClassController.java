@@ -2,10 +2,11 @@ package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import plms.ManagementService.model.response.ClassByStudentResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
-import plms.ManagementService.model.dto.EnrollKeyDTO;
 import plms.ManagementService.service.ClassService;
 
 import java.util.Set;
@@ -54,7 +55,7 @@ public class ClassController {
     @PostMapping("/{classId}/enroll")
     public Response<String> enrollStudentToClass(@RequestHeader String token,
     		@PathVariable("classId") Integer classId,
-    		@RequestBody EnrollKeyDTO enrollKey) {
+    		@RequestBody String enrollKey) {
     	return classService.enrollStudentToClass(classId, 1, enrollKey);
     }
     
@@ -65,7 +66,7 @@ public class ClassController {
     }
     
     @GetMapping("/student")
-    public Response<Set<ClassDTO>> getClassBySearch(@RequestHeader String token,
+    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestHeader String token,
     		@RequestParam(required = false, name = "search") String search) {
     	return classService.getClassesBySearchStr(search, 1);
     }
