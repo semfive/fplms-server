@@ -8,7 +8,7 @@ using System.Text;
 namespace AuthService.Controllers
 {
     [ApiController]
-    [Route("api/accounts")]
+    [Route("api/auth/accounts")]
 
     public class AccountsController : ControllerBase
     {
@@ -26,8 +26,7 @@ namespace AuthService.Controllers
             try
             {
                 var payload = await _jwtHandler.VerifyGoogleToken(authDto);
-
-                if (payload == null)
+                if (payload == null || !payload.Email.Contains("@fpt") || !payload.Email.Contains("@fe"))
                 {
                     return BadRequest("Invalid Authentication.");
                 }
@@ -35,27 +34,26 @@ namespace AuthService.Controllers
                 var token = _jwtHandler.GenerateToken(payload);
 
                 // TODO: send user information to Management and Discussion service
-                using var httpClient = new HttpClient();
-                var userDto = new UserDto
-                {
-                    Email = payload.Email,
-                    Role = payload.Email.Contains("@fpt.edu.vn") ? "Student" : "Lecturer"
-                };
-                var json = JsonConvert.SerializeObject(userDto);
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var result = await httpClient.PostAsync(_config.GetSection("").Value, data);
+                // using var httpClient = new HttpClient();
+                // var userDto = new UserDto
+                // {
+                //     Email = payload.Email,
+                //     Role = payload.Email.Contains("@fpt.edu.vn") ? "Student" : "Lecturer"
+                // };
+                // var json = JsonConvert.SerializeObject(userDto);
+                // var data = new StringContent(json, Encoding.UTF8, "application/json");
+                // var result = await httpClient.PostAsync(_config.GetSection("").Value, data);
 
                 return Ok(new AuthResponseDto
                 {
                     Token = token,
-                    IsAuthSuccessful = true
+                    IsAuthSuccessful = true,
                 });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error");
             }
-
         }
 
         [HttpPost("verify")]

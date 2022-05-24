@@ -11,11 +11,13 @@ namespace AuthService.Jwt
     {
         private readonly IConfigurationSection _googleAuthSettings;
         private readonly IConfigurationSection _jwtSettings;
+        private readonly IConfiguration _configuration;
 
         public JwtHandler(IConfiguration configuration)
         {
-            _googleAuthSettings = configuration.GetSection("GoogleAuthSettings");
-            _jwtSettings = configuration.GetSection("JwtSettings");
+            _configuration = configuration;
+            _googleAuthSettings = _configuration.GetSection("GoogleAuthSettings");
+            _jwtSettings = _configuration.GetSection("JwtSettings");
         }
 
         private SigningCredentials GetSigningCredentials()
@@ -26,20 +28,20 @@ namespace AuthService.Jwt
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        // TODO: review
         private List<Claim> GetClaims(GoogleJsonWebSignature.Payload payload)
+
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, payload.Email)
             };
 
-            if (payload.Email.Contains("@fpt.edu.vn"))
+            if (payload.Email.Contains("@fpt"))
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Student"));
             }
 
-            if (payload.Email.Contains("@fe.edu.vn"))
+            if (payload.Email.Contains("@fe"))
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Lecturer"));
             }
@@ -64,8 +66,15 @@ namespace AuthService.Jwt
         {
             var signingCredentials = GetSigningCredentials();
             var claims = GetClaims(payload);
+
+            foreach (var claim in claims)
+            {
+                Console.WriteLine($"{claim.Type}: {claim.Value}");
+            }
+
             var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.WriteToken(tokenOptions);
 
             return token;
         }
@@ -84,7 +93,7 @@ namespace AuthService.Jwt
                     IssuerSigningKey = secret,
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    //ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
