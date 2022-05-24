@@ -2,16 +2,16 @@ package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import plms.ManagementService.controller.response.Response;
-import plms.ManagementService.controller.response.StudentInClassResponse;
-import plms.ManagementService.dto.ClassDTO;
-import plms.ManagementService.dto.EnrollKeyDTO;
+import plms.ManagementService.model.response.Response;
+import plms.ManagementService.model.response.StudentInClassResponse;
+import plms.ManagementService.model.dto.ClassDTO;
+import plms.ManagementService.model.dto.EnrollKeyDTO;
 import plms.ManagementService.service.ClassService;
 
 import java.util.Set;
 
 @RestController
-@RequestMapping(value = "/management/classes")
+@RequestMapping(value = "/api/management/classes")
 public class ClassController {
     @Autowired
     ClassService classService;
@@ -52,10 +52,22 @@ public class ClassController {
     }
     
     @PostMapping("/{classId}/enroll")
-    public Response<String> enrollStudentToGroup(@RequestHeader String token,
+    public Response<String> enrollStudentToClass(@RequestHeader String token,
     		@PathVariable("classId") Integer classId,
     		@RequestBody EnrollKeyDTO enrollKey) {
     	return classService.enrollStudentToClass(classId, 1, enrollKey);
+    }
+    
+    @DeleteMapping("/{classId}/unenroll")
+    public Response<String> unenrollStudentFromClass(@RequestHeader String token,
+    		@PathVariable("classId") Integer classId) {
+    	return classService.removeStudentInClass(1, classId);
+    }
+    
+    @GetMapping("/student")
+    public Response<Set<ClassDTO>> getClassBySearch(@RequestHeader String token,
+    		@RequestParam(required = false, name = "search") String search) {
+    	return classService.getClassesBySearchStr(search, 1);
     }
 
 }

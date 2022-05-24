@@ -1,4 +1,5 @@
-package plms.ManagementService.exception;
+package plms.ManagementService.model.dto;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomException extends RuntimeException {
-    private int code;
-    private String message;
+public class GroupDTO {
+    private Integer id;
+    private Integer number;
+    private Boolean isEmpty;
 }
