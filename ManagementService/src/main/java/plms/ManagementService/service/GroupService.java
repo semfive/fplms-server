@@ -28,7 +28,6 @@ public class GroupService {
 
     private static final Logger logger = LogManager.getLogger(GroupService.class);
     private static final String JOINED_OTHER_GROUP_MESSAGE = "Student already joined other group";
-    //private static final String NOT_LEADER_MESSAGE = "Only leader is allowed to remove";
     private static final String NOT_IN_GROUP_MESSAGE = "Student not in group";
     private static final String GROUP_FULL_MESSAGE = "Group is full";
     private static final String ADD_STUDENT_TO_GROUP_MESSAGE = "Add student to group: ";
