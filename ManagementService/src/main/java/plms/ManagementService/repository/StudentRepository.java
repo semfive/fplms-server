@@ -18,4 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     Integer getGroupLeaderByClassIdAndGroupId(Integer classId, Integer groupId);
 
     Student findOneById(Integer studentId);
+    
+    Student findOneByEmail(String email);
 }
