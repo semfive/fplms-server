@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DiscussionService.Controllers
 {
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("api/discussion/students")]
     public class StudentsController : ControllerBase
     {

@@ -8,6 +8,7 @@ namespace DiscussionService.Profiles
         public SubjectProfile()
         {
             CreateMap<CreateSubjectDto, Subject>();
+            CreateMap<Subject, GetSubjectDto>();
         }
     }
 }
