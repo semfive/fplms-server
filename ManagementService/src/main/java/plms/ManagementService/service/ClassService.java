@@ -6,6 +6,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import plms.ManagementService.model.response.ClassByStudentResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
@@ -37,10 +39,13 @@ public class ClassService {
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(ClassService.class);
+    private static final String INVALID_ENROLL_KEY_MESSAGE = "Enroll key is not correct";
     private static final String GET_STUDENT_IN_CLASS_MESSAGE = "Get student in class: ";
     private static final String GET_CLASS_OF_LECTURER_MESSAGE = "Get class of lecturer: ";
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
+    private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: "; 
+    private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
 
     public Response<String> createClass(ClassDTO classDTO) {
         classDTO.setId(null);//jpa create class without id only
@@ -144,4 +149,38 @@ public class ClassService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
     }
+    
+    public Response<String> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
+    	if (classId == null || studentId == null || classRepository.findOneById(classId) == null) {
+    		logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    		return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    	} else if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
+    		logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, INVALID_ENROLL_KEY_MESSAGE);
+    		return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSAGE);
+    	} else {
+    		classRepository.insertStudentInClass(studentId, classId);
+    		logger.info("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+    		return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    	}
+    }
+    
+    public Response<Set<ClassByStudentResponse>> getClassesBySearchStr(String search, Integer studentId) {
+    	if (studentId == null) {
+    		logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    		return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    	}
+    	if (search == null) search = "";
+    	Set<Class> classSet = classRepository.getClassBySearchStr("%" + search + "%");
+    	Set<ClassByStudentResponse> classByStudentResponseSet = classSet.stream().map(classEntity -> {
+    		ClassByStudentResponse classByStudentResponse = modelMapper.map(classEntity, ClassByStudentResponse.class);
+    		classByStudentResponse.setSubjectId(classEntity.getSubject().getId());
+    		classByStudentResponse.setJoin(classRepository.existsInClass(studentId, classEntity.getId()) != null);
+            return classByStudentResponse;
+        }).collect(Collectors.toSet());
+    	
+    	logger.info("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classByStudentResponseSet);
+    
+    }
+    
 }

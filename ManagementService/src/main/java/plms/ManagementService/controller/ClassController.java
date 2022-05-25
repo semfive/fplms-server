@@ -2,6 +2,8 @@ package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import plms.ManagementService.model.response.ClassByStudentResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
@@ -48,6 +50,25 @@ public class ClassController {
     @PutMapping(value = "/{classId}/students/{studentId}/groups/{groupNumber}")
     public Response<String> changeStudentGroup(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber) {
         return classService.changeStudentGroup(studentId, classId, groupNumber);
+    }
+    
+    @PostMapping("/{classId}/enroll")
+    public Response<String> enrollStudentToClass(@RequestHeader String token,
+    		@PathVariable("classId") Integer classId,
+    		@RequestBody String enrollKey) {
+    	return classService.enrollStudentToClass(classId, 1, enrollKey);
+    }
+    
+    @DeleteMapping("/{classId}/unenroll")
+    public Response<String> unenrollStudentFromClass(@RequestHeader String token,
+    		@PathVariable("classId") Integer classId) {
+    	return classService.removeStudentInClass(1, classId);
+    }
+    
+    @GetMapping("/student")
+    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestHeader String token,
+    		@RequestParam(required = false, name = "search") String search) {
+    	return classService.getClassesBySearchStr(search, 1);
     }
 
 }
