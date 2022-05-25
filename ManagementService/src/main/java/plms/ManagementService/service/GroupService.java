@@ -6,14 +6,21 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import plms.ManagementService.model.dto.ProjectDTO;
+import plms.ManagementService.model.request.CreateGroupRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
+import plms.ManagementService.repository.entity.Class;
+import plms.ManagementService.repository.entity.Project;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.entity.Group;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupService {
@@ -27,12 +34,77 @@ public class GroupService {
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(GroupService.class);
+    private static final String GET_GROUP_OF_CLASS = "Get group of class: ";
     private static final String JOINED_OTHER_GROUP_MESSAGE = "Student already joined other group";
     private static final String NOT_IN_GROUP_MESSAGE = "Student not in group";
     private static final String GROUP_FULL_MESSAGE = "Group is full";
     private static final String ADD_STUDENT_TO_GROUP_MESSAGE = "Add student to group: ";
     private static final String REMOVE_STUDENT_FROM_GROUP_MESSAGE = "Remove student from group: ";
     private static final String GET_GROUP_IN_CLASS_MESSAGE = "Get group in class: ";
+
+    @Transactional
+    public Response<String> createGroupRequest(CreateGroupRequest createGroupRequest) {
+        if (createGroupRequest.getGroupQuantity() == null || createGroupRequest.getMemberQuantity() == null) {
+            logger.warn("{}{}", "Create group : ", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        Group group = modelMapper.map(createGroupRequest, Group.class);
+        group.setId(null);
+        logger.error("Group id:{}", group.getId());
+        group.setClassEntity(new Class(createGroupRequest.getClassId()));
+        //create group with amount quantity
+        Integer startGroupNumber = groupRepository.getMaxGroupNumber(createGroupRequest.getClassId());
+        if (startGroupNumber == null) // there is no group in class
+            startGroupNumber = 0;
+        startGroupNumber++;
+        for (int index = startGroupNumber; index < startGroupNumber + createGroupRequest.getMemberQuantity(); index++) {
+            group = modelMapper.map(createGroupRequest, Group.class);
+            group.setId(null);
+            group.setClassEntity(new Class(createGroupRequest.getClassId()));
+            group.setNumber(index);
+            groupRepository.save(group);
+        }
+        logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+
+    public Response<Void> updateGroup(Integer classId,GroupDTO groupDTO) {
+        if (groupDTO.getId() == null || groupRepository.isGroupExistsInClass(groupDTO.getId(),classId) == null){
+            logger.warn("Update group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        Group group = modelMapper.map(groupDTO,Group.class);
+        group.setClassEntity(new Class(classId));
+        group.setProject(new Project(groupDTO.getProjectDTO().getId()));
+        groupRepository.save(group);
+        logger.info("Update group success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+    public Response<Void> deleteGroup(Integer groupId, Integer classId) {
+        if (groupRepository.isGroupExistsInClass(groupId, classId) == null){
+            logger.warn("Delete group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        logger.info("Delete group success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+
+    public Response<Set<GroupDTO>> getGroupOfClass(Integer classId) {
+        Class classEntity = classRepository.findOneById(classId);
+        if (classEntity == null) {
+            logger.warn("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
+                    GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+                    if (group.getProject() != null)
+                        groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+                    return groupDTO;
+                })
+                .collect(Collectors.toSet());
+        logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTOSet);
+    }
 
     @Transactional
     public Response<String> addStudentToGroup(Integer classId, Integer groupId, Integer studentId) {
@@ -92,7 +164,6 @@ public class GroupService {
             logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTO);
         }
-
     }
 
 

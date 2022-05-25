@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
-@Table(name = "GROUP")
+@Table(name = "`GROUP`")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,9 +25,8 @@ public class Group {
     private Integer number;
     @Column(name = "member_quantity")
     private Integer memberQuantity;
-    @Column(name = "is_empty")
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    private Boolean isEmpty;
+    @Column(name = "enroll_time")
+    private Timestamp enrollTime;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
     @JsonManagedReference
     private Set<StudentGroup> studentGroupSet;
@@ -35,4 +34,8 @@ public class Group {
     @JoinColumn(name = "CLASS_id")
     @JsonIgnore
     private Class classEntity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROJECT_id")
+    private Project project;
+
 }

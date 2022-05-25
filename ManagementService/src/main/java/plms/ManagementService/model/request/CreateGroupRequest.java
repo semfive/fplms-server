@@ -1,24 +1,19 @@
-package plms.ManagementService.model.dto;
-
+package plms.ManagementService.model.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class GroupDTO {
-    private Integer id;
-    private Integer number;
+public class CreateGroupRequest {
     private Integer memberQuantity;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
     private Timestamp enrollTime;
-    private ProjectDTO projectDTO;
+    private Integer groupQuantity;
+    private Integer classId;
 }

@@ -1,23 +1,39 @@
 package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import plms.ManagementService.model.request.CreateGroupRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.service.GroupService;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/management/classes/{classId}/groups")
 public class GroupController {
     @Autowired
     GroupService groupService;
+
+    @GetMapping
+    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable("classId") int classId) {
+        return groupService.getGroupOfClass(classId);
+    }
+
+    @PostMapping
+    public Response<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest, @PathVariable int classId) {
+        createGroupRequest.setClassId(classId);
+        return groupService.createGroupRequest(createGroupRequest);
+    }
+    @PutMapping
+    public Response<Void> updateGroup(@PathVariable Integer classId,@RequestBody GroupDTO groupDTO){
+        return groupService.updateGroup(classId,groupDTO);
+    }
+    @PutMapping("/{groupId}")
+    public Response<Void> deleteGroup(@PathVariable int groupId, @PathVariable int classId) {
+        return groupService.deleteGroup(groupId, classId);
+    }
 
     @GetMapping("/{groupId}")
     public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable("classId") Integer classId,
@@ -51,8 +67,7 @@ public class GroupController {
                                                            @PathVariable("groupId") Integer groupId,
                                                            @PathVariable("removeStudentId") Integer removeStudentId) {
         //get email and role from token
-         //used to check group leader
+        //used to check group leader
         return groupService.removeStudentFromGroup(classId, groupId, removeStudentId);
-
     }
 }

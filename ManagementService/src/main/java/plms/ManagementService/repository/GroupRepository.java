@@ -20,4 +20,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Query(nativeQuery = true, value = "select member_quantity from `group` where id = ?1")
     Integer getGroupLimitNumber(Integer groupId);
 
+    @Query(nativeQuery = true, value = "select max(`number`) FROM `GROUP` where `CLASS_id` = ?1")
+    Integer getMaxGroupNumber(Integer classId);
+
 }
