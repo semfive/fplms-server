@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.model.dto.ProjectDTO;
+import plms.ManagementService.model.request.CreateGroupRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.repository.entity.Class;
@@ -34,12 +35,37 @@ public class GroupService {
     private static final Logger logger = LogManager.getLogger(GroupService.class);
     private static final String GET_GROUP_OF_CLASS = "Get group of class: ";
     private static final String JOINED_OTHER_GROUP_MESSAGE = "Student already joined other group";
-    //private static final String NOT_LEADER_MESSAGE = "Only leader is allowed to remove";
     private static final String NOT_IN_GROUP_MESSAGE = "Student not in group";
     private static final String GROUP_FULL_MESSAGE = "Group is full";
     private static final String ADD_STUDENT_TO_GROUP_MESSAGE = "Add student to group: ";
     private static final String REMOVE_STUDENT_FROM_GROUP_MESSAGE = "Remove student from group: ";
     private static final String GET_GROUP_IN_CLASS_MESSAGE = "Get group in class: ";
+
+    @Transactional
+    public Response<String> createGroupRequest(CreateGroupRequest createGroupRequest) {
+        if (createGroupRequest.getGroupQuantity() == null || createGroupRequest.getMemberQuantity() == null) {
+            logger.warn("{}{}", "Create group : ", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        Group group = modelMapper.map(createGroupRequest, Group.class);
+        group.setId(null);
+        logger.error("Group id:{}",group.getId());
+        group.setClassEntity(new Class(createGroupRequest.getClassId()));
+        //create group with amount quantity
+        Integer startGroupNumber = groupRepository.getMaxGroupNumber(createGroupRequest.getClassId());
+        if (startGroupNumber == null) // there is no group in class
+            startGroupNumber = 0;
+        startGroupNumber++;
+        for (int index = startGroupNumber; index < startGroupNumber + createGroupRequest.getMemberQuantity(); index++) {
+            group = modelMapper.map(createGroupRequest, Group.class);
+            group.setId(null);
+            group.setClassEntity(new Class(createGroupRequest.getClassId()));
+            group.setNumber(index);
+            groupRepository.save(group);
+        }
+        logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
 
     public Response<Set<GroupDTO>> getGroupOfClass(Integer classId) {
         Class classEntity = classRepository.findOneById(classId);
@@ -48,14 +74,14 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
-            GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
-           if(group.getProject() != null)
-               groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
-            return groupDTO;
-        })
+                    GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+                    if (group.getProject() != null)
+                        groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+                    return groupDTO;
+                })
                 .collect(Collectors.toSet());
         logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE,groupDTOSet);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTOSet);
     }
 
     @Transactional
