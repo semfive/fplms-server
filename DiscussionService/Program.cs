@@ -2,6 +2,7 @@ using DiscussionService.Contracts;
 using DiscussionService.Data;
 using DiscussionService.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
