@@ -32,4 +32,8 @@ public class Project {
     private String requirements;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private Set<Group> groupSet;
+
+    public Project(Integer id) {
+        this.id = id;
+    }
 }

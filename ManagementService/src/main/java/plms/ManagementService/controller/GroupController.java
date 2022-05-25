@@ -26,7 +26,10 @@ public class GroupController {
         createGroupRequest.setClassId(classId);
         return groupService.createGroupRequest(createGroupRequest);
     }
-
+    @PutMapping
+    public Response<Void> updateGroup(@PathVariable Integer classId,@RequestBody GroupDTO groupDTO){
+        return groupService.updateGroup(classId,groupDTO);
+    }
     @PutMapping("/{groupId}")
     public Response<Void> deleteGroup(@PathVariable int groupId, @PathVariable int classId) {
         return groupService.deleteGroup(groupId, classId);

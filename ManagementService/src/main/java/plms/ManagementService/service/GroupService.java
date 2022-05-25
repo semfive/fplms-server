@@ -11,6 +11,7 @@ import plms.ManagementService.model.request.CreateGroupRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.repository.entity.Class;
+import plms.ManagementService.repository.entity.Project;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
@@ -67,6 +68,18 @@ public class GroupService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
+    public Response<Void> updateGroup(Integer classId,GroupDTO groupDTO) {
+        if (groupDTO.getId() == null || groupRepository.isGroupExistsInClass(groupDTO.getId(),classId) == null){
+            logger.warn("Update group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        Group group = modelMapper.map(groupDTO,Group.class);
+        group.setClassEntity(new Class(classId));
+        group.setProject(new Project(groupDTO.getProjectDTO().getId()));
+        groupRepository.save(group);
+        logger.info("Update group success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
     public Response<Void> deleteGroup(Integer groupId, Integer classId) {
         if (groupRepository.isGroupExistsInClass(groupId, classId) == null){
             logger.warn("Delete group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
