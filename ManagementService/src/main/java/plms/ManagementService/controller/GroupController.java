@@ -15,15 +15,23 @@ import java.util.Set;
 public class GroupController {
     @Autowired
     GroupService groupService;
+
     @GetMapping
-    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable("classId") int classId){
+    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable("classId") int classId) {
         return groupService.getGroupOfClass(classId);
     }
+
     @PostMapping
-    public Response<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest,@PathVariable int classId){
+    public Response<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest, @PathVariable int classId) {
         createGroupRequest.setClassId(classId);
         return groupService.createGroupRequest(createGroupRequest);
     }
+
+    @PutMapping("/{groupId}")
+    public Response<Void> deleteGroup(@PathVariable int groupId, @PathVariable int classId) {
+        return groupService.deleteGroup(groupId, classId);
+    }
+
     @GetMapping("/{groupId}")
     public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable("classId") Integer classId,
                                                           @PathVariable("groupId") Integer groupId) {
@@ -56,7 +64,7 @@ public class GroupController {
                                                            @PathVariable("groupId") Integer groupId,
                                                            @PathVariable("removeStudentId") Integer removeStudentId) {
         //get email and role from token
-         //used to check group leader
+        //used to check group leader
         return groupService.removeStudentFromGroup(classId, groupId, removeStudentId);
     }
 }

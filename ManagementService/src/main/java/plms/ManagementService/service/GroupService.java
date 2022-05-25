@@ -49,7 +49,7 @@ public class GroupService {
         }
         Group group = modelMapper.map(createGroupRequest, Group.class);
         group.setId(null);
-        logger.error("Group id:{}",group.getId());
+        logger.error("Group id:{}", group.getId());
         group.setClassEntity(new Class(createGroupRequest.getClassId()));
         //create group with amount quantity
         Integer startGroupNumber = groupRepository.getMaxGroupNumber(createGroupRequest.getClassId());
@@ -64,6 +64,15 @@ public class GroupService {
             groupRepository.save(group);
         }
         logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+
+    public Response<Void> deleteGroup(Integer groupId, Integer classId) {
+        if (groupRepository.isGroupExistsInClass(groupId, classId) == null){
+            logger.warn("Delete group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        logger.info("Delete group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
