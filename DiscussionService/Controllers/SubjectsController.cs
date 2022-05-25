@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionService.Controllers
 {
+    [ApiController]
+    [Route("api/discussion/subjects")]
     public class SubjectsController : ControllerBase
     {
         private IRepositoryWrapper _repositoryWrapper;
@@ -16,6 +18,22 @@ namespace DiscussionService.Controllers
             _repositoryWrapper = repositoryWrapper;
             _mapper = mapper;
         }
+
+        // [HttpGet]
+        // public async Task<IActionResult> GetAllSubjects()
+        // {
+        //     try
+        //     {
+        //         var subjects = await _repositoryWrapper.SubjectRepository.GetAllSubjectsAsync();
+        //         var result = _mapper.Map<List<GetSubjectDto>>(subjects);
+
+        //         return Ok(result);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, "Internal server error");
+        //     }
+        // }
 
         [HttpPost]
         public async Task<IActionResult> CreateSubject(CreateSubjectDto createSubjectDto)
