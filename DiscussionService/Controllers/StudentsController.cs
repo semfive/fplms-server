@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionService.Controllers
 {
-
     [ApiController]
-    [Route("api/students")]
+    [Route("api/discussion/students")]
     public class StudentsController : ControllerBase
     {
 
@@ -27,11 +26,8 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                Console.WriteLine("Try");
                 var students = await _repositoryWrapper.StudentRepository.GetAllStudentsAsync();
-                Console.WriteLine("students");
                 var result = _mapper.Map<List<GetStudentDto>>(students);
-                Console.WriteLine("results");
 
                 return Ok(result);
             }

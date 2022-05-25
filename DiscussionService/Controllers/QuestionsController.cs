@@ -22,6 +22,22 @@ namespace DiscussionService.Controllers
             _repositoryWrapper = repositoryWrapper;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllQuestions()
+        {
+            try
+            {
+                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync();
+                var result = _mapper.Map<List<GetQuestionDto>>(questions);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         public async Task<IActionResult> CreateQuestion(CreateQuestionDto createQuestionDto)
         {
             try
