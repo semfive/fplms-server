@@ -29,7 +29,7 @@ namespace DiscussionService.Repositories
 
         public async Task<Question> GetQuestionByIdAsync(Guid questionId)
         {
-            return await FindByCondition(question => question.Id.Equals(questionId)).Include(_ => _.Answers).FirstOrDefaultAsync();
+            return await FindByCondition(question => question.Id.Equals(questionId)).Include(_ => _.Answers.Where(answer => answer.Removed == false)).FirstOrDefaultAsync();
             // return await FindByCondition(question => question.Id.Equals(questionId)).FirstOrDefaultAsync();
         }
 

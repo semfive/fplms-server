@@ -10,6 +10,7 @@ namespace DiscussionService.Profiles
         {
             CreateMap<CreateAnswerDto, Answer>();
             CreateMap<Answer, GetAnswerDto>();
+            CreateMap<UpdateAnswerDto, Answer>();
         }
     }
 }

@@ -24,7 +24,7 @@ namespace DiscussionService.Repositories
 
         public async Task<IEnumerable<Answer>> GetAllAnswersAsync()
         {
-            return await FindAll().ToListAsync();
+            return await FindByCondition(answer => answer.Removed == false).ToListAsync();
         }
 
         public async Task<Answer> GetAnswerByIdAsync(Guid answerId)
