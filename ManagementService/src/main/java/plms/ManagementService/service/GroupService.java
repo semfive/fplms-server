@@ -12,6 +12,7 @@ import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Project;
+import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
@@ -43,7 +44,7 @@ public class GroupService {
     private static final String GET_GROUP_IN_CLASS_MESSAGE = "Get group in class: ";
 
     @Transactional
-    public Response<String> createGroupRequest(CreateGroupRequest createGroupRequest) {
+    public Response<Void> createGroupRequest(CreateGroupRequest createGroupRequest) {
         if (createGroupRequest.getGroupQuantity() == null || createGroupRequest.getMemberQuantity() == null) {
             logger.warn("{}{}", "Create group : ", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -68,20 +69,21 @@ public class GroupService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Void> updateGroup(Integer classId,GroupDTO groupDTO) {
-        if (groupDTO.getId() == null || groupRepository.isGroupExistsInClass(groupDTO.getId(),classId) == null){
+    public Response<Void> updateGroup(Integer classId, GroupDTO groupDTO) {
+        if (groupDTO.getId() == null || groupRepository.isGroupExistsInClass(groupDTO.getId(), classId) == null) {
             logger.warn("Update group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
-        Group group = modelMapper.map(groupDTO,Group.class);
+        Group group = modelMapper.map(groupDTO, Group.class);
         group.setClassEntity(new Class(classId));
         group.setProject(new Project(groupDTO.getProjectDTO().getId()));
         groupRepository.save(group);
         logger.info("Update group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
+
     public Response<Void> deleteGroup(Integer groupId, Integer classId) {
-        if (groupRepository.isGroupExistsInClass(groupId, classId) == null){
+        if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("Delete group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
@@ -107,7 +109,7 @@ public class GroupService {
     }
 
     @Transactional
-    public Response<String> addStudentToGroup(Integer classId, Integer groupId, Integer studentId) {
+    public Response<Void> addStudentToGroup(Integer classId, Integer groupId, Integer studentId) {
         if (classId == null || groupId == null || studentId == null) {
             logger.warn("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -116,22 +118,26 @@ public class GroupService {
                 groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-        } else if (groupRepository.findGroupByStudentIdAndClassId(studentId, classId) != null) {
-            logger.warn("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, JOINED_OTHER_GROUP_MESSAGE);
+        }
+        if (groupRepository.findGroupByStudentIdAndClassId(studentId, classId) != null) {
+            logger.warn("{}{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, groupRepository.findGroupByStudentIdAndClassId(studentId, classId), JOINED_OTHER_GROUP_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, JOINED_OTHER_GROUP_MESSAGE);
-        } else if (groupRepository.getGroupLimitNumber(groupId) <= studentGroupRepository.getCurrentNumberOfMemberInGroup(groupId)) {
+        }
+        if (groupRepository.getGroupLimitNumber(groupId) <= studentGroupRepository.getCurrentNumberOfMemberInGroup(groupId)) {
             logger.warn("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, GROUP_FULL_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_FULL_MESSAGE);
-        } else {
-            studentGroupRepository.addStudentInGroup(studentId, groupId, classId);
-            logger.info("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
         }
 
+        if (studentGroupRepository.existsByStudentAndGroupAndIsLeader(new Student(studentId), new Group(groupId), Boolean.TRUE))
+            studentGroupRepository.addStudentInGroup(studentId, groupId, classId, 1); // 1 is Boolean.TRUE
+        else
+            studentGroupRepository.addStudentInGroup(studentId, groupId, classId, 0); // 0 is Boolean.FALSE
+        logger.info("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
     @Transactional
-    public Response<String> removeStudentFromGroup(Integer classId, Integer groupId, Integer studentId) {
+    public Response<Void> removeStudentFromGroup(Integer classId, Integer groupId, Integer studentId) {
         if (classId == null || groupId == null || studentId == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -140,14 +146,14 @@ public class GroupService {
                 groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-        } else if (!groupRepository.findGroupByStudentIdAndClassId(studentId, classId).equals(groupId)) {
+        }
+        if (!groupRepository.findGroupByStudentIdAndClassId(studentId, classId).equals(groupId)) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_IN_GROUP_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP_MESSAGE);
-        } else {
-            studentGroupRepository.deleteStudentInGroup(studentId, classId);
-            logger.info("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
         }
+        studentGroupRepository.deleteStudentInGroup(studentId, classId);
+        logger.info("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 
     }
 

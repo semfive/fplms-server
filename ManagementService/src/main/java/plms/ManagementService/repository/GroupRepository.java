@@ -8,7 +8,7 @@ import plms.ManagementService.repository.entity.Group;
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Integer> {
 
-    @Query(nativeQuery = true, value = "SELECT id, number, member_quantity, is_empty, CLASS_id FROM plms_project.group where id = ?1")
+    @Query(nativeQuery = true, value = "SELECT id, number, member_quantity, CLASS_id FROM plms_project.group where id = ?1")
     Group getGroupById(Integer groupId);
 
     @Query(nativeQuery = true, value = "select GROUP_id from STUDENT_GROUP where STUDENT_id = ?1 and CLASS_id = ?2")

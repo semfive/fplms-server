@@ -18,17 +18,17 @@ public class ClassController {
     ClassService classService;
 
     @PostMapping
-    public Response<String> createClass(@RequestBody ClassDTO classDTO) {
+    public Response<Void> createClass(@RequestBody ClassDTO classDTO) {
         return classService.createClass(classDTO);
     }
 
     @PutMapping
-    public Response<String> updateClass(@RequestBody ClassDTO classDTO) {
+    public Response<Void> updateClass(@RequestBody ClassDTO classDTO) {
         return classService.updateClass(classDTO);
     }
 
     @DeleteMapping(value = "/{classId}")
-    public Response<String> deleteClass(@PathVariable int classId) {
+    public Response<Void> deleteClass(@PathVariable int classId) {
         return classService.deleteClass(classId);
     }
 
@@ -43,25 +43,25 @@ public class ClassController {
     }
 
     @DeleteMapping(value = "/{classId}/students/{studentId}")
-    public Response<String> removeStudentInClass(@PathVariable int classId, @PathVariable int studentId) {
+    public Response<Void> removeStudentInClass(@PathVariable int classId, @PathVariable int studentId) {
         return classService.removeStudentInClass(studentId, classId);
     }
 
     @PutMapping(value = "/{classId}/students/{studentId}/groups/{groupNumber}")
-    public Response<String> changeStudentGroup(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber) {
+    public Response<Void> changeStudentGroup(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber) {
         return classService.changeStudentGroup(studentId, classId, groupNumber);
     }
     
     @PostMapping("/{classId}/enroll")
-    public Response<String> enrollStudentToClass(@RequestHeader String token,
-    		@PathVariable("classId") Integer classId,
+    public Response<Void> enrollStudentToClass(@RequestHeader String token,
+    		@PathVariable Integer classId,
     		@RequestBody String enrollKey) {
     	return classService.enrollStudentToClass(classId, 1, enrollKey);
     }
     
     @DeleteMapping("/{classId}/unenroll")
-    public Response<String> unenrollStudentFromClass(@RequestHeader String token,
-    		@PathVariable("classId") Integer classId) {
+    public Response<Void> unenrollStudentFromClass(@RequestHeader String token,
+    		@PathVariable Integer classId) {
     	return classService.removeStudentInClass(1, classId);
     }
     

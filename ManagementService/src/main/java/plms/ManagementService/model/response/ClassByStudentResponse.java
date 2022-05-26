@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ClassByStudentResponse {
-	private Integer id;
+    private Integer id;
     private String name;
     private String semester;
     private String enrollKey;

@@ -44,10 +44,10 @@ public class ClassService {
     private static final String GET_CLASS_OF_LECTURER_MESSAGE = "Get class of lecturer: ";
     private static final String REMOVE_STUDENT_IN_CLASS_MESSAGE = "Remove student in class: ";
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
-    private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: "; 
+    private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: ";
     private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
 
-    public Response<String> createClass(ClassDTO classDTO) {
+    public Response<Void> createClass(ClassDTO classDTO) {
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
@@ -56,7 +56,7 @@ public class ClassService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<String> updateClass(ClassDTO classDTO) {
+    public Response<Void> updateClass(ClassDTO classDTO) {
         if (!classRepository.existsById(classDTO.getId())) {
             logger.warn("Update class: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
@@ -69,7 +69,7 @@ public class ClassService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<String> deleteClass(Integer classId) {
+    public Response<Void> deleteClass(Integer classId) {
         Class classEntity = classRepository.findOneById(classId);
         if (classEntity == null) {
             logger.warn("Delete class: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
@@ -113,7 +113,7 @@ public class ClassService {
                         studentInClassResponse
                                 .setGroupNumber(studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId));
                         studentInClassResponse
-                                .setIsLeader(studentGroupRepository.findStudentLeaderInClass(studentInClassResponse.getId(), classId) == 1); // change to boolean type
+                                .setIsLeader(studentGroupRepository.findStudentLeaderRoleInClass(studentInClassResponse.getId(), classId) == 1); // change to boolean type
                     });
             logger.info("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, studentInClassResponseSet);
@@ -121,7 +121,7 @@ public class ClassService {
     }
 
     @Transactional
-    public Response<String> removeStudentInClass(Integer studentId, Integer classId) {
+    public Response<Void> removeStudentInClass(Integer studentId, Integer classId) {
         if (studentId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -138,7 +138,7 @@ public class ClassService {
         }
     }
 
-    public Response<String> changeStudentGroup(Integer classId, Integer studentId, Integer groupNumber) {
+    public Response<Void> changeStudentGroup(Integer classId, Integer studentId, Integer groupNumber) {
         if (classRepository.existsInClass(studentId, classId) != null) //exist
         {
             studentGroupRepository.updateStudentGroup(studentId, classId, groupNumber);
@@ -149,38 +149,37 @@ public class ClassService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
     }
-    
-    public Response<String> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
-    	if (classId == null || studentId == null || classRepository.findOneById(classId) == null) {
-    		logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-    		return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-    	} else if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
-    		logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, INVALID_ENROLL_KEY_MESSAGE);
-    		return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSAGE);
-    	} else {
-    		classRepository.insertStudentInClass(studentId, classId);
-    		logger.info("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-    		return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
-    	}
+
+    public Response<Void> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
+        if (classId == null || studentId == null || classRepository.findOneById(classId) == null) {
+            logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } else if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
+            logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, INVALID_ENROLL_KEY_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSAGE);
+        } else {
+            classRepository.insertStudentInClass(studentId, classId);
+            logger.info("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        }
     }
-    
+
     public Response<Set<ClassByStudentResponse>> getClassesBySearchStr(String search, Integer studentId) {
-    	if (studentId == null) {
-    		logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-    		return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-    	}
-    	if (search == null) search = "";
-    	Set<Class> classSet = classRepository.getClassBySearchStr("%" + search + "%");
-    	Set<ClassByStudentResponse> classByStudentResponseSet = classSet.stream().map(classEntity -> {
-    		ClassByStudentResponse classByStudentResponse = modelMapper.map(classEntity, ClassByStudentResponse.class);
-    		classByStudentResponse.setSubjectId(classEntity.getSubject().getId());
-    		classByStudentResponse.setJoin(classRepository.existsInClass(studentId, classEntity.getId()) != null);
+        if (studentId == null) {
+            logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        if (search == null) search = "";
+        Set<Class> classSet = classRepository.getClassBySearchStr("%" + search + "%");
+        Set<ClassByStudentResponse> classByStudentResponseSet = classSet.stream().map(classEntity -> {
+            ClassByStudentResponse classByStudentResponse = modelMapper.map(classEntity, ClassByStudentResponse.class);
+            classByStudentResponse.setSubjectId(classEntity.getSubject().getId());
+            classByStudentResponse.setJoin(classRepository.existsInClass(studentId, classEntity.getId()) != null);
             return classByStudentResponse;
         }).collect(Collectors.toSet());
-    	
-    	logger.info("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        logger.info("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classByStudentResponseSet);
-    
+
     }
-    
+
 }
