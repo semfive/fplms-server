@@ -26,7 +26,7 @@ namespace DiscussionService.Models
 
         [ForeignKey(nameof(Student))]
         public Guid StudentId { get; set; }
-        public Student CreatedBy { get; set; }
+        public Student Student { get; set; }
 
         [ForeignKey(nameof(Question))]
         public Guid QuestionId { get; set; }
