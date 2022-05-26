@@ -19,6 +19,41 @@ namespace DiscussionService.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetAllAnswers()
+        {
+            try
+            {
+                var answers = await _repositoryWrapper.AnswerRepository.GetAllAnswersAsync();
+                var result = _mapper.Map<List<GetAnswerDto>>(answers);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+        [HttpGet("{answerId}")]
+        public async Task<IActionResult> GetAnswerById([FromRoute] Guid answerId)
+        {
+            try
+            {
+                var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+                var result = _mapper.Map<GetAnswerDto>(answer);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateAnswer([FromBody] CreateAnswerDto createAnswerDto)
@@ -27,14 +62,62 @@ namespace DiscussionService.Controllers
             {
                 var answer = _mapper.Map<Answer>(createAnswerDto);
                 answer.Id = Guid.NewGuid();
-                answer.CreatedDate = DateTime.Now;
-                answer.Accepted = false;
-                answer.Removed = false;
 
                 _repositoryWrapper.AnswerRepository.CreateAnswer(answer);
-
                 await _repositoryWrapper.SaveAsync();
 
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("{answerId}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateAnswer([FromRoute] Guid answerId, [FromBody] UpdateAnswerDto updateAnswerDto)
+        {
+            try
+            {
+                var newAnswer = _mapper.Map<Answer>(updateAnswerDto);
+                var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+
+                if (answer == null)
+                {
+                    return NotFound();
+                }
+
+                answer.Content = newAnswer.Content;
+                answer.ModifiedDate = DateTime.Now;
+                _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
+                await _repositoryWrapper.SaveAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("{answerId}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> DeleteAnswer([FromRoute] Guid answerId)
+        {
+            try
+            {
+                var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+
+                if (answer == null)
+                {
+                    return NotFound();
+                }
+
+                // _repositoryWrapper.AnswerRepository.DeleteAnswer(answer);
+                answer.Removed = true;
+                answer.RemovedBy = "N/a";
+                _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
+                await _repositoryWrapper.SaveAsync();
                 return Ok();
             }
             catch (Exception ex)
