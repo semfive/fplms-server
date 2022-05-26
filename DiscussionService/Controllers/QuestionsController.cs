@@ -63,6 +63,9 @@ namespace DiscussionService.Controllers
                 Question question = _mapper.Map<Question>(createQuestionDto);
                 question.Id = Guid.NewGuid();
                 question.CreatedDate = DateTime.Now;
+                question.ModifiedDate = DateTime.Now;
+                question.Removed = false;
+                question.RemovedBy = null;
 
                 _repositoryWrapper.QuestionRepository.CreateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
@@ -75,13 +78,52 @@ namespace DiscussionService.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpPut("{questionId}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateQuestion(Guid questionId, [FromBody] UpdateQuestionDto updateQuestionDto)
+        {
+            try
+            {
+                var newQuestion = _mapper.Map<Question>(updateQuestionDto);
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
+
+                if (question == null)
+                {
+
+                    return NotFound();
+                }
+
+                question.Title = newQuestion.Title;
+                question.Content = newQuestion.Content;
+                question.ModifiedDate = DateTime.Now;
+                question.SubjectId = newQuestion.SubjectId;
+                _repositoryWrapper.QuestionRepository.UpdateQuestion(question);
+                await _repositoryWrapper.SaveAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("{questionId}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> DeleteQuestion(Guid questionId)
         {
             try
             {
-                _repositoryWrapper.QuestionRepository.DeleteQuestion(new Question { Id = questionId });
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
+
+                if (question == null)
+                {
+                    return NotFound();
+                }
+
+                // _repositoryWrapper.QuestionRepository.DeleteQuestion(question);
+                question.Removed = true;
+                question.RemovedBy = "N/a";
+                _repositoryWrapper.QuestionRepository.UpdateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();
             }

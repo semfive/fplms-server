@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DiscussionService.Dtos
 {
-    public record CreateQuestionDto
+    public record UpdateQuestionDto
     {
         [Required]
         [StringLength(250)]
@@ -14,8 +14,5 @@ namespace DiscussionService.Dtos
 
         [Required]
         public Guid SubjectId { get; set; }
-
-        [Required]
-        public Guid StudentId { get; set; }
     }
 }

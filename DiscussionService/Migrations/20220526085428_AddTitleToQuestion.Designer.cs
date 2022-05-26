@@ -3,6 +3,7 @@ using System;
 using DiscussionService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionService.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20220526085428_AddTitleToQuestion")]
+    partial class AddTitleToQuestion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,20 +179,20 @@ namespace DiscussionService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DiscussionService.Models.Student", "Student")
+                    b.HasOne("DiscussionService.Models.Student", "CreatedBy")
                         .WithMany("Answers")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Question");
+                    b.Navigation("CreatedBy");
 
-                    b.Navigation("Student");
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("DiscussionService.Models.Question", b =>
                 {
-                    b.HasOne("DiscussionService.Models.Student", "Student")
+                    b.HasOne("DiscussionService.Models.Student", "CreatedBy")
                         .WithMany("Questions")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -202,7 +204,7 @@ namespace DiscussionService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Student");
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("Subject");
                 });
