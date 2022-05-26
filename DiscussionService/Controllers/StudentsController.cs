@@ -1,5 +1,6 @@
 using System.Data;
 using AutoMapper;
+using DiscussionService.ActionFilters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace DiscussionService.Controllers
 {
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("api/discussion/students")]
     public class StudentsController : ControllerBase
     {
@@ -39,6 +39,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateStudent(CreateStudentDto createStudentDto)
         {
             try

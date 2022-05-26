@@ -9,13 +9,13 @@ namespace DiscussionService.Models
 
         [Required]
         [StringLength(1000)]
-        public string Content { get; set; } = null!;
+        public string? Content { get; set; }
 
         [Required]
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
 
-        public bool Removed { get; set; } = false;
+        public bool Removed { get; set; }
         public string? RemovedBy { get; set; }
 
         [ForeignKey(nameof(Subject))]
@@ -24,8 +24,8 @@ namespace DiscussionService.Models
 
         [ForeignKey(nameof(Student))]
         public Guid StudentId { get; set; }
-        public Student? Student { get; set; }
+        public Student? CreatedBy { get; set; }
 
-        public ICollection<Answer> Answers { get; set; } = null!;
+        public ICollection<Answer>? Answers { get; set; }
     }
 }

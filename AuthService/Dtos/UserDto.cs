@@ -5,6 +5,7 @@ namespace AuthService.Dtos
     public record UserDto
     {
         [Required]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Required]

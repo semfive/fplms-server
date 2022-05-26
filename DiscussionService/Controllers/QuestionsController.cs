@@ -1,5 +1,6 @@
 using System.Data;
 using AutoMapper;
+using DiscussionService.ActionFilters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionService.Controllers
 {
-
     [ApiController]
     [Route("api/discussion/questions")]
     public class QuestionsController : ControllerBase
@@ -38,7 +38,25 @@ namespace DiscussionService.Controllers
             }
         }
 
-        public async Task<IActionResult> CreateQuestion(CreateQuestionDto createQuestionDto)
+        [HttpGet("{questionId}")]
+        public async Task<IActionResult> GetQuestionById(Guid questionId)
+        {
+            try
+            {
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
+                var result = _mapper.Map<GetQuestionDto>(question);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionDto createQuestionDto)
         {
             try
             {
@@ -46,20 +64,31 @@ namespace DiscussionService.Controllers
                 question.Id = Guid.NewGuid();
                 question.CreatedDate = DateTime.Now;
 
-                _repositoryWrapper.QuestionRepository.Create(question);
+                _repositoryWrapper.QuestionRepository.CreateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();
-            }
-            catch (DataException)
-            {
-                Console.WriteLine("Unable to save data");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error");
             }
-            return StatusCode(500, "Internal server error");
         }
 
+        [HttpDelete]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> DeleteQuestion(Guid questionId)
+        {
+            try
+            {
+                _repositoryWrapper.QuestionRepository.DeleteQuestion(new Question { Id = questionId });
+                await _repositoryWrapper.SaveAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

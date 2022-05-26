@@ -2,7 +2,7 @@ using DiscussionService.Models;
 
 namespace DiscussionService.Dtos
 {
-    public class GetQuestionDto
+    public class GetAnswerDto
     {
         public Guid Id { get; set; }
         public string? Content { get; set; }
@@ -11,7 +11,6 @@ namespace DiscussionService.Dtos
         public bool Removed { get; set; }
         public string? RemovedBy { get; set; }
         public Guid StudentId { get; set; }
-        public Guid SubjectId { get; set; }
-        public List<GetAnswerDto>? Answers { get; set; }
+        public Guid QuestionId { get; set; }
     }
 }
