@@ -25,7 +25,7 @@ public class Class {
     private String semester;
     @Column(name = "enroll_key")
     private String enrollKey;
-    @Column(name = "is_disable",insertable = false)
+    @Column(name = "is_disable", insertable = false)
     private Boolean isDisable;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "SUBJECT_id")

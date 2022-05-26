@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import plms.ManagementService.repository.entity.Group;
+import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.repository.entity.StudentGroup;
 
 @Repository
@@ -24,8 +26,11 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Inte
 
     @Modifying
     @Transactional
-    @Query(nativeQuery = true, value = "insert into STUDENT_GROUP(STUDENT_id, GROUP_id, CLASS_id) values (?1, ?2, ?3)")
-    void addStudentInGroup(Integer studentId, Integer groupId, Integer classId);
+    @Query(nativeQuery = true, value = "insert into STUDENT_GROUP(STUDENT_id, GROUP_id, CLASS_id,is_leader) values (?1, ?2, ?3,?4)")
+    void addStudentInGroup(Integer studentId, Integer groupId, Integer classId, Integer isLeader);
+
     @Query(nativeQuery = true, value = "SELECT isLeader FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
-    Integer findStudentLeaderInClass(Integer studentId, Integer classId);//boolean
+    Integer findStudentLeaderRoleInClass(Integer studentId, Integer classId);//boolean
+
+    Boolean existsByStudentAndGroupAndIsLeader(Student student, Group group, Boolean isLeader);
 }

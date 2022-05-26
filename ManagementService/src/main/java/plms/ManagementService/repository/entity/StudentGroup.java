@@ -18,8 +18,6 @@ public class StudentGroup {
     @Column
     @Access(AccessType.PROPERTY)
     private Integer id;
-    @Column
-    private Integer vote;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "STUDENT_id")
     private Student student;
@@ -28,4 +26,5 @@ public class StudentGroup {
     private Group group;
     @Column(name = "is_leader")
     private Boolean isLeader;
+
 }

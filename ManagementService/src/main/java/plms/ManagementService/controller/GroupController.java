@@ -17,12 +17,12 @@ public class GroupController {
     GroupService groupService;
 
     @GetMapping
-    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable("classId") int classId) {
+    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable int classId) {
         return groupService.getGroupOfClass(classId);
     }
 
     @PostMapping
-    public Response<String> createGroup(@RequestBody CreateGroupRequest createGroupRequest, @PathVariable int classId) {
+    public Response<Void> createGroup(@RequestBody CreateGroupRequest createGroupRequest, @PathVariable int classId) {
         createGroupRequest.setClassId(classId);
         return groupService.createGroupRequest(createGroupRequest);
     }
@@ -36,25 +36,25 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}")
-    public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable("classId") Integer classId,
-                                                          @PathVariable("groupId") Integer groupId) {
+    public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable Integer classId,
+                                                          @PathVariable Integer groupId) {
         return groupService.getGroupByGroupIdAndClassId(groupId, classId);
     }
 
     @PostMapping("/{groupId}/join")
-    public Response<String> addStudentToGroup(@RequestHeader("token") String token,
-                                              @PathVariable("classId") Integer classId,
-                                              @PathVariable("groupId") Integer groupId) {
+    public Response<Void> addStudentToGroup(@RequestHeader String token,
+                                              @PathVariable Integer classId,
+                                              @PathVariable Integer groupId) {
         //get email and role from token
-        Integer studentId = 1;
+        Integer studentId = 2;
         return groupService.addStudentToGroup(classId, groupId, studentId);
 
     }
 
     @DeleteMapping("/{groupId}/leave")
-    public Response<String> removeStudentFromGroup(@RequestHeader("token") String token,
-                                                   @PathVariable("classId") Integer classId,
-                                                   @PathVariable("groupId") Integer groupId) {
+    public Response<Void> removeStudentFromGroup(@RequestHeader String token,
+                                                   @PathVariable Integer classId,
+                                                   @PathVariable Integer groupId) {
         //get email and role from token
         Integer studentId = 1;
         return groupService.removeStudentFromGroup(classId, groupId, studentId);
@@ -62,10 +62,10 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}/remove/{removeStudentId}")
-    public Response<String> removeStudentFromGroupByLeader(@RequestHeader("token") String token,
-                                                           @PathVariable("classId") Integer classId,
-                                                           @PathVariable("groupId") Integer groupId,
-                                                           @PathVariable("removeStudentId") Integer removeStudentId) {
+    public Response<Void> removeStudentFromGroupByLeader(@RequestHeader String token,
+                                                           @PathVariable Integer classId,
+                                                           @PathVariable Integer groupId,
+                                                           @PathVariable Integer removeStudentId) {
         //get email and role from token
         //used to check group leader
         return groupService.removeStudentFromGroup(classId, groupId, removeStudentId);

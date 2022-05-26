@@ -38,4 +38,7 @@ public class Group {
     @JoinColumn(name = "PROJECT_id")
     private Project project;
 
+    public Group(Integer id) {
+        this.id = id;
+    }
 }
