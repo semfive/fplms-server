@@ -30,7 +30,12 @@ namespace DiscussionService.Repositories
         public async Task<Answer> GetAnswerByIdAsync(Guid answerId)
         {
             return await FindByCondition(answer => answer.Id.Equals(answerId)).FirstOrDefaultAsync();
+        }
 
+        public async Task<IEnumerable<Answer>> GetAnswersByStudentId(Guid studentId)
+        {
+            return await FindByCondition(answer => answer.StudentId.Equals(studentId))
+                           .ToListAsync();
         }
 
         public void UpdateAnswer(Answer answer)
