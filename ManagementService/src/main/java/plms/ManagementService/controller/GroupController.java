@@ -71,4 +71,15 @@ public class GroupController {
         //used to check group leader
         return groupService.removeStudentFromGroup(classId, groupId, removeStudentId);
     }
+    
+    @PutMapping("/{groupId}/changeLeader/{newLeaderId}")
+    public Response<Void> changeGroupLeader(@RequestHeader String token,
+                                                           @PathVariable Integer classId,
+                                                           @PathVariable Integer groupId,
+                                                           @PathVariable Integer newLeaderId) {
+        //get email and role from token
+        //used to check group leader
+    	Integer leaderId = 2;
+        return groupService.changeGroupLeader(groupId, leaderId, newLeaderId);
+    }
 }

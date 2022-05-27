@@ -44,6 +44,7 @@ public class GroupService {
     private static final String ADD_STUDENT_TO_GROUP_MESSAGE = "Add student to group: ";
     private static final String REMOVE_STUDENT_FROM_GROUP_MESSAGE = "Remove student from group: ";
     private static final String GET_GROUP_IN_CLASS_MESSAGE = "Get group in class: ";
+    private static final String CHANGE_GROUP_LEADER_MESSAGE = "Change group leader: ";
 
     @Transactional
     public Response<Void> createGroupRequest(CreateGroupRequest createGroupRequest) {
@@ -176,6 +177,22 @@ public class GroupService {
             logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponse);
         }
+    }
+    
+    public Response<Void> changeGroupLeader(Integer groupId, Integer leaderId, Integer newLeaderId) {
+    	if (groupId == null || leaderId == null || newLeaderId == null) {
+            logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);    	
+        }
+    	if (studentGroupRepository.isStudentExistInGroup(groupId, newLeaderId) == null ||
+    			studentGroupRepository.findLeaderInGroup(groupId) != leaderId) {
+            logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);    	
+    	}
+    	studentGroupRepository.updateGroupLeader(groupId, leaderId, 0);  	 //remove old leader
+    	studentGroupRepository.updateGroupLeader(groupId, newLeaderId, 1);   //add new leader
+    	logger.info("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.SUCCESS_MESSAGE);    
     }
 
 
