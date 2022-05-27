@@ -5,6 +5,7 @@ using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace DiscussionService.Controllers
 {
@@ -23,13 +24,23 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllQuestions()
+        public async Task<IActionResult> GetAllQuestions([FromQuery] PaginationParams @params)
         {
             try
             {
-                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync();
-                var result = _mapper.Map<List<GetQuestionDto>>(questions);
+                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(@params);
 
+                var metadata = new
+                {
+                    questions.TotalCount,
+                    questions.PageSize,
+                    questions.CurrentPage,
+                    questions.HasPrevious,
+                    questions.HasNext
+                };
+
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+                var result = _mapper.Map<List<GetQuestionDto>>(questions);
                 return Ok(result);
             }
             catch (Exception ex)
