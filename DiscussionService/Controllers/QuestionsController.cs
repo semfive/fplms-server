@@ -49,8 +49,8 @@ namespace DiscussionService.Controllers
             }
         }
 
-        [HttpGet("{questionId}")]
-        public async Task<IActionResult> GetQuestionById(Guid questionId)
+        [HttpGet("{questionId}/answers")]
+        public async Task<IActionResult> GetQuestionAnswers(Guid questionId)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace DiscussionService.Controllers
 
         [HttpDelete("{questionId}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> DeleteQuestion(Guid questionId)
+        public async Task<IActionResult> DeleteQuestion([FromRoute] Guid questionId)
         {
             try
             {
