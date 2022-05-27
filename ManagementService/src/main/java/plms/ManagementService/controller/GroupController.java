@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import plms.ManagementService.model.request.CreateGroupRequest;
+import plms.ManagementService.model.response.GroupDetailResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.service.GroupService;
@@ -36,7 +37,7 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}")
-    public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable Integer classId,
+    public Response<GroupDetailResponse> getGroupByClassIdAndGroupId(@PathVariable Integer classId,
                                                           @PathVariable Integer groupId) {
         return groupService.getGroupByGroupIdAndClassId(groupId, classId);
     }

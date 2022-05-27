@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.model.dto.ProjectDTO;
+import plms.ManagementService.model.dto.StudentDTO;
 import plms.ManagementService.model.request.CreateGroupRequest;
+import plms.ManagementService.model.response.GroupDetailResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.repository.entity.Class;
@@ -157,7 +159,7 @@ public class GroupService {
 
     }
 
-    public Response<GroupDTO> getGroupByGroupIdAndClassId(Integer groupId, Integer classId) {
+    public Response<GroupDetailResponse> getGroupByGroupIdAndClassId(Integer groupId, Integer classId) {
         if (classId == null || groupId == null) {
             logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -165,10 +167,14 @@ public class GroupService {
             logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         } else {
-            Group group = groupRepository.getGroupById(groupId);
-            GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+            Group group = groupRepository.findOneById(groupId);
+            GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
+            groupDetailResponse.setStudentDtoSet(group.getStudentGroupSet().stream()
+            		.map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
+            		.collect(Collectors.toSet()));
+            groupDetailResponse.setLeaderId(studentGroupRepository.findLeaderInGroup(groupId));
             logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTO);
+            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponse);
         }
     }
 
