@@ -38,6 +38,22 @@ namespace DiscussionService.Controllers
             }
         }
 
+        [HttpGet("{studentId}")]
+        public async Task<IActionResult> GetStudentById([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(studentId);
+                var result = _mapper.Map<GetStudentDto>(student);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateStudent(CreateStudentDto createStudentDto)

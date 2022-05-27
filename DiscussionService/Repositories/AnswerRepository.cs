@@ -38,6 +38,12 @@ namespace DiscussionService.Repositories
                            .ToListAsync();
         }
 
+        public async Task<IEnumerable<Answer>> GetAnswersRemovedByLecturerId(Guid lecturerId)
+        {
+            return await FindByCondition(answer => answer.RemovedBy.Equals(lecturerId))
+                           .ToListAsync();
+        }
+
         public void UpdateAnswer(Answer answer)
         {
             Update(answer);
