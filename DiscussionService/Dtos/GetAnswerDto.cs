@@ -10,7 +10,7 @@ namespace DiscussionService.Dtos
         public DateTime ModifiedDate { get; set; }
         public bool Removed { get; set; }
         public string? RemovedBy { get; set; }
-        public Guid StudentId { get; set; }
+        public GetStudentDto Student { get; set; }
         public Guid QuestionId { get; set; }
     }
 }
