@@ -29,7 +29,6 @@ namespace DiscussionService.Controllers
             try
             {
                 var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
-
                 var metadata = new
                 {
                     questions.TotalCount,
