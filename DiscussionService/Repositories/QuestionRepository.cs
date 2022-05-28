@@ -65,6 +65,9 @@ namespace DiscussionService.Repositories
         public async Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId)
         {
             return await FindByCondition(question => question.StudentId.Equals(studentId))
+                            .Include(question => question.Subject)
+                            .Include(question => question.Student)
+                            .OrderByDescending(question => question.CreatedDate)
                             .ToListAsync();
         }
 
