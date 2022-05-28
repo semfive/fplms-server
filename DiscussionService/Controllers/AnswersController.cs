@@ -4,6 +4,7 @@ using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace DiscussionService.Controllers
 {
@@ -21,11 +22,22 @@ namespace DiscussionService.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> GetAllAnswers()
+        public async Task<IActionResult> GetAllAnswers([FromQuery] AnswersQueryStringParameters queryStringParameters)
         {
             try
             {
-                var answers = await _repositoryWrapper.AnswerRepository.GetAllAnswersAsync();
+                var answers = await _repositoryWrapper.AnswerRepository.GetAllAnswersAsync(queryStringParameters);
+
+                var metadata = new
+                {
+                    answers.TotalCount,
+                    answers.PageSize,
+                    answers.CurrentPage,
+                    answers.HasPrevious,
+                    answers.HasNext
+                };
+
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
                 var result = _mapper.Map<List<GetAnswerDto>>(answers);
 
                 return Ok(result);

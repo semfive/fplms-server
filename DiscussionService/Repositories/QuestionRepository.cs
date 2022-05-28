@@ -24,17 +24,18 @@ namespace DiscussionService.Repositories
             Delete(question);
         }
 
-        public async Task<PagedList<Question>> GetAllQuestionsAsync(QueryStringParameters queryStringParameters)
+        public async Task<PagedList<Question>> GetAllQuestionsAsync(QuestionsQueryStringParameters queryStringParameters)
         {
             var items = await FindAll().OrderBy(question => question.CreatedDate).ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(queryStringParameters.Question))
             {
                 items = await FindAll()
-                                .Where(question => question.Title.ToLower().Contains(queryStringParameters.Question.Trim().ToLower()))
-                                .Where(question => question.Content.ToLower().Contains(queryStringParameters.Question.Trim().ToLower()))
-                                .OrderBy(question => question.CreatedDate)
-                                .ToListAsync();
+                                .Where(question =>
+                                    question.Title.ToLower().Contains(queryStringParameters.Question.Trim().ToLower())
+                                    || question.Content.ToLower().Contains(queryStringParameters.Question.Trim().ToLower()))
+                                    .OrderByDescending(question => question.CreatedDate)
+                                    .ToListAsync();
             }
 
             return PagedList<Question>.ToPagedList(items, queryStringParameters.PageNumber, queryStringParameters.PageSize);
