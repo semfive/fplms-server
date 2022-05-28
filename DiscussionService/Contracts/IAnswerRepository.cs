@@ -1,10 +1,12 @@
+using DiscussionService.Dtos;
+using DiscussionService.Helpers;
 using DiscussionService.Models;
 
 namespace DiscussionService.Contracts
 {
     public interface IAnswerRepository : IRepositoryBase<Answer>
     {
-        Task<IEnumerable<Answer>> GetAllAnswersAsync();
+        Task<PagedList<Answer>> GetAllAnswersAsync(AnswersQueryStringParameters answersQueryStringParameters);
         Task<Answer> GetAnswerByIdAsync(Guid answerId);
         Task<IEnumerable<Answer>> GetAnswersByStudentId(Guid studentId);
         Task<IEnumerable<Answer>> GetAnswersRemovedByLecturerId(Guid lecturerId);

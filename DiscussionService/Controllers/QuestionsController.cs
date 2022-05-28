@@ -24,11 +24,11 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllQuestions([FromQuery] QueryStringParameters @params)
+        public async Task<IActionResult> GetAllQuestions([FromQuery] QuestionsQueryStringParameters queryStringParameters)
         {
             try
             {
-                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(@params);
+                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
 
                 var metadata = new
                 {

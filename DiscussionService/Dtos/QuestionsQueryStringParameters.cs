@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using DiscussionService.Contracts;
 
 namespace DiscussionService.Dtos
 {
-    public class QueryStringParameters
+    public class QuestionsQueryStringParameters : IQueryStringParameters
     {
         private const int MAX_ITEMS_PER_PAGE = 50;
         private int pageSize;

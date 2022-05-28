@@ -1,5 +1,7 @@
 using DiscussionService.Contracts;
 using DiscussionService.Data;
+using DiscussionService.Dtos;
+using DiscussionService.Helpers;
 using DiscussionService.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +24,10 @@ namespace DiscussionService.Repositories
             Delete(answer);
         }
 
-        public async Task<IEnumerable<Answer>> GetAllAnswersAsync()
+        public async Task<PagedList<Answer>> GetAllAnswersAsync(AnswersQueryStringParameters answersQueryStringParameters)
         {
-            return await FindByCondition(answer => answer.Removed == false).ToListAsync();
+            var items = await FindAll().OrderBy(answer => answer.CreatedDate).ToListAsync();
+            return PagedList<Answer>.ToPagedList(items, answersQueryStringParameters.PageNumber, answersQueryStringParameters.PageSize);
         }
 
         public async Task<Answer> GetAnswerByIdAsync(Guid answerId)
