@@ -43,4 +43,5 @@ public class Class {
     public Class(Integer id) {
         this.id = id;
     }
+    
 }

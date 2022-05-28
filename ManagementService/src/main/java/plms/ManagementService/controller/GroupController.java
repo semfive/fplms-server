@@ -47,7 +47,7 @@ public class GroupController {
                                               @PathVariable Integer classId,
                                               @PathVariable Integer groupId) {
         //get email and role from token
-        Integer studentId = 2;
+        Integer studentId = 4;
         return groupService.addStudentToGroup(classId, groupId, studentId);
 
     }
