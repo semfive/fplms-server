@@ -26,7 +26,11 @@ namespace DiscussionService.Repositories
 
         public async Task<PagedList<Answer>> GetAllAnswersAsync(AnswersQueryStringParameters answersQueryStringParameters)
         {
-            var items = await FindAll().OrderBy(answer => answer.CreatedDate).ToListAsync();
+            var items = await FindAll()
+                                .Include(answer => answer.Student)
+                                .OrderByDescending(answer => answer.CreatedDate)
+                                .ToListAsync();
+
             return PagedList<Answer>.ToPagedList(items, answersQueryStringParameters.PageNumber, answersQueryStringParameters.PageSize);
         }
 
