@@ -42,7 +42,9 @@ namespace DiscussionService.Repositories
         public async Task<IEnumerable<Answer>> GetAnswersByStudentId(Guid studentId)
         {
             return await FindByCondition(answer => answer.StudentId.Equals(studentId))
-                           .ToListAsync();
+                            .Include(question => question.Student)
+                            .OrderByDescending(answer => answer.CreatedDate)
+                            .ToListAsync();
         }
 
         public async Task<IEnumerable<Answer>> GetAnswersRemovedByLecturerId(Guid lecturerId)
