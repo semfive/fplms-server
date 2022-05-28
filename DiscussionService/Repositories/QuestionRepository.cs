@@ -47,6 +47,18 @@ namespace DiscussionService.Repositories
             // return await FindByCondition(question => question.Id.Equals(questionId)).FirstOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId)
+        {
+            return await FindByCondition(question => question.StudentId.Equals(studentId))
+                            .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Question>> GetQuestionsRemovedByLecturerId(Guid lecturerId)
+        {
+            return await FindByCondition(question => question.RemovedBy.Equals(lecturerId))
+                            .ToListAsync();
+        }
+
         public void UpdateQuestion(Question question)
         {
             Update(question);

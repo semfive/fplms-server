@@ -38,6 +38,22 @@ namespace DiscussionService.Controllers
             }
         }
 
+        [HttpGet("{studentId}")]
+        public async Task<IActionResult> GetStudentById([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(studentId);
+                var result = _mapper.Map<GetStudentDto>(student);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateStudent(CreateStudentDto createStudentDto)
@@ -62,6 +78,38 @@ namespace DiscussionService.Controllers
                 return StatusCode(500, "Internal server error");
             }
 
+        }
+
+        [HttpGet("{studentId}/questions")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetStudentQuestions([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsByStudentId(studentId);
+                var result = _mapper.Map<List<GetQuestionDto>>(questions);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("{studentId}/answers")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetStudentAnswers([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByStudentId(studentId);
+                var result = _mapper.Map<List<GetAnswerDto>>(answers);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
     }
