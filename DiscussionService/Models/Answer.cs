@@ -20,7 +20,7 @@ namespace DiscussionService.Models
         public bool Accepted { get; set; }
 
         [Required]
-        public bool Removed { get; set; }
+        public bool Removed { get; set; } = false;
 
         public string? RemovedBy { get; set; }
 
