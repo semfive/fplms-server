@@ -24,7 +24,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllQuestions([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetAllQuestions([FromQuery] QueryStringParameters @params)
         {
             try
             {

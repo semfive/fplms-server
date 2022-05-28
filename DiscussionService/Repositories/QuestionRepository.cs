@@ -24,19 +24,20 @@ namespace DiscussionService.Repositories
             Delete(question);
         }
 
-        public async Task<PagedList<Question>> GetAllQuestionsAsync(PaginationParams @params)
+        public async Task<PagedList<Question>> GetAllQuestionsAsync(QueryStringParameters queryStringParameters)
         {
-            // return await FindByCondition(question => question.Removed == false)
-            //                 .Skip((@params.Page - 1) * @params.ItemsPerPage)
-            //                 .Take(@params.ItemsPerPage)
-            //                 .ToListAsync();
-            // return await FindAll()
-            //                 .OrderBy(question => question.CreatedDate)
-            //                 .Skip((@params.Page - 1) * @params.ItemsPerPage)
-            //                 .Take(@params.ItemsPerPage)
-            //                 .ToListAsync();
             var items = await FindAll().OrderBy(question => question.CreatedDate).ToListAsync();
-            return PagedList<Question>.ToPagedList(items, @params.PageNumber, @params.PageSize);
+
+            if (!string.IsNullOrWhiteSpace(queryStringParameters.Question))
+            {
+                items = await FindAll()
+                                .Where(question => question.Title.ToLower().Contains(queryStringParameters.Question.Trim().ToLower()))
+                                .Where(question => question.Content.ToLower().Contains(queryStringParameters.Question.Trim().ToLower()))
+                                .OrderBy(question => question.CreatedDate)
+                                .ToListAsync();
+            }
+
+            return PagedList<Question>.ToPagedList(items, queryStringParameters.PageNumber, queryStringParameters.PageSize);
         }
 
         public async Task<Question> GetQuestionByIdAsync(Guid questionId)
@@ -44,7 +45,6 @@ namespace DiscussionService.Repositories
             return await FindByCondition(question => question.Id.Equals(questionId))
                             .Include(_ => _.Answers.Where(answer => answer.Removed == false))
                             .FirstOrDefaultAsync();
-            // return await FindByCondition(question => question.Id.Equals(questionId)).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId)
