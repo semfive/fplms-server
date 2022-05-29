@@ -41,15 +41,30 @@ namespace AuthService.Controllers
                 var token = _jwtHandler.GenerateToken(payload);
 
                 // TODO: send user information to Management and Discussion service
-                using var httpClient = new HttpClient();
-                var userDto = new UserDto
+                using (var httpClient = new HttpClient())
                 {
-                    Email = payload.Email,
-                    Role = payload.Email.Contains("@fpt.edu.vn") ? "Student" : "Lecturer"
-                };
-                var json = JsonConvert.SerializeObject(userDto);
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var result = await httpClient.PostAsync(_config.GetSection("").Value, data);
+                    var userDto = new CreateUserDto
+                    {
+                        Name = payload.Name,
+                        Email = payload.Email,
+                        Picture = payload.Picture
+                    };
+                    var json = JsonConvert.SerializeObject(userDto);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    if (userDto.Email.Contains("@fpt.edu.vn"))
+                    {
+                        Console.WriteLine("\nSend POST request to DiscussionService");
+                        var result = httpClient.PostAsync(_config.GetConnectionString("DiscussionService") + "students", data);
+                        result.Wait();
+                    }
+
+                    if (userDto.Email.Contains("@fe.edu.vn"))
+                    {
+                        Console.WriteLine("\nSend POST request to DiscussionService");
+                        var result = httpClient.PostAsync(_config.GetConnectionString("DiscussionService") + "lecturers", data);
+                        result.Wait();
+                    }
+                }
 
                 return Ok(new AuthResponseDto
                 {
