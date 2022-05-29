@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "SUBJECT")
@@ -22,7 +23,8 @@ public class Subject {
     private String name;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
     private List<Class> classList;
-
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
+    private Set<Project> projectSet;
     public Subject(Integer id) {
         this.id = id;
     }

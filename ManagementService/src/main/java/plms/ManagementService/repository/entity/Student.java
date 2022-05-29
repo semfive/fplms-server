@@ -25,6 +25,8 @@ public class Student {
     private String email;
     @Column
     private String code;
+    @Column(name = "image_url")
+    private String imageUrl;
     @Column(name = "is_disable")
     private Boolean isDisable;
     @ManyToMany(fetch = FetchType.LAZY)
@@ -40,5 +42,12 @@ public class Student {
 
     public Student(Integer id) {
         this.id = id;
+    }
+
+    public Student(String name, String email, String code, String imageUrl) {
+        this.name = name;
+        this.email = email;
+        this.code = code;
+        this.imageUrl = imageUrl;
     }
 }

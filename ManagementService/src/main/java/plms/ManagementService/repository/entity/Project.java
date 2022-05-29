@@ -33,10 +33,7 @@ public class Project {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private Set<Group> groupSet;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "CLASS_id")
-    private Class classEntity;
-
-
+    private Subject subject;
     public Project(Integer id) {
         this.id = id;
     }

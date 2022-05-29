@@ -16,6 +16,8 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Query(nativeQuery = true, value = "SELECT STUDENT_id FROM STUDENT_CLASS WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
     Integer existsInClass(Integer studentId, Integer classId);
 
+    @Query(nativeQuery = true, value = "select SUBJECT_id from `CLASS` where id = ?1 ")
+    Integer findSubjectId(Integer classId);
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "DELETE FROM STUDENT_CLASS WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
