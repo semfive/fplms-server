@@ -15,6 +15,7 @@ import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.ProjectRepository;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Project;
+import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 
@@ -35,7 +36,7 @@ public class ProjectService {
             logger.warn("Get project from class: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-		Set<Project> projectSet = projectRepository.findByClassEntity(new Class(classId));
+		Set<Project> projectSet = projectRepository.findBySubject(new Subject(classRepository.findSubjectId(classId)));
 		Set<ProjectDTO> projectDtoSet = projectSet.stream()
 				.map(projectEntity -> modelMapper.map(projectEntity, ProjectDTO.class)).collect(Collectors.toSet());
 		logger.info("Get project from class success");
