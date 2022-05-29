@@ -23,6 +23,8 @@ public class Lecturer {
     private String name;
     @Column
     private String email;
+    @Column(name = "image_url")
+    private String imageUrl;
     @Column(name = "is_disable")
     private Boolean isDisable;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")

@@ -25,6 +25,8 @@ public class Student {
     private String email;
     @Column
     private String code;
+    @Column(name = "image_url")
+    private String imageUrl;
     @Column(name = "is_disable")
     private Boolean isDisable;
     @ManyToMany(fetch = FetchType.LAZY)
