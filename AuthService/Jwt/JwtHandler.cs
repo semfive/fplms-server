@@ -79,7 +79,7 @@ namespace AuthService.Jwt
             return token;
         }
 
-        public UserDto ValidateToken(string token)
+        public GetUserDto ValidateToken(string token)
         {
             var key = Encoding.UTF8.GetBytes(_jwtSettings.GetSection("securityKey").Value);
             var secret = new SymmetricSecurityKey(key);
@@ -101,7 +101,7 @@ namespace AuthService.Jwt
                 var userEmail = jwtToken.Claims.First(x => x.Type == "Email").Value;
                 var userRole = jwtToken.Claims.First(x => x.Type == "Role").Value;
 
-                return new UserDto
+                return new GetUserDto
                 {
                     Email = userEmail,
                     Role = userRole
