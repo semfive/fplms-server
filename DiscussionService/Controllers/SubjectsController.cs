@@ -1,5 +1,6 @@
 using System.Data;
 using AutoMapper;
+using DiscussionService.ActionFilters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionService.Controllers
 {
+    [ApiController]
+    [Route("api/discussion/subjects")]
     public class SubjectsController : ControllerBase
     {
         private IRepositoryWrapper _repositoryWrapper;
@@ -17,7 +20,28 @@ namespace DiscussionService.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllSubjects()
+        {
+            try
+            {
+                var subjects = await _repositoryWrapper.SubjectRepository.GetAllSubjectsAsync();
+                foreach (var subject in subjects)
+                {
+                    Console.WriteLine(subject.Name);
+                }
+                var result = _mapper.Map<List<GetSubjectDto>>(subjects);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateSubject(CreateSubjectDto createSubjectDto)
         {
             try

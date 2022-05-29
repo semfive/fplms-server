@@ -5,13 +5,17 @@ namespace DiscussionService.Dtos
     public record CreateQuestionDto
     {
         [Required]
+        [StringLength(250)]
+        public string? Title { get; set; }
+
+        [Required]
         [StringLength(1000)]
         public string? Content { get; set; }
 
         [Required]
-        public string? SubjectId { get; set; }
+        public string? SubjectName { get; set; }
 
         [Required]
-        public string? StudentId { get; set; }
+        public Guid StudentId { get; set; }
     }
 }

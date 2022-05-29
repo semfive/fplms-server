@@ -7,30 +7,29 @@ namespace DiscussionService.Models
     {
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "Content is required")]
-        [StringLength(1000, ErrorMessage = "Content cannot be longer than 1000 characters")]
+        [Required]
+        [StringLength(1000)]
         public string? Content { get; set; }
 
-        [Required(ErrorMessage = "CreatedDate is required")]
-        public DateTime CreatedDate { get; set; }
+        [Required]
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        public DateTime? ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; } = DateTime.Now;
 
         [Required]
         public bool Accepted { get; set; }
 
         [Required]
-        public bool Removed { get; set; }
+        public bool Removed { get; set; } = false;
 
         public string? RemovedBy { get; set; }
 
-
         [ForeignKey(nameof(Student))]
         public Guid StudentId { get; set; }
-        public Student? Student { get; set; }
+        public Student Student { get; set; }
 
         [ForeignKey(nameof(Question))]
         public Guid QuestionId { get; set; }
-        public Question? Question { get; set; }
+        public Question Question { get; set; }
     }
 }

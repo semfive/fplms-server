@@ -10,6 +10,7 @@ namespace DiscussionService.Repositories
         private IAnswerRepository _answerRepository;
         private ISubjectRepository _subjectRepository;
         private IStudentRepository _studentRepository;
+        private ILecturerRepository _lecturerRepository;
 
         public RepositoryWrapper(RepositoryContext repositoryContext)
         {
@@ -52,6 +53,19 @@ namespace DiscussionService.Repositories
                 }
 
                 return _studentRepository;
+            }
+        }
+
+        public ILecturerRepository LecturerRepository
+        {
+            get
+            {
+                if (_lecturerRepository == null)
+                {
+                    _lecturerRepository = new LecturerRepository(_repositoryContext);
+                }
+
+                return _lecturerRepository;
             }
         }
 

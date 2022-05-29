@@ -115,6 +115,11 @@ namespace DiscussionService.Migrations
                     b.Property<Guid>("SubjectId")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("StudentId");

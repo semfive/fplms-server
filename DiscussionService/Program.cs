@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using DiscussionService.ActionFilters;
 using DiscussionService.Contracts;
 using DiscussionService.Data;
 using DiscussionService.Repositories;
@@ -20,6 +22,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<RepositoryContext>(options => options.UseMySql(builder.Configuration.GetConnectionString("MySql"), new MySqlServerVersion(new Version())));
 builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();

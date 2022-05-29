@@ -1,4 +1,5 @@
 using System.Text;
+using AuthService.ActionFilters;
 // using System.Web.Http.Cors;
 using AuthService.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,7 +39,7 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 builder.Services.AddScoped<JwtHandler>();
-
+builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

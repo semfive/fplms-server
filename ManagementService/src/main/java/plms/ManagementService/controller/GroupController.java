@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import plms.ManagementService.model.request.CreateGroupRequest;
+import plms.ManagementService.model.response.GroupDetailResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
 import plms.ManagementService.service.GroupService;
@@ -36,7 +37,7 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}")
-    public Response<GroupDTO> getGroupByClassIdAndGroupId(@PathVariable Integer classId,
+    public Response<GroupDetailResponse> getGroupByClassIdAndGroupId(@PathVariable Integer classId,
                                                           @PathVariable Integer groupId) {
         return groupService.getGroupByGroupIdAndClassId(groupId, classId);
     }
@@ -46,7 +47,7 @@ public class GroupController {
                                               @PathVariable Integer classId,
                                               @PathVariable Integer groupId) {
         //get email and role from token
-        Integer studentId = 2;
+        Integer studentId = 4;
         return groupService.addStudentToGroup(classId, groupId, studentId);
 
     }
@@ -69,5 +70,16 @@ public class GroupController {
         //get email and role from token
         //used to check group leader
         return groupService.removeStudentFromGroup(classId, groupId, removeStudentId);
+    }
+    
+    @PutMapping("/{groupId}/changeLeader/{newLeaderId}")
+    public Response<Void> changeGroupLeader(@RequestHeader String token,
+                                                           @PathVariable Integer classId,
+                                                           @PathVariable Integer groupId,
+                                                           @PathVariable Integer newLeaderId) {
+        //get email and role from token
+        //used to check group leader
+    	Integer leaderId = 2;
+        return groupService.changeGroupLeader(groupId, leaderId, newLeaderId);
     }
 }

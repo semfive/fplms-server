@@ -4,12 +4,12 @@ using AuthService.Jwt;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Text;
+using AuthService.ActionFilters;
 
 namespace AuthService.Controllers
 {
     [ApiController]
     [Route("api/auth/accounts")]
-
     public class AccountsController : ControllerBase
     {
         private readonly JwtHandler _jwtHandler;
@@ -21,12 +21,19 @@ namespace AuthService.Controllers
         }
 
         [HttpPost("login")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> Login([FromBody] AuthDto authDto)
         {
             try
             {
                 var payload = await _jwtHandler.VerifyGoogleToken(authDto);
-                if (payload == null || !payload.Email.Contains("@fpt") || !payload.Email.Contains("@fe"))
+
+                if (payload == null)
+                {
+                    return BadRequest("Invalid Authentication.");
+                }
+
+                if (!payload.Email.Contains("@fpt") && !payload.Email.Contains("@fe"))
                 {
                     return BadRequest("Invalid Authentication.");
                 }
@@ -34,15 +41,15 @@ namespace AuthService.Controllers
                 var token = _jwtHandler.GenerateToken(payload);
 
                 // TODO: send user information to Management and Discussion service
-                // using var httpClient = new HttpClient();
-                // var userDto = new UserDto
-                // {
-                //     Email = payload.Email,
-                //     Role = payload.Email.Contains("@fpt.edu.vn") ? "Student" : "Lecturer"
-                // };
-                // var json = JsonConvert.SerializeObject(userDto);
-                // var data = new StringContent(json, Encoding.UTF8, "application/json");
-                // var result = await httpClient.PostAsync(_config.GetSection("").Value, data);
+                using var httpClient = new HttpClient();
+                var userDto = new UserDto
+                {
+                    Email = payload.Email,
+                    Role = payload.Email.Contains("@fpt.edu.vn") ? "Student" : "Lecturer"
+                };
+                var json = JsonConvert.SerializeObject(userDto);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                var result = await httpClient.PostAsync(_config.GetSection("").Value, data);
 
                 return Ok(new AuthResponseDto
                 {
@@ -57,20 +64,13 @@ namespace AuthService.Controllers
         }
 
         [HttpPost("verify")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult VerifyToken([FromHeader] string authorization)
         {
             try
             {
                 if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue))
                 {
-                    // AuthDto authDto = new AuthDto
-                    // {
-                    //     IdToken = headerValue.Parameter,
-                    //     Provider = "GOOGLE"
-                    // };
-
-                    //var payload = await _jwtHandler.VerifyGoogleToken(authDto);
-
                     var payload = _jwtHandler.ValidateToken(headerValue.Parameter);
 
                     if (payload == null)

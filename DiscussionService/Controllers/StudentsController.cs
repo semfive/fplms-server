@@ -1,5 +1,6 @@
 using System.Data;
 using AutoMapper;
+using DiscussionService.ActionFilters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -7,9 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiscussionService.Controllers
 {
-
     [ApiController]
-    [Route("api/students")]
+    [Route("api/discussion/students")]
     public class StudentsController : ControllerBase
     {
 
@@ -27,11 +27,24 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                Console.WriteLine("Try");
                 var students = await _repositoryWrapper.StudentRepository.GetAllStudentsAsync();
-                Console.WriteLine("students");
                 var result = _mapper.Map<List<GetStudentDto>>(students);
-                Console.WriteLine("results");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("{studentId}")]
+        public async Task<IActionResult> GetStudentById([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(studentId);
+                var result = _mapper.Map<GetStudentDto>(student);
 
                 return Ok(result);
             }
@@ -42,6 +55,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateStudent(CreateStudentDto createStudentDto)
         {
             try
@@ -64,6 +78,38 @@ namespace DiscussionService.Controllers
                 return StatusCode(500, "Internal server error");
             }
 
+        }
+
+        [HttpGet("{studentId}/questions")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetStudentQuestions([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsByStudentId(studentId);
+                var result = _mapper.Map<List<GetQuestionDto>>(questions);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("{studentId}/answers")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetStudentAnswers([FromRoute] Guid studentId)
+        {
+            try
+            {
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByStudentId(studentId);
+                var result = _mapper.Map<List<GetAnswerDto>>(answers);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
     }
