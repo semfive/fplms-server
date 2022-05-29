@@ -47,7 +47,7 @@ public class GroupService {
     public Response<Void> createGroupRequest(CreateGroupRequest createGroupRequest) {
         if (createGroupRequest.getGroupQuantity() == null || createGroupRequest.getMemberQuantity() == null) {
             logger.warn("{}{}", "Create group : ", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
         Group group = modelMapper.map(createGroupRequest, Group.class);
         group.setId(null);
@@ -85,7 +85,7 @@ public class GroupService {
     public Response<Void> deleteGroup(Integer groupId, Integer classId) {
         if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("Delete group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         logger.info("Delete group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -95,7 +95,7 @@ public class GroupService {
         Class classEntity = classRepository.findOneById(classId);
         if (classEntity == null) {
             logger.warn("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
                     GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
@@ -117,7 +117,7 @@ public class GroupService {
         if (classRepository.existsInClass(studentId, classId) == null ||
                 groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         if (groupRepository.findGroupByStudentIdAndClassId(studentId, classId) != null) {
             logger.warn("{}{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, groupRepository.findGroupByStudentIdAndClassId(studentId, classId), JOINED_OTHER_GROUP_MESSAGE);
@@ -145,7 +145,7 @@ public class GroupService {
         if (classRepository.existsInClass(studentId, classId) == null ||
                 groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         if (!groupRepository.findGroupByStudentIdAndClassId(studentId, classId).equals(groupId)) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_IN_GROUP_MESSAGE);
@@ -163,7 +163,7 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } else if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
             logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         } else {
             Group group = groupRepository.getGroupById(groupId);
             GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);

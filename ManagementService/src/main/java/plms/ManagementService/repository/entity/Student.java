@@ -43,4 +43,11 @@ public class Student {
     public Student(Integer id) {
         this.id = id;
     }
+
+    public Student(String name, String email, String code, String imageUrl) {
+        this.name = name;
+        this.email = email;
+        this.code = code;
+        this.imageUrl = imageUrl;
+    }
 }

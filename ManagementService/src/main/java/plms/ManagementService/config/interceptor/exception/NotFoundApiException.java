@@ -1,4 +1,4 @@
 package plms.ManagementService.config.interceptor.exception;
 
-public class WrongApiException extends RuntimeException{
+public class NotFoundApiException extends RuntimeException{
 }

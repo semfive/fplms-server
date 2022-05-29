@@ -3,7 +3,6 @@ package plms.ManagementService.config.interceptor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
@@ -11,7 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import plms.ManagementService.config.interceptor.exception.NoAccessRoleException;
-import plms.ManagementService.config.interceptor.exception.WrongApiException;
+import plms.ManagementService.config.interceptor.exception.NoTokenException;
+import plms.ManagementService.config.interceptor.exception.NotFoundApiException;
 import plms.ManagementService.config.interceptor.exception.WrongTokenException;
 import plms.ManagementService.model.dto.EmailVerifyDTO;
 
@@ -33,8 +33,20 @@ public class GatewayInterceptor implements HandlerInterceptor {
         try {
             request.setAttribute("userEmail", verifyRequest(request));//get user email if request check success
             return true;
-        } catch (Exception e) {
-            response.sendError(400, "Wrong token or token time out ");
+        } catch (NoAccessRoleException e) {
+            response.sendError(403, "User do not have role to access this api");
+            return false;
+        }
+        catch (NoTokenException e){
+            response.sendError(401,"User must have token to access");
+            return false;
+        }
+        catch (NotFoundApiException e){
+            response.sendError(404,"Not found api request");
+            return false;
+        }
+        catch (WrongTokenException e){
+            response.sendError(401,"Token is not valid");
             return false;
         }
     }
@@ -70,7 +82,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
         }
         logger.info("Path:{} Role:{} Email:{}", servletPath, accessUserRole, accessUserEmail);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
-        if (apiEntity == null) throw new WrongApiException();
+        if (apiEntity == null) throw new NotFoundApiException();
         verifyRole(apiEntity.getRole(), accessUserRole);
         logger.info("Request validated. Start forward request to controller");
         return accessUserEmail;
