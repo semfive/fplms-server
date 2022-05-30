@@ -56,50 +56,97 @@ namespace AuthService.Jwt
                 audience: _jwtSettings.GetSection("validAudience").Value,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings.GetSection("expiryInMinutes").Value)),
+                // expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: signingCredentials
             );
 
             return tokenOptions;
         }
 
+        // public string GenerateToken(GoogleJsonWebSignature.Payload payload)
+        // {
+        //     var signingCredentials = GetSigningCredentials();
+        //     var claims = GetClaims(payload);
+
+        //     foreach (var claim in claims)
+        //     {
+        //         Console.WriteLine($"{claim.Type}: {claim.Value}");
+        //     }
+
+        //     var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
+        //     var handler = new JwtSecurityTokenHandler();
+        //     var token = handler.WriteToken(tokenOptions);
+
+        //     return token;
+        // }
+
         public string GenerateToken(GoogleJsonWebSignature.Payload payload)
         {
-            var signingCredentials = GetSigningCredentials();
-            var claims = GetClaims(payload);
-
-            foreach (var claim in claims)
+            var tokenHandler = new JwtSecurityTokenHandler();
+            // var key = Encoding.ASCII.GetBytes("FPLMS-Secret-Key");
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Console.WriteLine($"{claim.Type}: {claim.Value}");
-            }
-
-            var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.WriteToken(tokenOptions);
-
-            return token;
+                Subject = new ClaimsIdentity(GetClaims(payload)),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = GetSigningCredentials()
+                // SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
+
+        // public GetUserDto ValidateToken(string token)
+        // {
+        //     var key = Encoding.UTF8.GetBytes(_jwtSettings.GetSection("securityKey").Value);
+        //     var secret = new SymmetricSecurityKey(key);
+
+        //     var tokenHandler = new JwtSecurityTokenHandler();
+        //     try
+        //     {
+        //         tokenHandler.ValidateToken(token, new TokenValidationParameters
+        //         {
+        //             ValidateIssuerSigningKey = true,
+        //             IssuerSigningKey = secret,
+        //             ValidateIssuer = true,
+        //             ValidateAudience = true,
+        //             ClockSkew = TimeSpan.Zero
+        //         }, out SecurityToken validatedToken);
+
+        //         var jwtToken = (JwtSecurityToken)validatedToken;
+
+        //         var userEmail = jwtToken.Claims.First(x => x.Type == "email").Value;
+        //         var userRole = jwtToken.Claims.First(x => x.Type == "role").Value;
+
+        //         return new GetUserDto
+        //         {
+        //             Email = userEmail,
+        //             Role = userRole
+        //         };
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return null;
+        //     }
+        // }
 
         public GetUserDto ValidateToken(string token)
         {
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.GetSection("securityKey").Value);
-            var secret = new SymmetricSecurityKey(key);
-
             var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtSettings.GetSection("securityKey").Value);
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = secret,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-
-                var userEmail = jwtToken.Claims.First(x => x.Type == "Email").Value;
-                var userRole = jwtToken.Claims.First(x => x.Type == "Role").Value;
+                var userEmail = jwtToken.Claims.First(x => x.Type == "email").Value;
+                var userRole = jwtToken.Claims.First(x => x.Type == "role").Value;
 
                 return new GetUserDto
                 {
