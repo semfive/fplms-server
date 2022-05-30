@@ -1,8 +1,9 @@
 using System.Text.Json.Serialization;
-using DiscussionService.ActionFilters;
+using DiscussionService.Filters;
 using DiscussionService.Contracts;
 using DiscussionService.Data;
 using DiscussionService.Repositories;
+using JwtDemoAPI.Middleware;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,7 +42,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseAuthorization();
-
+app.UseMiddleware<JwtMiddleware>();
 app.MapControllers();
 
 app.Run();

@@ -78,7 +78,7 @@ namespace AuthService.Controllers
             }
         }
 
-        [HttpPost("verify")]
+        [HttpGet("verify")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public IActionResult VerifyToken([FromHeader] string authorization)
         {
@@ -86,7 +86,7 @@ namespace AuthService.Controllers
             {
                 if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue))
                 {
-                    var payload = _jwtHandler.ValidateToken(headerValue.Parameter);
+                    var payload = _jwtHandler.ValidateToken(Convert.ToString(headerValue));
 
                     if (payload == null)
                     {
