@@ -23,6 +23,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetAllStudents()
         {
             try
@@ -39,6 +40,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet("{studentId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetStudentById([FromRoute] Guid studentId)
         {
             try
@@ -61,8 +63,12 @@ namespace DiscussionService.Controllers
             try
             {
                 Student student = _mapper.Map<Student>(createStudentDto);
+                var studentExists = await _repositoryWrapper.StudentRepository.GetStudentByEmail(student.Email);
+                if (studentExists != null)
+                {
+                    return Ok();
+                }
                 student.Id = Guid.NewGuid();
-
                 _repositoryWrapper.StudentRepository.Create(student);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();
@@ -81,6 +87,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet("{studentId}/questions")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetStudentQuestions([FromRoute] Guid studentId)
         {
@@ -97,6 +104,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet("{studentId}/answers")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetStudentAnswers([FromRoute] Guid studentId)
         {
