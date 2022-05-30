@@ -25,7 +25,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
     public WebClient.Builder getWebClientBuilder(){
         return WebClient.builder();
     }
-    private static final String VERIFY_URL = "http://fplms-authservice-clusterip/api/auth/accounts/verify";
+    private static final String VERIFY_URL = "http://fplms-authservice-clusterip:7209/api/auth/accounts/verify";
 
 
     @Override

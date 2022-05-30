@@ -31,6 +31,9 @@ public class Lecturer {
     @JsonManagedReference
     private Set<Class> classSet;
 
+    public Lecturer(Integer id) {
+        this.id = id;
+    }
     public Lecturer(String name, String email, String imageUrl) {
         this.name = name;
         this.email = email;

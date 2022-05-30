@@ -31,7 +31,7 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Query(nativeQuery = true, value = "select enroll_key from CLASS where id = ?1")
     public String getClassEnrollKey(Integer classId);
 
-    @Query(nativeQuery = true, value = "select * from CLASS where name like ?1")
+    @Query(nativeQuery = true, value = "select * from CLASS where name like ?1 and is_disable = 0")
     public Set<Class> getClassBySearchStr(String search);
 
 }

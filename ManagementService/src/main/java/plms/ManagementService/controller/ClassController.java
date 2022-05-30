@@ -19,7 +19,7 @@ public class ClassController {
 
     @PostMapping
     public Response<Void> createClass(@RequestBody ClassDTO classDTO) {
-        return classService.createClass(classDTO);
+        return classService.createClass(classDTO,1);
     }
 
     @PutMapping
