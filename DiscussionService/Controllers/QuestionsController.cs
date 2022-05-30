@@ -25,6 +25,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetAllQuestions([FromQuery] QuestionsQueryStringParameters queryStringParameters)
         {
             try
@@ -50,6 +51,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet("{questionId}/answers")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetQuestionAnswers(Guid questionId)
         {
             try
@@ -66,6 +68,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpPost]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionDto createQuestionDto)
         {
@@ -96,6 +99,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpPut("{questionId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateQuestion(Guid questionId, [FromBody] UpdateQuestionDto updateQuestionDto)
         {
@@ -141,6 +145,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpDelete("{questionId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> DeleteQuestion([FromRoute] Guid questionId)
         {
