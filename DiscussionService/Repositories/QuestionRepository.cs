@@ -24,32 +24,50 @@ namespace DiscussionService.Repositories
             Delete(question);
         }
 
-        public async Task<PagedList<Question>> GetAllQuestionsAsync(PaginationParams @params)
+        public async Task<PagedList<Question>> GetAllQuestionsAsync(QuestionsQueryStringParameters queryStringParameters)
         {
-            // return await FindByCondition(question => question.Removed == false)
-            //                 .Skip((@params.Page - 1) * @params.ItemsPerPage)
-            //                 .Take(@params.ItemsPerPage)
-            //                 .ToListAsync();
-            // return await FindAll()
-            //                 .OrderBy(question => question.CreatedDate)
-            //                 .Skip((@params.Page - 1) * @params.ItemsPerPage)
-            //                 .Take(@params.ItemsPerPage)
-            //                 .ToListAsync();
-            var items = await FindAll().OrderBy(question => question.CreatedDate).ToListAsync();
-            return PagedList<Question>.ToPagedList(items, @params.PageNumber, @params.PageSize);
+
+            var items = await FindAll()
+                                   .Include(question => question.Student)
+                                   .Include(question => question.Subject)
+                                   .OrderByDescending(question => question.CreatedDate)
+                                   .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
+                                   .Take(queryStringParameters.PageSize)
+                                   .ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(queryStringParameters.Question))
+            {
+                items = items.Where(question =>
+                                question.Title.ToLower().Contains(queryStringParameters.Question.Trim().ToLower())
+                                || question.Content.ToLower().Contains(queryStringParameters.Question.Trim().ToLower()))
+                                .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryStringParameters.Subject))
+            {
+                items = items.Where(question =>
+                                        question.Subject.Name.Equals(queryStringParameters.Subject))
+                                        .ToList();
+            }
+
+            return PagedList<Question>.ToPagedList(items, queryStringParameters.PageNumber, queryStringParameters.PageSize);
         }
 
         public async Task<Question> GetQuestionByIdAsync(Guid questionId)
         {
             return await FindByCondition(question => question.Id.Equals(questionId))
+                            .Include(question => question.Student)
+                            .Include(question => question.Subject)
                             .Include(_ => _.Answers.Where(answer => answer.Removed == false))
                             .FirstOrDefaultAsync();
-            // return await FindByCondition(question => question.Id.Equals(questionId)).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId)
         {
             return await FindByCondition(question => question.StudentId.Equals(studentId))
+                            .Include(question => question.Subject)
+                            .Include(question => question.Student)
+                            .OrderByDescending(question => question.CreatedDate)
                             .ToListAsync();
         }
 

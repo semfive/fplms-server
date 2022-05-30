@@ -6,7 +6,7 @@ namespace DiscussionService.Contracts
 {
     public interface IQuestionRepository : IRepositoryBase<Question>
     {
-        Task<PagedList<Question>> GetAllQuestionsAsync(PaginationParams @params);
+        Task<PagedList<Question>> GetAllQuestionsAsync(QuestionsQueryStringParameters queryStringParameters);
         Task<Question> GetQuestionByIdAsync(Guid questionId);
         Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId);
         Task<IEnumerable<Question>> GetQuestionsRemovedByLecturerId(Guid lecturerId);

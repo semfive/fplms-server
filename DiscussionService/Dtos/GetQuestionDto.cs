@@ -11,8 +11,9 @@ namespace DiscussionService.Dtos
         public DateTime ModifiedDate { get; set; }
         public bool Removed { get; set; }
         public string? RemovedBy { get; set; }
-        public Guid StudentId { get; set; }
-        public Guid SubjectId { get; set; }
+        // public Guid StudentId { get; set; }
+        public GetStudentDto Student { get; set; }
+        public GetSubjectDto Subject { get; set; }
         public List<GetAnswerDto>? Answers { get; set; }
     }
 }

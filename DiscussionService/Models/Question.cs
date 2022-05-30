@@ -19,7 +19,7 @@ namespace DiscussionService.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; } = DateTime.Now;
 
-        public bool Removed { get; set; }
+        public bool Removed { get; set; } = false;
         public string? RemovedBy { get; set; }
 
         [ForeignKey(nameof(Subject))]

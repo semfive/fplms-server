@@ -23,9 +23,17 @@ public class Lecturer {
     private String name;
     @Column
     private String email;
-    @Column(name = "is_disable")
+    @Column(name = "image_url")
+    private String imageUrl;
+    @Column(name = "is_disable",insertable = false)
     private Boolean isDisable;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
     @JsonManagedReference
     private Set<Class> classSet;
+
+    public Lecturer(String name, String email, String imageUrl) {
+        this.name = name;
+        this.email = email;
+        this.imageUrl = imageUrl;
+    }
 }

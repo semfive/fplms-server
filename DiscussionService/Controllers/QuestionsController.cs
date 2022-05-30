@@ -24,12 +24,11 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllQuestions([FromQuery] PaginationParams @params)
+        public async Task<IActionResult> GetAllQuestions([FromQuery] QuestionsQueryStringParameters queryStringParameters)
         {
             try
             {
-                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(@params);
-
+                var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
                 var metadata = new
                 {
                     questions.TotalCount,
@@ -72,11 +71,10 @@ namespace DiscussionService.Controllers
             try
             {
                 Question question = _mapper.Map<Question>(createQuestionDto);
+                var subject = await _repositoryWrapper.SubjectRepository.GetSubjectByNameAsync(createQuestionDto.SubjectName);
+
                 question.Id = Guid.NewGuid();
-                question.CreatedDate = DateTime.Now;
-                question.ModifiedDate = DateTime.Now;
-                question.Removed = false;
-                question.RemovedBy = null;
+                question.SubjectId = subject.Id;
 
                 _repositoryWrapper.QuestionRepository.CreateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
@@ -95,19 +93,19 @@ namespace DiscussionService.Controllers
         {
             try
             {
+                var subject = await _repositoryWrapper.SubjectRepository.GetSubjectByNameAsync(updateQuestionDto.SubjectName);
                 var newQuestion = _mapper.Map<Question>(updateQuestionDto);
                 var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
 
                 if (question == null)
                 {
-
                     return NotFound();
                 }
 
                 question.Title = newQuestion.Title;
                 question.Content = newQuestion.Content;
                 question.ModifiedDate = DateTime.Now;
-                question.SubjectId = newQuestion.SubjectId;
+                question.SubjectId = subject.Id;
                 _repositoryWrapper.QuestionRepository.UpdateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();

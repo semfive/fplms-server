@@ -32,6 +32,11 @@ namespace DiscussionService.Repositories
             return await FindByCondition(subject => subject.Id.Equals(subjectId)).FirstOrDefaultAsync();
         }
 
+        public async Task<Subject> GetSubjectByNameAsync(string subjectName)
+        {
+            return await FindByCondition(subject => subject.Name.ToLower().Equals(subjectName.Trim().ToLower())).FirstOrDefaultAsync();
+        }
+
         public void UpdateSubject(Subject subject)
         {
             Delete(subject);
