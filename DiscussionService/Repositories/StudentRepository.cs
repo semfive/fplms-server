@@ -33,7 +33,7 @@ namespace DiscussionService.Repositories
             return await FindByCondition(student => student.Id.Equals(studentId)).FirstOrDefaultAsync();
         }
 
-        public async Task<Student> GetStudentIdByEmail(string email)
+        public async Task<Student> GetStudentByEmail(string email)
         {
             return await FindByCondition(student => student.Email.Equals(email)).FirstOrDefaultAsync();
         }
