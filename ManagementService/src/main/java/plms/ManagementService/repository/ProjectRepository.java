@@ -13,7 +13,7 @@ import plms.ManagementService.repository.entity.Subject;
 public interface ProjectRepository extends JpaRepository<Project,Integer> {
 	Set<Project> findBySubject(Subject subject);
 	
-    @Query(nativeQuery = true, value = "select id from `PROJECT` where id = ?1 and CLASS_id = ?2")
+    @Query(nativeQuery = true, value = "select id from PROJECT where id = ?1 and SUBJECT_id = (select SUBJECT_id from CLASS where id = ?2)")
     Integer isProjectExistsInClass(Integer projectId, Integer classId);
 
 
