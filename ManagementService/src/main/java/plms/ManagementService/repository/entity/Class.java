@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "CLASS")
+@Table(name = "`CLASS`")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,5 +43,12 @@ public class Class {
     public Class(Integer id) {
         this.id = id;
     }
-    
+
+    public Class(String name, String semester, String enrollKey, Subject subject, Lecturer lecturer) {
+        this.name = name;
+        this.semester = semester;
+        this.enrollKey = enrollKey;
+        this.subject = subject;
+        this.lecturer = lecturer;
+    }
 }

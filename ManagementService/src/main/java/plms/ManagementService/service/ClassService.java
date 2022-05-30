@@ -47,10 +47,11 @@ public class ClassService {
     private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: ";
     private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
 
-    public Response<Void> createClass(ClassDTO classDTO) {
+    public Response<Void> createClass(ClassDTO classDTO,Integer lecturerId) {
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
+        classEntity.setLecturer(new Lecturer(lecturerId));
         classRepository.save(classEntity);
         logger.info("Create class success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
