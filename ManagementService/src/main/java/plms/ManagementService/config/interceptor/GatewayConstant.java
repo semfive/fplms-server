@@ -17,6 +17,21 @@ public class GatewayConstant {
 
     public static void addApiEntities() {
         apiEntities.add(new ApiEntity("createClass","/api/management/classes","POST",ROLE_LECTURE));
+        
+        //student role
+        apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId}/enroll", "POST", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId}/unenroll", "DELETE", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getClassList", "/api/management/classes/student", "GET", ROLE_STUDENT));
+        
+        apiEntities.add(new ApiEntity("getGroupDetail", "/api/management/classes/{classId}/groups/{groupId}", "GET", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("joinGroup", "/api/management/classes/{classId}/groups/{groupId}/join", "POST", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("leaveGroup", "/api/management/classes/{classId}/groups/{groupId}/leave", "DELETE", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("removeFromGroupByLeader", "/api/management/classes/{classId}/groups/{groupId}/remove/{removeStudentId}", "DELETE", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("changeGroupLeader", "/api/management/classes/{classId}/groups/{groupId}/changeLeader/{newLeaderId}", "PUT", ROLE_STUDENT));
+
+        apiEntities.add(new ApiEntity("getProjects", "/api/management/classes/{classId}/groups/{groupId}/projects", "GET", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("chooseProject", "/api/management/classes/{classId}/groups/{groupId}/projects/{projectId}", "PUT", ROLE_STUDENT));
+
     }
 
     private static String combineRoles(String... roles){
