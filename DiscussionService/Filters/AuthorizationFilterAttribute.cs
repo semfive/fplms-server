@@ -62,10 +62,15 @@ public class AuthorizationFilterAttribute : Attribute, IAuthorizationFilter
     //         context.HttpContext.Request.Headers.Add("X-User", contents);
     //     }
     // }
+
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        var UserId = context.HttpContext.Items["User"];
-        if (UserId == null)
+        string userEmail = context.HttpContext.Items["userEmail"] as string;
+        string userRole = context.HttpContext.Items["userRole"] as string;
+
+        // var userRole = user.GetType().GetProperty("role").GetValue(user, null) as string;
+        // string userRole = context.HttpContext.Items["user"].GetType().GetProperty("role").GetValue(context.HttpContext.Items["user"], null) as string;
+        if (userEmail == null || userRole == null)
         {
             // not logged in
             context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };

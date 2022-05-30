@@ -1,13 +1,12 @@
+using DiscussionService.Dtos;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-// using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-// using JwtDemoAPI.Helpers;
 
 namespace JwtDemoAPI.Middleware
 {
@@ -25,7 +24,6 @@ namespace JwtDemoAPI.Middleware
         public async Task Invoke(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            Console.WriteLine(token);
             if (token != null)
             {
                 await attachAccountToContext(context, token);
@@ -44,10 +42,16 @@ namespace JwtDemoAPI.Middleware
                     var response = await httpClient.GetAsync(_configuration.GetConnectionString("AuthService"));
                     if (response.IsSuccessStatusCode)
                     {
-                        var contents = await response.Content.ReadAsStringAsync();
-                        var deserialized = JsonConvert.DeserializeObject(contents);
-                        Console.WriteLine("GOT THE CONTENTS " + deserialized);
-                        context.Items["User"] = deserialized;
+                        var contents = await response.Content.ReadFromJsonAsync<GetVerifiedUserDto>();
+                        // var contents = await response.Content.ReadAsStringAsync();
+                        // var deserialized = JsonConvert.DeserializeObject(contents);
+                        // string email = deserialized.GetType().GetProperty("email").GetValue(deserialized, null) as string;
+                        // string role = deserialized.GetType().GetProperty("role").GetValue(deserialized, null) as string;
+                        // context.Items["email"] = email;
+                        // context.Items["role"] = role;
+                        // if (deserialized)
+                        context.Items["userEmail"] = contents.Email;
+                        context.Items["userRole"] = contents.Role;
                     }
                 }
             }
