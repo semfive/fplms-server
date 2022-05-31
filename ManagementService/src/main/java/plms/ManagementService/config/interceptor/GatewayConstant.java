@@ -32,8 +32,8 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("getProjects", "/api/management/classes/{classId}/groups/{groupId}/projects", "GET", ROLE_STUDENT));
         apiEntities.add(new ApiEntity("chooseProject", "/api/management/classes/{classId}/groups/{groupId}/projects/{projectId}", "PUT", ROLE_STUDENT));
 
-        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/classes/{classId}/groups/{groupId}/cycle-report", "GET", ROLE_STUDENT));
-
+        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/classes/{classId}/groups/{groupId}/cycle-reports", "GET", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("addCycleReport", "/api/management/classes/{classId}/groups/{groupId}/cycle-reports", "POST", ROLE_STUDENT));
     }
 
     private static String combineRoles(String... roles){
