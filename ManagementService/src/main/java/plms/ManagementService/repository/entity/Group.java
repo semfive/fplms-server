@@ -37,6 +37,9 @@ public class Group {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_id")
     private Project project;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    @JsonManagedReference
+    private Set<CycleReport> cycleReportSet;
 
     public Group(Integer id) {
         this.id = id;

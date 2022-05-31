@@ -10,8 +10,8 @@ public class GatewayConstant {
     public static final String ROLE_STUDENT = "STUDENT";
     public static final String ROLE_LECTURE = "LECTURE";
      static final String ROLE_SPLIT_STRING = "&";
-    public static final String EMAIL_TEST = "t@gmail.com";
-    public static final String ROLE_TEST = ROLE_LECTURE;
+    public static final String EMAIL_TEST = "stu1@gmail.com";
+    public static final String ROLE_TEST = ROLE_STUDENT;
     private GatewayConstant() {
     }
 
@@ -31,6 +31,8 @@ public class GatewayConstant {
 
         apiEntities.add(new ApiEntity("getProjects", "/api/management/classes/{classId}/groups/{groupId}/projects", "GET", ROLE_STUDENT));
         apiEntities.add(new ApiEntity("chooseProject", "/api/management/classes/{classId}/groups/{groupId}/projects/{projectId}", "PUT", ROLE_STUDENT));
+
+        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/classes/{classId}/groups/{groupId}/cycle-report", "GET", ROLE_STUDENT));
 
     }
 

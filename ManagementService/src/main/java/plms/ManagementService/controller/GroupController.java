@@ -47,7 +47,7 @@ public class GroupController {
                                               @PathVariable Integer classId,
                                               @PathVariable Integer groupId) {
         //get email and role from token
-        Integer studentId = 4;
+        Integer studentId = 2;
         return groupService.addStudentToGroup(classId, groupId, studentId);
 
     }
@@ -57,7 +57,7 @@ public class GroupController {
                                                    @PathVariable Integer classId,
                                                    @PathVariable Integer groupId) {
         //get email and role from token
-        Integer studentId = 1;
+        Integer studentId = 4;
         return groupService.removeStudentFromGroup(classId, groupId, studentId);
 
     }
@@ -79,7 +79,7 @@ public class GroupController {
                                                            @PathVariable Integer newLeaderId) {
         //get email and role from token
         //used to check group leader
-    	Integer leaderId = 2;
+    	Integer leaderId = 5;
         return groupService.changeGroupLeader(groupId, leaderId, newLeaderId);
     }
 }
