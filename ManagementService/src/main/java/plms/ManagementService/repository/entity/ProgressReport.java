@@ -38,4 +38,8 @@ public class ProgressReport {
 	@JoinColumn(name = "GROUP_id")
 	Group group;
 	
+	public ProgressReport(int id) {
+		this.id = id;
+	}
+	
 }
