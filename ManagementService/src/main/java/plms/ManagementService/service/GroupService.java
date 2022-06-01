@@ -179,7 +179,6 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         } else {
             Group group = groupRepository.findOneById(groupId);
-            System.out.println("Group id: " + group.getId());
             GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
             groupDetailResponse.setStudentDtoSet(group.getStudentGroupSet().stream()
             		.map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
@@ -198,7 +197,7 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);    	
         }
     	if (studentGroupRepository.isStudentExistInGroup(groupId, newLeaderId) == null ||
-    			studentGroupRepository.findLeaderInGroup(groupId) != leaderId) {
+    			leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);    	
     	}
@@ -219,7 +218,7 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
     	}
     	groupRepository.updateProjectinGroup(groupId, projectId);
-    	logger.warn("Choose project in group: {}", ServiceMessage.SUCCESS_MESSAGE);
+    	logger.warn("Choose project in group success.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 

@@ -1,4 +1,4 @@
-package plms.ManagementService.model.dto;
+package plms.ManagementService.model.request;
 
 import java.sql.Timestamp;
 
@@ -13,12 +13,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CycleReportDTO {
-	private Integer id;
+public class CreateCycleReportRequest {
 	private String content;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 	private Timestamp reportTime;
-	private String feedback;
 	private String resourceLink;
-	private Integer groupId;
 }

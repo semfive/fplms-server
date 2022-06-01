@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
+import plms.ManagementService.model.request.CreateCycleReportRequest;
+import plms.ManagementService.model.request.CreateProgressReportRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.service.ReportService;
 
@@ -30,8 +32,8 @@ public class ReportController {
 	
 	@PostMapping("/cycle-reports")
 	public Response<Void> addCycleReport(@PathVariable Integer groupId,
-			@RequestBody CycleReportDTO cycleReportDto) {
-		return reportService.addCycleReport(cycleReportDto, groupId, 1);
+			@RequestBody CreateCycleReportRequest createCycleReportRequest) {
+		return reportService.addCycleReport(createCycleReportRequest, groupId, 1);
 	}
 	
 	@DeleteMapping("/cycle-reports/{reportId}")
@@ -48,8 +50,8 @@ public class ReportController {
 	
 	@PostMapping("/progress-reports")
 	public Response<Void> addProgressReport(@PathVariable Integer groupId,
-								@RequestBody ProgressReportDTO progressReportDto) {
-		return reportService.addProgressReport(progressReportDto, groupId, 5);
+								@RequestBody CreateProgressReportRequest createProgressReportRequest) {
+		return reportService.addProgressReport(createProgressReportRequest, groupId, 5);
 	}
 	
 	@DeleteMapping("/progress-reports/{reportId}")
