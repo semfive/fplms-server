@@ -40,6 +40,8 @@ public class Group {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
     @JsonManagedReference
     private Set<CycleReport> cycleReportSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    private Set<ProgressReport> progressReportSet;
 
     public Group(Integer id) {
         this.id = id;
