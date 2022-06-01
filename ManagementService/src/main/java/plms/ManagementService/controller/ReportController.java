@@ -3,6 +3,7 @@ package plms.ManagementService.controller;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,12 @@ public class ReportController {
 	public Response<Void> addCycleReport(@PathVariable Integer groupId,
 			@RequestBody CycleReportDTO cycleReportDto) {
 		return reportService.addCycleReport(cycleReportDto, groupId, 1);
+	}
+	
+	@DeleteMapping("/{reportId}")
+	public Response<Void> deleteCycleReport(@PathVariable Integer groupId,
+				@PathVariable Integer reportId) {
+		return reportService.deleteCycleReport(groupId, reportId, 1);
 	}
 
 }

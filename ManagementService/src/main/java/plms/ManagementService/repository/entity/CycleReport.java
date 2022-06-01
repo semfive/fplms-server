@@ -41,6 +41,10 @@ public class CycleReport {
 	@JoinColumn(name = "GROUP_id")
 	private Group group;
 	
+	public CycleReport(Integer id) {
+		this.id = id;
+	}
+	
 	public CycleReport(String content, Timestamp reportTime, String resourceLink, Group group) {
 		this.content = content;
 		this.reportTime = reportTime;

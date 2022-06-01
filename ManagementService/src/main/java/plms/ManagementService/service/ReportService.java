@@ -76,5 +76,24 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
+	public Response<Void> deleteCycleReport(Integer groupId, Integer reportId, Integer leaderId) {
+		if (reportId == null || groupId == null || leaderId == null || !groupRepository.existsById(groupId)
+				 || !studentRepository.existsById(leaderId) || !cycleReportRepository.existsById(reportId)) {
+            logger.warn("Delete cycle report: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+		}
+		if (!leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
+            logger.warn("Delete cycle report: {}", "Not a leader");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Not a leader");
+		}
+		if (cycleReportRepository.existsByIdAndGroupId(groupId, reportId) == null) {
+			logger.warn("Delete cycle report: {}", "Report is not belong to this group.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Report is not belong to this group.");
+		}
+		cycleReportRepository.delete(new CycleReport(reportId));
+		logger.info("Delete cycle report success.");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+	}
+	
 	
 }

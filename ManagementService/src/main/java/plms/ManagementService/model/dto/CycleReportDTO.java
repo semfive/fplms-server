@@ -18,6 +18,7 @@ public class CycleReportDTO {
 	private String content;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 	private Timestamp reportTime;
+	private String feedback;
 	private String resourceLink;
 	private Integer groupId;
 	
