@@ -10,13 +10,30 @@ public class GatewayConstant {
     public static final String ROLE_STUDENT = "STUDENT";
     public static final String ROLE_LECTURE = "LECTURE";
      static final String ROLE_SPLIT_STRING = "&";
-    public static final String EMAIL_TEST = "t@gmail.com";
-    public static final String ROLE_TEST = ROLE_LECTURE;
+    public static final String EMAIL_TEST = "stu1@gmail.com";
+    public static final String ROLE_TEST = ROLE_STUDENT;
     private GatewayConstant() {
     }
 
     public static void addApiEntities() {
         apiEntities.add(new ApiEntity("createClass","/api/management/classes","POST",ROLE_LECTURE));
+        
+        //student role
+        apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId}/enroll", "POST", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId}/unenroll", "DELETE", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getClassList", "/api/management/classes/student", "GET", ROLE_STUDENT));
+        
+        apiEntities.add(new ApiEntity("getGroupDetail", "/api/management/classes/{classId}/groups/{groupId}", "GET", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("joinGroup", "/api/management/classes/{classId}/groups/{groupId}/join", "POST", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("leaveGroup", "/api/management/classes/{classId}/groups/{groupId}/leave", "DELETE", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("removeFromGroupByLeader", "/api/management/classes/{classId}/groups/{groupId}/remove/{removeStudentId}", "DELETE", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("changeGroupLeader", "/api/management/classes/{classId}/groups/{groupId}/changeLeader/{newLeaderId}", "PUT", ROLE_STUDENT));
+
+        apiEntities.add(new ApiEntity("getProjects", "/api/management/classes/{classId}/groups/{groupId}/projects", "GET", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("chooseProject", "/api/management/classes/{classId}/groups/{groupId}/projects/{projectId}", "PUT", ROLE_STUDENT));
+
+        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/classes/{classId}/groups/{groupId}/cycle-reports", "GET", ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("addCycleReport", "/api/management/classes/{classId}/groups/{groupId}/cycle-reports", "POST", ROLE_STUDENT));
     }
 
     private static String combineRoles(String... roles){

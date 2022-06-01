@@ -28,7 +28,7 @@ public class ProjectService {
 	@Autowired
 	ClassRepository classRepository;
 	
-	private static final Logger logger = LogManager.getLogger(ClassService.class);
+	private static final Logger logger = LogManager.getLogger(ProjectService.class);
 
 	
 	public Response<Set<ProjectDTO>> getProjectFromClass(Integer classId) {

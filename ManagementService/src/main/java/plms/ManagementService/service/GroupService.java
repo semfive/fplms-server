@@ -170,7 +170,8 @@ public class GroupService {
     }
 
     public Response<GroupDetailResponse> getGroupByGroupIdAndClassId(Integer groupId, Integer classId) {
-        if (classId == null || groupId == null) {
+        if (classId == null || groupId == null || !groupRepository.existsById(groupId) ||
+        		!classRepository.existsById(classId)) {
             logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } else if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
@@ -178,12 +179,14 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         } else {
             Group group = groupRepository.findOneById(groupId);
+            System.out.println("Group id: " + group.getId());
             GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
             groupDetailResponse.setStudentDtoSet(group.getStudentGroupSet().stream()
             		.map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
             		.collect(Collectors.toSet()));
             groupDetailResponse.setLeaderId(studentGroupRepository.findLeaderInGroup(groupId));
-            groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+            if (group.getProject() != null)
+            	groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
             logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponse);
         }
@@ -202,7 +205,7 @@ public class GroupService {
     	studentGroupRepository.updateGroupLeader(groupId, leaderId, 0);  	 //remove old leader
     	studentGroupRepository.updateGroupLeader(groupId, newLeaderId, 1);   //add new leader
     	logger.info("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.SUCCESS_MESSAGE);    
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);    
     }
     
     public Response<Void> chooseProjectInGroup(Integer classId, Integer groupId, Integer projectId) {
