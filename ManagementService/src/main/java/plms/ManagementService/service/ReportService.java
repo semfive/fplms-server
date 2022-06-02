@@ -1,5 +1,6 @@
 package plms.ManagementService.service;
 
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,8 @@ public class ReportService {
 	private static final String NOT_A_LEADER = "Not a leader.";
 	private static final String DELETE_CYCLE_REPORT = "Delete cycle report: ";
 	
-	public Response<Set<CycleReportDTO>> getCycleReportInGroup(Integer classId, Integer groupId) {
+	public Response<Set<CycleReportDTO>> getCycleReportInGroup(Integer classId, Integer groupId, 
+			Timestamp startDate, Timestamp endDate) {
 		if (classId == null || groupId == null || !classRepository.existsById(classId) ||
 				!groupRepository.existsById(groupId)) {
             logger.warn("Get cycle report in group: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -58,7 +60,13 @@ public class ReportService {
 			logger.warn("Get cycle report in group: {}", "Group is not exist in class.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
 		}
-		Set<CycleReport> cycleReportSet = cycleReportRepository.findByGroup(new Group(groupId));
+		Set<CycleReport> cycleReportSet;
+		if (startDate == null || endDate == null) {
+			cycleReportSet = cycleReportRepository.findByGroup(new Group(groupId));
+		} else {
+			cycleReportSet = cycleReportRepository.findByGroupIdAndTimeFilter(groupId, startDate, endDate);
+		}
+		
 		Set<CycleReportDTO> cycleReportDtoSet = cycleReportSet.stream().map(cycleReportEntity -> {
 			CycleReportDTO dto = modelMapper.map(cycleReportEntity, CycleReportDTO.class);
 			dto.setGroupId(cycleReportEntity.getGroup().getId());
@@ -105,7 +113,8 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
-	public Response<Set<ProgressReportDTO>> getProgressReportInGroup(Integer classId, Integer groupId) {
+	public Response<Set<ProgressReportDTO>> getProgressReportInGroup(Integer classId, Integer groupId,
+			Timestamp startDate, Timestamp endDate) {
 		if (classId == null || groupId == null || !classRepository.existsById(classId) ||
 				!groupRepository.existsById(groupId)) {
             logger.warn("Get progress report in group: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -115,7 +124,12 @@ public class ReportService {
 			logger.warn("Get progress report in group: {}", "Group is not exist in class.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
 		}
-		Set<ProgressReport> progressReportSet = progressReportRepository.findByGroup(new Group(groupId));
+		Set<ProgressReport> progressReportSet;
+		if (startDate == null || endDate == null) {
+			progressReportSet = progressReportRepository.findByGroup(new Group(groupId));
+		} else {
+			progressReportSet = progressReportRepository.findByGroupIdAndTimeFilter(groupId, startDate, endDate);
+		}
 		Set<ProgressReportDTO> progressReportDtoSet = progressReportSet.stream().map(progressRepotEntity -> {
 			ProgressReportDTO dto = modelMapper.map(progressRepotEntity, ProgressReportDTO.class);
 			dto.setGroupId(progressRepotEntity.getGroup().getId());

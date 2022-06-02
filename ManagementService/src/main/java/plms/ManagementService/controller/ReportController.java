@@ -1,5 +1,6 @@
 package plms.ManagementService.controller;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
@@ -26,8 +30,12 @@ public class ReportController {
 	
 	@GetMapping("/cycle-reports")
 	public Response<Set<CycleReportDTO>> getCycleReportFromGroup(@PathVariable Integer classId,
-											@PathVariable Integer groupId) {
-		return reportService.getCycleReportInGroup(classId, groupId);
+			@PathVariable Integer groupId,
+			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
+			@RequestParam(required = false, name = "startDate") Timestamp startDate,
+			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
+			@RequestParam(required = false, name = "endDate") Timestamp endDate) {
+		return reportService.getCycleReportInGroup(classId, groupId, startDate, endDate);
 	}
 	
 	@PostMapping("/cycle-reports")
@@ -44,8 +52,12 @@ public class ReportController {
 	
 	@GetMapping("/progress-reports")
 	public Response<Set<ProgressReportDTO>> getProgressReportFromGroup(@PathVariable Integer classId,
-											@PathVariable Integer groupId) {
-		return reportService.getProgressReportInGroup(classId, groupId);
+			@PathVariable Integer groupId,
+			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
+			@RequestParam(required = false, name = "startDate") Timestamp startDate,
+			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
+			@RequestParam(required = false, name = "endDate") Timestamp endDate) {
+		return reportService.getProgressReportInGroup(classId, groupId, startDate, endDate);
 	}
 	
 	@PostMapping("/progress-reports")
