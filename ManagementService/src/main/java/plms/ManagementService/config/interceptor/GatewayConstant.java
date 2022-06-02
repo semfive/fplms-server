@@ -44,6 +44,8 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("getProgressReport", "/api/management/classes/{classId}/groups/{groupId}/progress-reports", GET_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("addProgressReport", "/api/management/classes/{classId}/groups/{groupId}/progress-reports", POST_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("deleteProgressReport", "/api/management/classes/{classId}/groups/{groupId}/progress-reports/{reportId}", DELETE_METHOD, ROLE_STUDENT));
+        
+        apiEntities.add(new ApiEntity("getMeeting", "/api/management/classes/{classId}/groups/{groupId}/meetings", GET_METHOD, ROLE_STUDENT));
 
     }
 

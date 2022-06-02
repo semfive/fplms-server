@@ -1,6 +1,5 @@
 package plms.ManagementService.repository.entity;
 
-
 import java.sql.Timestamp;
 
 import javax.persistence.Access;
@@ -19,30 +18,30 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "MEETING")
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Table(name = "PROGRESS_REPORT")
-public class ProgressReport {
+public class Meeting {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
 	@Access(AccessType.PROPERTY)
 	private Integer id;
 	@Column
-	private String content;
-	@Column(name = "report_time")
-	private Timestamp reportTime;
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "STUDENT_id")
-	Student student;
+	private String title;
+	@Column
+	private String link;
+	@Column
+	private String feedback;
+	@Column(name = "schedule_time")
+	private Timestamp scheduleTime;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "GROUP_id")
-	Group group;
-	
-	public ProgressReport(int id) {
-		this.id = id;
-	}
+	private Group group;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "LECTURER_id")
+	private Lecturer lecturer;
 	
 }

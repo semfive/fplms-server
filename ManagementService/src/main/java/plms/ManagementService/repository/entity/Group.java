@@ -42,6 +42,8 @@ public class Group {
     private Set<CycleReport> cycleReportSet;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
     private Set<ProgressReport> progressReportSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    private Set<Meeting> meetingSet;
 
     public Group(Integer id) {
         this.id = id;
