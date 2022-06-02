@@ -39,6 +39,8 @@ public class Student {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
     @JsonBackReference
     private Set<StudentGroup> studentGroupSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
+    private Set<ProgressReport> progressReportSet;
 
     public Student(Integer id) {
         this.id = id;

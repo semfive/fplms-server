@@ -1,9 +1,8 @@
 package plms.ManagementService.repository.entity;
 
+
 import java.sql.Timestamp;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,39 +17,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "CYCLE_REPORT")
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class CycleReport {
+@Entity
+@Table(name = "PROGRESS_REPORT")
+public class ProgressReport {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
-	@Access(AccessType.PROPERTY)
 	private Integer id;
 	@Column
 	private String content;
 	@Column(name = "report_time")
 	private Timestamp reportTime;
-	@Column
-	private String feedback;
-	@Column(name = "resource_link")
-	private String resourceLink;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "STUDENT_id")
+	Student student;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "GROUP_id")
-	private Group group;
+	Group group;
 	
-	public CycleReport(Integer id) {
+	public ProgressReport(int id) {
 		this.id = id;
 	}
-	
-	public CycleReport(String content, Timestamp reportTime, String resourceLink, Group group) {
-		this.content = content;
-		this.reportTime = reportTime;
-		this.resourceLink = resourceLink;
-		this.group = group;
-	}
-	
 	
 }
