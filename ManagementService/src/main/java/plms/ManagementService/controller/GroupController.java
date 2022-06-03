@@ -43,7 +43,7 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/join")
-    public Response<Void> addStudentToGroup(@RequestHeader String token,
+    public Response<Void> addStudentToGroup(
                                               @PathVariable Integer classId,
                                               @PathVariable Integer groupId) {
         //get email and role from token
@@ -53,7 +53,7 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}/leave")
-    public Response<Void> removeStudentFromGroup(@RequestHeader String token,
+    public Response<Void> removeStudentFromGroup(
                                                    @PathVariable Integer classId,
                                                    @PathVariable Integer groupId) {
         //get email and role from token
@@ -63,7 +63,7 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}/remove/{removeStudentId}")
-    public Response<Void> removeStudentFromGroupByLeader(@RequestHeader String token,
+    public Response<Void> removeStudentFromGroupByLeader(
                                                            @PathVariable Integer classId,
                                                            @PathVariable Integer groupId,
                                                            @PathVariable Integer removeStudentId) {
@@ -73,7 +73,7 @@ public class GroupController {
     }
     
     @PutMapping("/{groupId}/changeLeader/{newLeaderId}")
-    public Response<Void> changeGroupLeader(@RequestHeader String token,
+    public Response<Void> changeGroupLeader(
                                                            @PathVariable Integer classId,
                                                            @PathVariable Integer groupId,
                                                            @PathVariable Integer newLeaderId) {

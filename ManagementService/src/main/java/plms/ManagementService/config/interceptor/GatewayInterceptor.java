@@ -73,6 +73,12 @@ public class GatewayInterceptor implements HandlerInterceptor {
             //throw new NoTokenException();
             accessUserEmail = GatewayConstant.EMAIL_TEST;
             accessUserRole = GatewayConstant.ROLE_TEST;
+            logger.info("Path:{} Role:{} Email:{}", servletPath, accessUserRole, accessUserEmail);
+            ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
+            if (apiEntity == null) return  accessUserEmail;
+            verifyRole(apiEntity.getRole(), accessUserRole);
+            logger.info("Request validated. Start forward request to controller");
+            return accessUserEmail;
         } else {
             EmailVerifyDTO emailVerifyDTO = getEmailVerifiedEntity(accessToken);
             if (emailVerifyDTO.getEmail() == null)
@@ -97,6 +103,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
                 return apiEntity;
             }
         }
+        logger.warn("Not found api");
         return null;
     }
 
