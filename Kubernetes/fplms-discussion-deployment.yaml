@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fplms-discussion-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fplms-discussionservice
+  template:
+    metadata:
+      labels:
+        app: fplms-discussionservice
+    spec:
+      containers:
+        - name: fplms-discussionservice
+          image: quachhengtony/fplms-discussionservice:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-discussionservice-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: fplms-discussionservice
+  ports:
+    - name: fplms-discussionservice
+      protocol: TCP
+      port: 7218
+      targetPort: 7218
