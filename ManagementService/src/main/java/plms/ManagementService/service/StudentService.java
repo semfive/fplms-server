@@ -9,7 +9,9 @@ import org.modelmapper.ModelMapper;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.StudentDTO;
 import plms.ManagementService.service.constant.ServiceStatusCode;
+import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
+import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.service.constant.ServiceMessage;
 
 @Service
@@ -18,6 +20,8 @@ public class StudentService {
     private static final String SUCCESS_MESSAGE = "Success";
     @Autowired
     StudentRepository studentRepository;
+    @Autowired
+    StudentGroupRepository studentGroupRepository;
     @Autowired
     ModelMapper modelMapper;
     private static final Logger logger = LogManager.getLogger(StudentService.class);
@@ -31,5 +35,24 @@ public class StudentService {
         }
         logger.info("{}{}", GET_STUDENT_BY_ID_MESSAGE, SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, SUCCESS_MESSAGE, studentDTO);
+    }
+    
+    public Integer getStudentIdByEmail(String email) {
+    	Student student = studentRepository.findOneByEmail(email);
+    	if (student == null) {
+    		return null;
+    	}
+    	return student.getId();
+    }
+    
+    public Integer getLeaderIdByEmail(String email, Integer groupId) {
+    	Student student = studentRepository.findOneByEmail(email);
+    	if (student == null) {
+    		return null;
+    	}
+    	if (!student.getId().equals(studentGroupRepository.findLeaderInGroup(groupId))) {
+    		return null;
+    	}
+    	return student.getId();
     }
 }

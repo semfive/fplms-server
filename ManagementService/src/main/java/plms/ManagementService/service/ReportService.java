@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
@@ -77,6 +78,7 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, cycleReportDtoSet);
 	}
 	
+	@Transactional
 	public Response<Void> addCycleReport(CreateCycleReportRequest reportRequest, Integer groupId, Integer leaderId) {
 		if (reportRequest == null || groupId == null || leaderId == null ||
 				!groupRepository.existsById(groupId) || !studentRepository.existsById(leaderId)) {
@@ -94,6 +96,7 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
+	@Transactional
 	public Response<Void> deleteCycleReport(Integer groupId, Integer reportId, Integer leaderId) {
 		if (reportId == null || groupId == null || leaderId == null || !groupRepository.existsById(groupId)
 				 || !studentRepository.existsById(leaderId) || !cycleReportRepository.existsById(reportId)) {
@@ -141,6 +144,7 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, progressReportDtoSet);
 	}
 
+	@Transactional
 	public Response<Void> addProgressReport(CreateProgressReportRequest reportRequest, Integer groupId, Integer studentId) {
 		if (reportRequest == null || groupId == null || studentId == null ||
 				!groupRepository.existsById(groupId) || !studentRepository.existsById(studentId)) {
@@ -158,7 +162,8 @@ public class ReportService {
 		logger.info("Add progress report success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
-
+	
+	@Transactional
 	public Response<Void> deleteProgressReport(Integer groupId, Integer reportId, Integer studentId) {
 		if (reportId == null || groupId == null || studentId == null || !groupRepository.existsById(groupId)
 				 || !studentRepository.existsById(studentId) || !progressReportRepository.existsById(reportId)) {

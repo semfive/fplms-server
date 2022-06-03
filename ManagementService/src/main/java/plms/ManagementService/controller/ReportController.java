@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,12 +22,15 @@ import plms.ManagementService.model.request.CreateCycleReportRequest;
 import plms.ManagementService.model.request.CreateProgressReportRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.service.ReportService;
+import plms.ManagementService.service.StudentService;
 
 @RestController
 @RequestMapping("/api/management/classes/{classId}/groups/{groupId}")
 public class ReportController {
 	@Autowired
 	ReportService reportService;
+	@Autowired
+    StudentService studentService;
 	
 	@GetMapping("/cycle-reports")
 	public Response<Set<CycleReportDTO>> getCycleReportFromGroup(@PathVariable Integer classId,
@@ -39,15 +43,18 @@ public class ReportController {
 	}
 	
 	@PostMapping("/cycle-reports")
-	public Response<Void> addCycleReport(@PathVariable Integer groupId,
+	public Response<Void> addCycleReport(@RequestAttribute(name = "userEmail") String email,
+			@PathVariable Integer groupId,
 			@RequestBody CreateCycleReportRequest createCycleReportRequest) {
-		return reportService.addCycleReport(createCycleReportRequest, groupId, 1);
+		Integer studentId = studentService.getStudentIdByEmail(email);
+		return reportService.addCycleReport(createCycleReportRequest, groupId, studentId);
 	}
 	
 	@DeleteMapping("/cycle-reports/{reportId}")
-	public Response<Void> deleteCycleReport(@PathVariable Integer groupId,
-				@PathVariable Integer reportId) {
-		return reportService.deleteCycleReport(groupId, reportId, 1);
+	public Response<Void> deleteCycleReport(@RequestAttribute(name = "userEmail") String email,
+			@PathVariable Integer groupId, @PathVariable Integer reportId) {
+		Integer studentId = studentService.getStudentIdByEmail(email);
+		return reportService.deleteCycleReport(groupId, reportId, studentId);
 	}
 	
 	@GetMapping("/progress-reports")
@@ -61,15 +68,18 @@ public class ReportController {
 	}
 	
 	@PostMapping("/progress-reports")
-	public Response<Void> addProgressReport(@PathVariable Integer groupId,
-								@RequestBody CreateProgressReportRequest createProgressReportRequest) {
-		return reportService.addProgressReport(createProgressReportRequest, groupId, 5);
+	public Response<Void> addProgressReport(@RequestAttribute(name = "userEmail") String email,
+			@PathVariable Integer groupId,
+			@RequestBody CreateProgressReportRequest createProgressReportRequest) {
+		Integer studentId = studentService.getStudentIdByEmail(email);
+		return reportService.addProgressReport(createProgressReportRequest, groupId, studentId);
 	}
 	
 	@DeleteMapping("/progress-reports/{reportId}")
-	public Response<Void> deleteProgressReport(@PathVariable Integer groupId,
-				@PathVariable Integer reportId) {
-		return reportService.deleteProgressReport(groupId, reportId, 1);
+	public Response<Void> deleteProgressReport(@RequestAttribute(name = "userEmail") String email,
+			@PathVariable Integer groupId, @PathVariable Integer reportId) {
+		Integer studentId = studentService.getStudentIdByEmail(email);
+		return reportService.deleteProgressReport(groupId, reportId, studentId);
 	}
 
 }

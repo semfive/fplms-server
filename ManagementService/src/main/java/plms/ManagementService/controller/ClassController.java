@@ -8,6 +8,7 @@ import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
 import plms.ManagementService.service.ClassService;
+import plms.ManagementService.service.StudentService;
 
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import java.util.Set;
 public class ClassController {
     @Autowired
     ClassService classService;
+    @Autowired
+    StudentService studentService;
 
     @PostMapping
     public Response<Void> createClass(@RequestBody ClassDTO classDTO) {
@@ -53,22 +56,25 @@ public class ClassController {
     }
     
     @PostMapping("/{classId}/enroll")
-    public Response<Void> enrollStudentToClass(@RequestHeader String token,
+    public Response<Void> enrollStudentToClass(@RequestAttribute(name = "userEmail") String email,
     		@PathVariable Integer classId,
     		@RequestBody String enrollKey) {
-    	return classService.enrollStudentToClass(classId, 1, enrollKey);
+    	Integer studentId = studentService.getStudentIdByEmail(email);
+    	return classService.enrollStudentToClass(classId, studentId, enrollKey);
     }
     
     @DeleteMapping("/{classId}/unenroll")
-    public Response<Void> unenrollStudentFromClass(@RequestHeader String token,
+    public Response<Void> unenrollStudentFromClass(@RequestAttribute(name = "userEmail") String email,
     		@PathVariable Integer classId) {
-    	return classService.removeStudentInClass(1, classId);
+    	Integer studentId = studentService.getStudentIdByEmail(email);
+    	return classService.removeStudentInClass(studentId, classId);
     }
     
     @GetMapping("/student")
-    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestHeader String token,
+    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestAttribute(name = "userEmail") String email,
     		@RequestParam(required = false, name = "search") String search) {
-    	return classService.getClassesBySearchStr(search, 1);
+    	Integer studentId = studentService.getStudentIdByEmail(email);
+    	return classService.getClassesBySearchStr(search, studentId);
     }
 
 }
