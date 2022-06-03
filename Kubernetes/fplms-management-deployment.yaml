@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fplms-management-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fplms-managementservice
+  template:
+    metadata:
+      labels:
+        app: fplms-managementservice
+    spec:
+      containers:
+        - name: fplms-managementservice
+          image: 8122002/fplms-managementservice:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-managementservice-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: fplms-managementservice
+  ports:
+    - name: fplms-managementservice
+      protocol: TCP
+      port: 8083
+      targetPort: 8083

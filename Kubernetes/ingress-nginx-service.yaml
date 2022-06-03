@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  rules:
+    - host: acme.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /api/discussion
+            backend:
+              service:
+                name: fplms-discussionservice-clusterip
+                port:
+                  number: 7218
+          - pathType: Prefix
+            path: /api/auth
+            backend:
+              service:
+                name: fplms-authservice-clusterip
+                port:
+                  number: 7209
+          - pathType: Prefix
+            path: /api/management
+            backend:
+              service:
+                name: fplms-managementservice-clusterip
+                port:
+                  number: 8083
