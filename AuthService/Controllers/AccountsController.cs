@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Text;
 using AuthService.ActionFilters;
+using System.Text.RegularExpressions;
 
 namespace AuthService.Controllers
 {
@@ -51,11 +52,27 @@ namespace AuthService.Controllers
                     };
                     var json = JsonConvert.SerializeObject(userDto);
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var managementUserDto = new ManagementCreateUserDto
+                    {
+                        name = payload.Name,
+                        email = payload.Email,
+                        imageUrl = payload.Picture,
+                        code = Regex.Match(payload.Email, @"\d+").Value
+                    };
+
                     if (userDto.Email.Contains("@fpt.edu.vn"))
                     {
                         Console.WriteLine("\nSend POST request to DiscussionService");
                         var result = httpClient.PostAsync(_config.GetConnectionString("DiscussionService") + "students", data);
                         result.Wait();
+
+                        Console.WriteLine("\nSend POST request to ManagementService: " + managementUserDto);
+                        managementUserDto.isLecturer = false;
+                        var managementJson = JsonConvert.SerializeObject(managementUserDto);
+                        var managementData = new StringContent(managementJson, Encoding.UTF8, "application/json");
+                        var managementResult = httpClient.PostAsync(_config.GetConnectionString("ManagementService"), managementData);
+                        managementResult.Wait();
                     }
 
                     if (userDto.Email.Contains("@fe.edu.vn"))
@@ -63,6 +80,13 @@ namespace AuthService.Controllers
                         Console.WriteLine("\nSend POST request to DiscussionService");
                         var result = httpClient.PostAsync(_config.GetConnectionString("DiscussionService") + "lecturers", data);
                         result.Wait();
+
+                        Console.WriteLine("\nSend POST request to ManagementService: " + managementUserDto);
+                        managementUserDto.isLecturer = true;
+                        var managementJson = JsonConvert.SerializeObject(managementUserDto);
+                        var managementData = new StringContent(managementJson, Encoding.UTF8, "application/json");
+                        var managementResult = httpClient.PostAsync(_config.GetConnectionString("ManagementService"), managementData);
+                        managementResult.Wait();
                     }
                 }
 
