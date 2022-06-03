@@ -1,6 +1,6 @@
 using System.Data;
 using AutoMapper;
-using DiscussionService.ActionFilters;
+using DiscussionService.Filters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -23,6 +23,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetAllLecturers()
         {
             try
@@ -39,6 +40,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet("{lecturerId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetLecturerById([FromRoute] Guid lecturerId)
         {
             try

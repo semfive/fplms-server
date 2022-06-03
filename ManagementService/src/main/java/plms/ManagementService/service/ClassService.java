@@ -192,12 +192,16 @@ public class ClassService {
     }
 
     public Response<Void> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
-        if (classId == null || studentId == null || classRepository.findOneById(classId) == null) {
+        if (classId == null || studentId == null || !classRepository.existsById(classId) 
+        		|| !studentRepository.existsById(studentId)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } else if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, INVALID_ENROLL_KEY_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSAGE);
+        } else if (classRepository.existsInClass(studentId, classId) != null) {
+        	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Student already joined this class.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Student already joined this class.");
         } else {
             classRepository.insertStudentInClass(studentId, classId);
             logger.info("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);

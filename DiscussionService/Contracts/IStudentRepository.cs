@@ -6,6 +6,7 @@ namespace DiscussionService.Contracts
     {
         Task<IEnumerable<Student>> GetAllStudentsAsync();
         Task<Student> GetStudentByIdAsync(Guid studentId);
+        Task<Student> GetStudentByEmail(string email);
         void CreateStudent(Student student);
         void UpdateStudent(Student student);
         void DeleteStudent(Student student);

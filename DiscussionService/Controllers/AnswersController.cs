@@ -1,5 +1,5 @@
 using AutoMapper;
-using DiscussionService.ActionFilters;
+using DiscussionService.Filters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -21,6 +21,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetAllAnswers([FromQuery] AnswersQueryStringParameters queryStringParameters)
         {
@@ -50,6 +51,7 @@ namespace DiscussionService.Controllers
 
 
         [HttpGet("{answerId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetAnswerById([FromRoute] Guid answerId)
         {
             try
@@ -67,6 +69,7 @@ namespace DiscussionService.Controllers
 
 
         [HttpPost]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateAnswer([FromBody] CreateAnswerDto createAnswerDto)
         {
@@ -87,6 +90,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpPut("{answerId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateAnswer([FromRoute] Guid answerId, [FromBody] UpdateAnswerDto updateAnswerDto)
         {
@@ -113,6 +117,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpDelete("{answerId}")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> DeleteAnswer([FromRoute] Guid answerId)
         {

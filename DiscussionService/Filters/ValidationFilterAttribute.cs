@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using DiscussionService.Dtos;
 using DiscussionService.Contracts;
 
-namespace DiscussionService.ActionFilters
+namespace DiscussionService.Filters
 {
     public class ValidationFilterAttribute : IActionFilter
     {

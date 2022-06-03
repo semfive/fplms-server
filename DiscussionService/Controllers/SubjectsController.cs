@@ -1,6 +1,6 @@
 using System.Data;
 using AutoMapper;
-using DiscussionService.ActionFilters;
+using DiscussionService.Filters;
 using DiscussionService.Contracts;
 using DiscussionService.Dtos;
 using DiscussionService.Models;
@@ -21,6 +21,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetAllSubjects()
         {
             try
@@ -41,6 +42,7 @@ namespace DiscussionService.Controllers
         }
 
         [HttpPost]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateSubject(CreateSubjectDto createSubjectDto)
         {
