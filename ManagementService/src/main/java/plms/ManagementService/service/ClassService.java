@@ -48,6 +48,7 @@ public class ClassService {
     private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
 
     public Response<Void> createClass(ClassDTO classDTO,Integer lecturerId) {
+    	logger.info("createClass(classDTO: {}, lecturerId: {})", classDTO, lecturerId);
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
@@ -58,6 +59,7 @@ public class ClassService {
     }
 
     public Response<Void> updateClass(ClassDTO classDTO) {
+    	logger.info("updateClass(classDTO: {})", classDTO);
         if (!classRepository.existsById(classDTO.getId())) {
             logger.warn("Update class: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
@@ -71,6 +73,7 @@ public class ClassService {
     }
 
     public Response<Void> deleteClass(Integer classId) {
+    	logger.info("deleteClass(classId: {})", classId);
         Class classEntity = classRepository.findOneById(classId);
         if (classEntity == null) {
             logger.warn("Delete class: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
@@ -83,6 +86,7 @@ public class ClassService {
     }
 
     public Response<Set<ClassDTO>> getClassOfLecture(String lectureEmail) {
+    	logger.info("getClassOfLecture(lectureEmail: {})", lectureEmail);
         Lecturer lecturer = lecturerRepository.findOneByEmail(lectureEmail);
         if (lecturer == null) {
             logger.warn("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -98,6 +102,7 @@ public class ClassService {
     }
 
     public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {
+    	logger.info("getStudentInClass(classId: {})", classId);
         if (classId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -123,6 +128,7 @@ public class ClassService {
 
     @Transactional
     public Response<Void> removeStudentInClass(Integer studentId, Integer classId) {
+    	logger.info("removeStudentInClass(studentId: {}, classId: {})", studentId, classId);
         if (studentId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -140,6 +146,7 @@ public class ClassService {
     }
 
     public Response<Void> changeStudentGroup(Integer classId, Integer studentId, Integer groupNumber) {
+    	logger.info("changeStudentGroup(classId: {}, studentId: {}, groupNumber: {})", classId, studentId, groupNumber);
         if (classRepository.existsInClass(studentId, classId) != null) //exist
         {
             studentGroupRepository.updateStudentGroup(studentId, classId, groupNumber);
@@ -152,6 +159,7 @@ public class ClassService {
     }
 
     public Response<Void> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
+    	logger.info("enrollStudentToClass(classId: {}, studentId: {}, enrollKey: {})", classId, studentId, enrollKey);
         if (classId == null || studentId == null || !classRepository.existsById(classId) 
         		|| !studentRepository.existsById(studentId)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -170,6 +178,7 @@ public class ClassService {
     }
 
     public Response<Set<ClassByStudentResponse>> getClassesBySearchStr(String search, Integer studentId) {
+    	logger.info("getClassesBySearchStr(search: {}, studentId: {})", search, studentId);
         if (studentId == null) {
             logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);

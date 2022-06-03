@@ -17,4 +17,10 @@ public class ProjectDTO {
     private String context;
     private String actors;
     private String requirements;
+    
+	@Override
+	public String toString() {
+		return "ProjectDTO [id=" + id + ", name=" + name + "]";
+	}
+    
 }

@@ -28,6 +28,8 @@ public class StudentService {
     private static final String GET_STUDENT_BY_ID_MESSAGE = "Get student by id: ";
 
     public Response<StudentDTO> getStudentById(Integer studentId) {
+    	logger.info("getStudentById(studentId: {})", studentId);
+
         StudentDTO studentDTO = modelMapper.map(studentRepository.findOneById(studentId), StudentDTO.class);
         if (studentDTO == null) {
             logger.warn("{}{}", GET_STUDENT_BY_ID_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -38,6 +40,8 @@ public class StudentService {
     }
     
     public Integer getStudentIdByEmail(String email) {
+    	logger.info("getStudentIdByEmail(email: {})", email);
+    	
     	Student student = studentRepository.findOneByEmail(email);
     	if (student == null) {
     		return null;
@@ -46,6 +50,8 @@ public class StudentService {
     }
     
     public Integer getLeaderIdByEmail(String email, Integer groupId) {
+    	logger.info("getLeaderIdByEmail(email: {}, groupId: {})", email, groupId);
+
     	Student student = studentRepository.findOneByEmail(email);
     	if (student == null) {
     		return null;

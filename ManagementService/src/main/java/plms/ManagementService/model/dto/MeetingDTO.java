@@ -22,4 +22,10 @@ public class MeetingDTO {
 	private Timestamp scheduleTime;
 	private Integer lecturerId;
 	private Integer groupId;
+	
+	@Override
+	public String toString() {
+		return "MeetingDTO [id=" + id + ", title=" + title + "]";
+	}
+	
 }

@@ -15,4 +15,10 @@ public class StudentDTO {
     private String name;
     private String email;
     private String code;
+    
+	@Override
+	public String toString() {
+		return "StudentDTO [id=" + id + ", name=" + name + "]";
+	}
+    
 }

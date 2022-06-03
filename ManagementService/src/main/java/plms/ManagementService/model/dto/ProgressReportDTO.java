@@ -18,4 +18,10 @@ public class ProgressReportDTO {
 	private Timestamp reportTime;
 	private Integer studentId;
 	private Integer groupId;
+	
+	@Override
+	public String toString() {
+		return "ProgressReportDTO [id=" + id + ", groupId=" + groupId + "]";
+	}
+	
 }

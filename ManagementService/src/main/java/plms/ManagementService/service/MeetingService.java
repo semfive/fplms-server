@@ -36,6 +36,8 @@ public class MeetingService {
 	
 	public Response<Set<MeetingDTO>> getMeetingInGroup(Integer classId, Integer groupId, 
 			Timestamp startDate, Timestamp endDate) {
+    	logger.info("getMeetingInGroup(classId: {}, groupId: {}, startDate: {}, endDate: {})", classId, groupId, startDate, endDate);
+
 		if (classId == null || groupId == null || !classRepository.existsById(classId) ||
 				!groupRepository.existsById(groupId)) {
             logger.warn("Get meeting in group: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
