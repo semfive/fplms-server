@@ -30,6 +30,8 @@ public class Lecturer {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
     @JsonManagedReference
     private Set<Class> classSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
+    private Set<Meeting> meetingSet;
 
     public Lecturer(Integer id) {
         this.id = id;

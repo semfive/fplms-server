@@ -1,5 +1,7 @@
 package plms.ManagementService.repository;
 
+import java.sql.Timestamp;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,6 +31,9 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
 	@Transactional
 	@Query(nativeQuery = true, value = "update `GROUP` set PROJECT_id = ?2 where id = ?1")
 	void updateProjectinGroup(Integer groupId, Integer projectId);
+    
+    @Query(nativeQuery = true, value = "select id from `GROUP` where id = ?1 and enroll_time > ?2")
+    Integer isEnrollTimeOver(Integer groupId, Timestamp currentTime);
     
 
 }
