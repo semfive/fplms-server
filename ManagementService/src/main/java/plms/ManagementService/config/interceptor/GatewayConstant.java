@@ -22,9 +22,10 @@ public class GatewayConstant {
     }
 
     public static void addApiEntities() {
+        apiEntities.add(new ApiEntity("getClassByLecturer", "/api/management/classes", GET_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("createClassByLecturer", "/api/management/classes", POST_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("updateClassByLecturer", "/api/management/classes", PUT_METHOD, ROLE_LECTURE));
-        apiEntities.add(new ApiEntity("deleteClassByLecturer", "/api/management/classes", DELETE_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("deleteClassByLecturer", "/api/management/classes/{classId:\\d+}", DELETE_METHOD, ROLE_LECTURE));
 
         //student role
         apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId}/enroll", POST_METHOD, ROLE_STUDENT));

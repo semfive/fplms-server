@@ -19,7 +19,7 @@ public class GroupController {
     GroupService groupService;
 
     @GetMapping
-    public Response<Set<GroupDTO>> getGroupOfClassByLecturer(@PathVariable int classId
+    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable int classId
             , @RequestAttribute(required = false) String userEmail,@RequestAttribute(required = false) String userRole) {
         if(userRole.equals(GatewayConstant.ROLE_LECTURE))
         return groupService.getGroupOfClassByLecturer(classId, userEmail);
