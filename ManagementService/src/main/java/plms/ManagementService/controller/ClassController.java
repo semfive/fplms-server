@@ -17,8 +17,6 @@ import java.util.Set;
 public class ClassController {
     @Autowired
     ClassService classService;
-    @Autowired
-    AuthenticationService authenticationService;
 
     @PostMapping
     public Response<Void> createClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
@@ -39,7 +37,7 @@ public class ClassController {
 
     @GetMapping
     public Response<Set<ClassDTO>> getClassOfLecturer(@RequestAttribute(required = false) String userEmail) {
-        return classService.getClassOfLecture(userEmail);// mock data
+        return classService.getClassOfLecture(userEmail);
     }
 
     @GetMapping(value = "/{id}/students")

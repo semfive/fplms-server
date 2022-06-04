@@ -20,7 +20,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
-        registry.addInterceptor(gatewayInterceptor).addPathPatterns("/api/management/**");
+        registry.addInterceptor(gatewayInterceptor).addPathPatterns("/api/management/**").excludePathPatterns("/api/management/auth");
     }
     @Override
     public void addCorsMappings(CorsRegistry registry) {

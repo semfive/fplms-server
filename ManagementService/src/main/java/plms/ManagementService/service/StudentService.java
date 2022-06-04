@@ -32,4 +32,8 @@ public class StudentService {
         logger.info("{}{}", GET_STUDENT_BY_ID_MESSAGE, SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, SUCCESS_MESSAGE, studentDTO);
     }
+
+    public Integer getStudentIdByEmail(String email) {
+        return studentRepository.findStudentIdByEmail(email);
+    }
 }
