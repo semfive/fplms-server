@@ -43,17 +43,17 @@ public class ReportController {
 	}
 	
 	@PostMapping("/cycle-reports")
-	public Response<Void> addCycleReport(@RequestAttribute(name = "userEmail") String email,
+	public Response<Void> addCycleReport(@RequestAttribute(required = false) String userEmail,
 			@PathVariable Integer groupId,
 			@RequestBody CreateCycleReportRequest createCycleReportRequest) {
-		Integer studentId = studentService.getStudentIdByEmail(email);
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.addCycleReport(createCycleReportRequest, groupId, studentId);
 	}
 	
 	@DeleteMapping("/cycle-reports/{reportId}")
-	public Response<Void> deleteCycleReport(@RequestAttribute(name = "userEmail") String email,
+	public Response<Void> deleteCycleReport(@RequestAttribute(required = false) String userEmail,
 			@PathVariable Integer groupId, @PathVariable Integer reportId) {
-		Integer studentId = studentService.getStudentIdByEmail(email);
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.deleteCycleReport(groupId, reportId, studentId);
 	}
 	
@@ -68,17 +68,17 @@ public class ReportController {
 	}
 	
 	@PostMapping("/progress-reports")
-	public Response<Void> addProgressReport(@RequestAttribute(name = "userEmail") String email,
+	public Response<Void> addProgressReport(@RequestAttribute(required = false) String userEmail,
 			@PathVariable Integer groupId,
 			@RequestBody CreateProgressReportRequest createProgressReportRequest) {
-		Integer studentId = studentService.getStudentIdByEmail(email);
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.addProgressReport(createProgressReportRequest, groupId, studentId);
 	}
 	
 	@DeleteMapping("/progress-reports/{reportId}")
-	public Response<Void> deleteProgressReport(@RequestAttribute(name = "userEmail") String email,
+	public Response<Void> deleteProgressReport(@RequestAttribute(required = false) String userEmail,
 			@PathVariable Integer groupId, @PathVariable Integer reportId) {
-		Integer studentId = studentService.getStudentIdByEmail(email);
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.deleteProgressReport(groupId, reportId, studentId);
 	}
 

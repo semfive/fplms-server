@@ -32,9 +32,9 @@ public class ProjectController {
 	}
 	
 	@PutMapping("/{projectId}")
-	public Response<Void> chooseProject(@RequestAttribute(name = "userEmail") String email,
+	public Response<Void> chooseProject(@RequestAttribute(required = false) String userEmail,
 			@PathVariable Integer classId, @PathVariable Integer groupId, @PathVariable Integer projectId) {
-		Integer studentId = studentService.getStudentIdByEmail(email);
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return groupService.chooseProjectInGroup(classId, groupId, projectId, studentId);
 	}
 }

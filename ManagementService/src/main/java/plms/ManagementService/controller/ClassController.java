@@ -56,24 +56,24 @@ public class ClassController {
     }
     
     @PostMapping("/{classId}/enroll")
-    public Response<Void> enrollStudentToClass(@RequestAttribute(name = "userEmail") String email,
+    public Response<Void> enrollStudentToClass(@RequestAttribute(required = false) String userEmail,
     		@PathVariable Integer classId,
     		@RequestBody String enrollKey) {
-    	Integer studentId = studentService.getStudentIdByEmail(email);
+    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
     	return classService.enrollStudentToClass(classId, studentId, enrollKey);
     }
     
     @DeleteMapping("/{classId}/unenroll")
-    public Response<Void> unenrollStudentFromClass(@RequestAttribute(name = "userEmail") String email,
+    public Response<Void> unenrollStudentFromClass(@RequestAttribute(required = false) String userEmail,
     		@PathVariable Integer classId) {
-    	Integer studentId = studentService.getStudentIdByEmail(email);
+    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
     	return classService.removeStudentInClass(studentId, classId);
     }
     
     @GetMapping("/student")
-    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestAttribute(name = "userEmail") String email,
+    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestAttribute(required = false) String userEmail,
     		@RequestParam(required = false, name = "search") String search) {
-    	Integer studentId = studentService.getStudentIdByEmail(email);
+    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
     	return classService.getClassesBySearchStr(search, studentId);
     }
 

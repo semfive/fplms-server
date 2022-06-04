@@ -41,24 +41,15 @@ public class StudentService {
     
     public Integer getStudentIdByEmail(String email) {
     	logger.info("getStudentIdByEmail(email: {})", email);
-    	
-    	Student student = studentRepository.findOneByEmail(email);
-    	if (student == null) {
-    		return null;
-    	}
-    	return student.getId();
+    	return studentRepository.getStudentIdByEmail(email);
     }
     
     public Integer getLeaderIdByEmail(String email, Integer groupId) {
     	logger.info("getLeaderIdByEmail(email: {}, groupId: {})", email, groupId);
-
-    	Student student = studentRepository.findOneByEmail(email);
-    	if (student == null) {
+    	Integer studentId = studentRepository.getStudentIdByEmail(email);
+    	if (studentId == null || !studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
     		return null;
     	}
-    	if (!student.getId().equals(studentGroupRepository.findLeaderInGroup(groupId))) {
-    		return null;
-    	}
-    	return student.getId();
+    	return studentId;
     }
 }
