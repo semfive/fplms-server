@@ -21,4 +21,11 @@ public class ClassDTO {
         this.enrollKey = enrollKey;
         this.subjectId = subjectId;
     }
+
+	@Override
+	public String toString() {
+		return "ClassDTO [id=" + id + ", name=" + name + "]";
+	}
+    
+    
 }

@@ -32,6 +32,8 @@ public class ProjectService {
 
 	
 	public Response<Set<ProjectDTO>> getProjectFromClass(Integer classId) {
+    	logger.info("getProjectFromClass(classId: {})", classId);
+    	
 		if (classId == null || classRepository.findOneById(classId) == null) {
             logger.warn("Get project from class: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);

@@ -17,5 +17,11 @@ public class CreateProgressReportRequest {
 	private String content;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 	private Timestamp reportTime;
+	
+	@Override
+	public String toString() {
+		return "CreateProgressReportRequest [content=" + content + ", reportTime=" + reportTime + "]";
+	}
 
+	
 }

@@ -7,8 +7,8 @@ import plms.ManagementService.model.response.ClassByStudentResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
-import plms.ManagementService.service.AuthenticationService;
 import plms.ManagementService.service.ClassService;
+import plms.ManagementService.service.StudentService;
 
 import java.util.Set;
 
@@ -17,62 +17,64 @@ import java.util.Set;
 public class ClassController {
     @Autowired
     ClassService classService;
+    @Autowired
+    StudentService studentService;
 
     @PostMapping
-    public Response<Void> createClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
-
-        return classService.createClassByLecturer(classDTO, userEmail);
+    public Response<Void> createClass(@RequestBody ClassDTO classDTO) {
+        return classService.createClass(classDTO,1);
     }
 
     @PutMapping
-    public Response<Void> updateClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
-
-        return classService.updateClassByLecturer(classDTO, userEmail);
+    public Response<Void> updateClass(@RequestBody ClassDTO classDTO) {
+        return classService.updateClass(classDTO);
     }
 
     @DeleteMapping(value = "/{classId}")
-    public Response<Void> deleteClassByLecturer(@PathVariable int classId, @RequestAttribute(required = false) String userEmail) {
-        return classService.deleteClassByLecturer(classId, userEmail);
+    public Response<Void> deleteClass(@PathVariable int classId) {
+        return classService.deleteClass(classId);
     }
 
     @GetMapping
-    public Response<Set<ClassDTO>> getClassOfLecturer(@RequestAttribute(required = false) String userEmail) {
-        return classService.getClassOfLecture(userEmail);
+    public Response<Set<ClassDTO>> getClassOfLecturer(@RequestHeader String token) {
+        return classService.getClassOfLecture("t@gmail.com");// mock data
     }
 
     @GetMapping(value = "/{id}/students")
-    public Response<Set<StudentInClassResponse>> getStudentInClassByLecturer(@PathVariable int id, @RequestAttribute(required = false) String userEmail) {
-        return classService.getStudentInClassByLecturer(id, userEmail);
+    public Response<Set<StudentInClassResponse>> getStudentInClass(@PathVariable int id) {
+        return classService.getStudentInClass(id);
     }
 
     @DeleteMapping(value = "/{classId}/students/{studentId}")
-    public Response<Void> removeStudentInClassByLecturer(@PathVariable int classId, @PathVariable int studentId, @RequestAttribute(required = false) String userEmail) {
-        return classService.removeStudentInClassByLecturer(studentId, classId, userEmail);
+    public Response<Void> removeStudentInClass(@PathVariable int classId, @PathVariable int studentId) {
+        return classService.removeStudentInClass(studentId, classId);
     }
 
     @PutMapping(value = "/{classId}/students/{studentId}/groups/{groupNumber}")
-    public Response<Void> changeStudentGroupByLecturer(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber, @RequestAttribute(required = false) String userEmail) {
-        return classService.changeStudentGroupByLecturer(studentId, classId, groupNumber, userEmail);
+    public Response<Void> changeStudentGroup(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber) {
+        return classService.changeStudentGroup(studentId, classId, groupNumber);
     }
-
+    
     @PostMapping("/{classId}/enroll")
-    public Response<Void> enrollStudentToClass(
-            @PathVariable Integer classId,
-            @RequestBody String enrollKey) {
-        return classService.enrollStudentToClass(classId, 1, enrollKey);
+    public Response<Void> enrollStudentToClass(@RequestAttribute(required = false) String userEmail,
+    		@PathVariable Integer classId,
+    		@RequestBody String enrollKey) {
+    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
+    	return classService.enrollStudentToClass(classId, studentId, enrollKey);
     }
-
+    
     @DeleteMapping("/{classId}/unenroll")
-    public Response<Void> unenrollStudentFromClass(
-            @PathVariable Integer classId) {
-        //return classService.removeStudentInClass(1, classId);
-        return null;
+    public Response<Void> unenrollStudentFromClass(@RequestAttribute(required = false) String userEmail,
+    		@PathVariable Integer classId) {
+    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
+    	return classService.removeStudentInClass(studentId, classId);
     }
-
+    
     @GetMapping("/student")
-    public Response<Set<ClassByStudentResponse>> getClassBySearch(
-            @RequestParam(required = false, name = "search") String search) {
-        return classService.getClassesBySearchStr(search, 1);
+    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestAttribute(required = false) String userEmail,
+    		@RequestParam(required = false, name = "search") String search) {
+    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
+    	return classService.getClassesBySearchStr(search, studentId);
     }
 
 }

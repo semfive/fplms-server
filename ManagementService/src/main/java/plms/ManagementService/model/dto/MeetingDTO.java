@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,17 +12,20 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProgressReportDTO {
+@AllArgsConstructor
+public class MeetingDTO {
 	private Integer id;
-	private String content;
+	private String title;
+	private String link;
+	private String feedback;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-	private Timestamp reportTime;
-	private Integer studentId;
+	private Timestamp scheduleTime;
+	private Integer lecturerId;
 	private Integer groupId;
 	
 	@Override
 	public String toString() {
-		return "ProgressReportDTO [id=" + id + ", groupId=" + groupId + "]";
+		return "MeetingDTO [id=" + id + ", title=" + title + "]";
 	}
 	
 }

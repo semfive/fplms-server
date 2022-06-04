@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
@@ -51,6 +52,8 @@ public class ReportService {
 	
 	public Response<Set<CycleReportDTO>> getCycleReportInGroup(Integer classId, Integer groupId, 
 			Timestamp startDate, Timestamp endDate) {
+    	logger.info("getCycleReportInGroup(classId: {}, groupId: {}, startDate: {}, endDate: {})", classId, groupId, startDate, endDate);
+
 		if (classId == null || groupId == null || !classRepository.existsById(classId) ||
 				!groupRepository.existsById(groupId)) {
             logger.warn("Get cycle report in group: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -77,7 +80,10 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, cycleReportDtoSet);
 	}
 	
+	@Transactional
 	public Response<Void> addCycleReport(CreateCycleReportRequest reportRequest, Integer groupId, Integer leaderId) {
+    	logger.info("addCycleReport(reportRequest: {}, groupId: {}, leaderId: {})", reportRequest, groupId, leaderId);
+    	
 		if (reportRequest == null || groupId == null || leaderId == null ||
 				!groupRepository.existsById(groupId) || !studentRepository.existsById(leaderId)) {
             logger.warn("Add cycle report: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -94,7 +100,10 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
+	@Transactional
 	public Response<Void> deleteCycleReport(Integer groupId, Integer reportId, Integer leaderId) {
+    	logger.info("deleteCycleReport(reportId: {}, groupId: {}, leaderId: {})", reportId, groupId, leaderId);
+
 		if (reportId == null || groupId == null || leaderId == null || !groupRepository.existsById(groupId)
 				 || !studentRepository.existsById(leaderId) || !cycleReportRepository.existsById(reportId)) {
             logger.warn("{}{}", DELETE_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -115,6 +124,8 @@ public class ReportService {
 	
 	public Response<Set<ProgressReportDTO>> getProgressReportInGroup(Integer classId, Integer groupId,
 			Timestamp startDate, Timestamp endDate) {
+    	logger.info("getProgressReportInGroup(classId: {}, groupId: {}, startDate: {}, endDate: {})", classId, groupId, startDate, endDate);
+
 		if (classId == null || groupId == null || !classRepository.existsById(classId) ||
 				!groupRepository.existsById(groupId)) {
             logger.warn("Get progress report in group: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -141,7 +152,10 @@ public class ReportService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, progressReportDtoSet);
 	}
 
+	@Transactional
 	public Response<Void> addProgressReport(CreateProgressReportRequest reportRequest, Integer groupId, Integer studentId) {
+    	logger.info("addProgressReport(reportRequest: {}, groupId: {}, studentId: {})", reportRequest, groupId, studentId);
+
 		if (reportRequest == null || groupId == null || studentId == null ||
 				!groupRepository.existsById(groupId) || !studentRepository.existsById(studentId)) {
             logger.warn("Add progress report: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -158,8 +172,11 @@ public class ReportService {
 		logger.info("Add progress report success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
-
+	
+	@Transactional
 	public Response<Void> deleteProgressReport(Integer groupId, Integer reportId, Integer studentId) {
+    	logger.info("deleteProgressReport(reportId: {}, groupId: {}, studentId: {})", reportId, groupId, studentId);
+
 		if (reportId == null || groupId == null || studentId == null || !groupRepository.existsById(groupId)
 				 || !studentRepository.existsById(studentId) || !progressReportRepository.existsById(reportId)) {
            logger.warn("Delete progress report: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);

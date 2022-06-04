@@ -18,4 +18,12 @@ public class CreateCycleReportRequest {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 	private Timestamp reportTime;
 	private String resourceLink;
+	
+	@Override
+	public String toString() {
+		return "CreateCycleReportRequest [content=" + content + ", reportTime=" + reportTime + ", resourceLink="
+				+ resourceLink + "]";
+	}
+	
+	
 }

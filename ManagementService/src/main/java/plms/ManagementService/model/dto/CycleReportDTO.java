@@ -21,4 +21,10 @@ public class CycleReportDTO {
 	private String feedback;
 	private String resourceLink;
 	private Integer groupId;
+	
+	@Override
+	public String toString() {
+		return "CycleReportDTO [id=" + id + ", groupId=" + groupId + "]";
+	}
+	
 }
