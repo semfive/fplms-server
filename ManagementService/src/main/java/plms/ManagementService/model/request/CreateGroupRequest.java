@@ -18,11 +18,4 @@ public class CreateGroupRequest {
     private Timestamp enrollTime;
     private Integer groupQuantity;
     private Integer classId;
-	@Override
-	public String toString() {
-		return "CreateGroupRequest [memberQuantity=" + memberQuantity + ", enrollTime=" + enrollTime
-				+ ", groupQuantity=" + groupQuantity + ", classId=" + classId + "]";
-	}
-    
-    
 }

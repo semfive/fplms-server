@@ -22,10 +22,6 @@ public class ClassDTO {
         this.subjectId = subjectId;
     }
 
-	@Override
-	public String toString() {
-		return "ClassDTO [id=" + id + ", name=" + name + "]";
-	}
     
     
 }

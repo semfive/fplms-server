@@ -41,12 +41,12 @@ public class StudentService {
     
     public Integer getStudentIdByEmail(String email) {
     	logger.info("getStudentIdByEmail(email: {})", email);
-    	return studentRepository.getStudentIdByEmail(email);
+    	return studentRepository.findStudentIdByEmail(email);
     }
     
     public Integer getLeaderIdByEmail(String email, Integer groupId) {
     	logger.info("getLeaderIdByEmail(email: {}, groupId: {})", email, groupId);
-    	Integer studentId = studentRepository.getStudentIdByEmail(email);
+    	Integer studentId = studentRepository.findStudentIdByEmail(email);
     	if (studentId == null || !studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
     		return null;
     	}

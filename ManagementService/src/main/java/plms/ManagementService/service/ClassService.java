@@ -224,7 +224,24 @@ public class ClassService {
         }).collect(Collectors.toSet());
         logger.info("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classByStudentResponseSet);
-
     }
 
+    @Transactional
+    public Response<Void> unenrollStudentInClass(Integer studentId, Integer classId) {
+        logger.info("removeStudentInClass(studentId: {}, classId: {})", studentId, classId);
+        if (studentId == null) {
+            logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        if (classRepository.existsInClass(studentId, classId) != null) //exist
+        {
+            classRepository.deleteStudentInClass(studentId, classId);
+            studentGroupRepository.deleteStudentInGroup(studentId, classId);
+            logger.info("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        } else {
+            logger.warn("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+    }
 }
