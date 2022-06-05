@@ -73,7 +73,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
             logger.warn("Use test user");
             //throw new NoTokenException();
             emailVerifyDTO = new EmailVerifyDTO(GatewayConstant.EMAIL_TEST,GatewayConstant.ROLE_TEST);
-            logger.info("Path:{} Role:{} Email:{}", servletPath, emailVerifyDTO);
+            logger.info("Path:{} Role:{} Email:{}", servletPath, emailVerifyDTO.getEmail(), emailVerifyDTO.getRole());
             ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
             if (apiEntity == null) throw new NotFoundApiException();
             verifyRole(apiEntity.getRole(), emailVerifyDTO.getRole());

@@ -13,7 +13,6 @@ import plms.ManagementService.model.dto.ProjectDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.ProjectRepository;
-import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Project;
 import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
