@@ -209,7 +209,7 @@ public class ClassService {
         }
     }
 
-    public Response<Set<ClassByStudentResponse>> getClassesBySearchStr(String search, Integer studentId) {
+    public Response<Set<ClassByStudentResponse>> getClassesBySearchStrByStudent(String search, Integer studentId) {
         if (studentId == null) {
             logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);

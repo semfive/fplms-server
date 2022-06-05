@@ -28,29 +28,34 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("createClassByLecturer", "/api/management/classes", POST_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("updateClassByLecturer", "/api/management/classes", PUT_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("deleteClassByLecturer", "/api/management/classes/{classId:\\d+}", DELETE_METHOD, ROLE_LECTURE));
-        
+        apiEntities.add(new ApiEntity("getStudentInClassByLecturer", "/api/management/classes/{id:\\d+}/students", GET_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("changeStudentGroupByLecturer", "/api/management/classes//{classId:\\d+}/students/{studentId:\\d+}", PUT_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("getGroupOfClass", "/api/management/classes/{classId:\\d+}/groups", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURE)));
+        apiEntities.add(new ApiEntity("createGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", POST_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("updateGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", PUT_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", DELETE_METHOD, ROLE_LECTURE));
         //student role
-        apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId:[0-9]+}/enroll", POST_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId:[0-9]+}/unenroll", DELETE_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId:\\d+}/enroll", POST_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId:\\d+}/unenroll", DELETE_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("getClassList", "/api/management/classes/student", GET_METHOD, ROLE_STUDENT));
         
-        apiEntities.add(new ApiEntity("getGroupDetail", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}", GET_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("joinGroup", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/join", POST_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("leaveGroup", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/leave", DELETE_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("removeFromGroupByLeader", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/remove/{removeStudentId:[0-9]+}", DELETE_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("changeGroupLeader", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/changeLeader/{newLeaderId:[0-9]+}", PUT_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getGroupDetail", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", GET_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("joinGroup", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/join", POST_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("leaveGroup", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/leave", DELETE_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("removeFromGroupByLeader", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/remove/{removeStudentId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("changeGroupLeader", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/changeLeader/{newLeaderId:\\d+}", PUT_METHOD, ROLE_STUDENT));
 
-        apiEntities.add(new ApiEntity("getProjects", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/projects", GET_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("chooseProject", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/projects/{projectId:[0-9]+}", PUT_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getProjects", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/projects", GET_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("chooseProject", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/projects/{projectId:\\d+}", PUT_METHOD, ROLE_STUDENT));
 
-        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/cycle-reports", GET_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("addCycleReport", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/cycle-reports", POST_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("deleteCycleReport", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/cycle-reports/{reportId:[0-9]+}", DELETE_METHOD, ROLE_STUDENT));        
-        apiEntities.add(new ApiEntity("getProgressReport", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/progress-reports", GET_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("addProgressReport", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/progress-reports", POST_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("deleteProgressReport", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/progress-reports/{reportId:[0-9]+}", DELETE_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/cycle-reports", GET_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("addCycleReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/cycle-reports", POST_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("deleteCycleReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/cycle-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));        
+        apiEntities.add(new ApiEntity("getProgressReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/progress-reports", GET_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("addProgressReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/progress-reports", POST_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("deleteProgressReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/progress-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
         
-        apiEntities.add(new ApiEntity("getMeeting", "/api/management/classes/{classId:[0-9]+}/groups/{groupId:[0-9]+}/meetings", GET_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getMeeting", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/meetings", GET_METHOD, ROLE_STUDENT));
 
     }
 

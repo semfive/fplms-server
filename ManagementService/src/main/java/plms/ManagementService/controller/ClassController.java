@@ -73,10 +73,10 @@ public class ClassController {
     }
 
     @GetMapping("/student")
-    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestAttribute(required = false) String userEmail,
+    public Response<Set<ClassByStudentResponse>> getClassesBySearchStrByStudent(@RequestAttribute(required = false) String userEmail,
                                                                   @RequestParam(required = false, name = "search") String search) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
-        return classService.getClassesBySearchStr(search, studentId);
+        return classService.getClassesBySearchStrByStudent(search, studentId);
     }
 
 }
