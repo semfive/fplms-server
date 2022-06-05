@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +65,13 @@ public class ReportController {
 			@PathVariable Integer groupId, @PathVariable Integer reportId) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.deleteCycleReport(groupId, reportId, studentId);
+	}
+	
+	@PutMapping("/cycle-reports/{reportId}/feedback")
+	public Response<Void> feedbackCycleReport(@RequestAttribute(required = false) String userEmail,
+			@RequestBody String feedback,
+			@PathVariable Integer groupId, @PathVariable Integer reportId) {
+		return reportService.feedbackCycleReport(groupId, reportId, userEmail, feedback);
 	}
 	
 	@GetMapping("/progress-reports")

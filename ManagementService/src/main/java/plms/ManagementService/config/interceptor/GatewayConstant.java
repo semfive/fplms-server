@@ -12,7 +12,7 @@ public class GatewayConstant {
     public static final String ROLE_STUDENT = "STUDENT";
     public static final String ROLE_LECTURE = "LECTURE";
      static final String ROLE_SPLIT_STRING = "&";
-    public static final String EMAIL_TEST = "lec1@gmail.com";
+    public static final String EMAIL_TEST = "lec2@gmail.com";
     public static final String ROLE_TEST = ROLE_LECTURE;
     
     private static final String GET_METHOD = "GET";
@@ -34,6 +34,8 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("createGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", POST_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("updateGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", PUT_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", DELETE_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/cycle-reports/{reportId:\\d+}/feedback", PUT_METHOD, ROLE_LECTURE));
+
         //student role
         apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId:\\d+}/enroll", POST_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId:\\d+}/unenroll", DELETE_METHOD, ROLE_STUDENT));
