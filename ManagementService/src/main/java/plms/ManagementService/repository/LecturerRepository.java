@@ -10,4 +10,5 @@ public interface LecturerRepository extends JpaRepository<Lecturer,Integer> {
 
     @Query(nativeQuery = true, value = "select id from LECTURER where email = ?1")
     Integer findLecturerIdByEmail(String email);
+
 }

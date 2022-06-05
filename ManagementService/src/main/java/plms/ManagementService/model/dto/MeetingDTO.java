@@ -4,15 +4,13 @@ import java.sql.Timestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class MeetingDTO {
 	private Integer id;
 	private String title;
@@ -22,10 +20,5 @@ public class MeetingDTO {
 	private Timestamp scheduleTime;
 	private Integer lecturerId;
 	private Integer groupId;
-	
-	@Override
-	public String toString() {
-		return "MeetingDTO [id=" + id + ", title=" + title + "]";
-	}
-	
+
 }

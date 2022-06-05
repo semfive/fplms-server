@@ -34,6 +34,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     
     @Query(nativeQuery = true, value = "select id from `GROUP` where id = ?1 and enroll_time > ?2")
     Integer isEnrollTimeOver(Integer groupId, Timestamp currentTime);
-    
 
+    @Query(nativeQuery = true, value = "SELECT LECTURER_id FROM CLASS WHERE id = (SELECT CLASS_id FROM `GROUP` WHERE id = ?1)")
+    Integer findLectureIdOfGroup(Integer groupId);
 }
