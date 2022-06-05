@@ -11,7 +11,6 @@ import plms.ManagementService.model.dto.StudentDTO;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
-import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.service.constant.ServiceMessage;
 
 @Service

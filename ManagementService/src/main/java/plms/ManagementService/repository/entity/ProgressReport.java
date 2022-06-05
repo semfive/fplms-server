@@ -31,6 +31,8 @@ public class ProgressReport {
 	@Access(AccessType.PROPERTY)
 	private Integer id;
 	@Column
+	private String title;
+	@Column
 	private String content;
 	@Column(name = "report_time")
 	private Timestamp reportTime;

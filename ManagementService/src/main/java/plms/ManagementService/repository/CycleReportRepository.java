@@ -4,8 +4,10 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import plms.ManagementService.repository.entity.CycleReport;
 import plms.ManagementService.repository.entity.Group;
@@ -18,4 +20,10 @@ public interface CycleReportRepository extends JpaRepository<CycleReport, Intege
 	
 	@Query(nativeQuery = true, value = "select * from CYCLE_REPORT where GROUP_id = ?1 and report_time >= ?2 and report_time <= ?3")
 	Set<CycleReport> findByGroupIdAndTimeFilter(Integer groupId, Timestamp startDate, Timestamp endDate);
+	
+	@Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "update CYCLE_REPORT set feedback = ?2 where id = ?1")
+    void addFeedback(Integer reportId, String feedback);
+    
 }
