@@ -39,6 +39,10 @@ public class ClassService {
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(ClassService.class);
+    private static final String CREATE_CLASS_MESSAGE = "Create class: ";
+    private static final String UPDATE_CLASS_MESSAGE = "Update class: ";
+    private static final String DELETE_CLASS_MESSAGE = "Delete class: ";
+
     private static final String INVALID_ENROLL_KEY_MESSAGE = "Enroll key is not correct";
     private static final String GET_STUDENT_IN_CLASS_MESSAGE = "Get student in class: ";
     private static final String GET_CLASS_OF_LECTURER_MESSAGE = "Get class of lecturer: ";
@@ -47,21 +51,31 @@ public class ClassService {
     private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: ";
     private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
 
-    public Response<Void> createClass(ClassDTO classDTO,Integer lecturerId) {
-    	logger.info("createClass(classDTO: {}, lecturerId: {})", classDTO, lecturerId);
+    public Response<Void> createClassByLecturer(ClassDTO classDTO, String lecturerEmail) {
+        logger.info("{}{}", CREATE_CLASS_MESSAGE, classDTO);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classDTO.getId()).equals(lecturerEmail)) {
+            logger.warn("{}{}", CREATE_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
-        classEntity.setLecturer(new Lecturer(lecturerId));
+        classEntity.setLecturer(new Lecturer(lecturerRepository.findLecturerIdByEmail(lecturerEmail)));
         classRepository.save(classEntity);
         logger.info("Create class success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Void> updateClass(ClassDTO classDTO) {
-    	logger.info("updateClass(classDTO: {})", classDTO);
+    public Response<Void> updateClassByLecturer(ClassDTO classDTO, String lecturerEmail) {
+        logger.info("{}{}", UPDATE_CLASS_MESSAGE, classDTO);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classDTO.getId()).equals(lecturerEmail)) {
+            logger.warn("{}{}", UPDATE_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         if (!classRepository.existsById(classDTO.getId())) {
-            logger.warn("Update class: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            logger.warn("{}{}", UPDATE_CLASS_MESSAGE,ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         Class classEntity = modelMapper.map(classDTO, Class.class);
@@ -72,11 +86,16 @@ public class ClassService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Void> deleteClass(Integer classId) {
-    	logger.info("deleteClass(classId: {})", classId);
+    public Response<Void> deleteClassByLecturer(Integer classId, String lecturerEmail) {
+        logger.info("{}{}", DELETE_CLASS_MESSAGE, classId);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", DELETE_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         Class classEntity = classRepository.findOneById(classId);
         if (classEntity == null) {
-            logger.warn("Delete class: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            logger.warn("{}{}",DELETE_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         classEntity.setIsDisable(true); // delete class
@@ -86,7 +105,6 @@ public class ClassService {
     }
 
     public Response<Set<ClassDTO>> getClassOfLecture(String lectureEmail) {
-    	logger.info("getClassOfLecture(lectureEmail: {})", lectureEmail);
         Lecturer lecturer = lecturerRepository.findOneByEmail(lectureEmail);
         if (lecturer == null) {
             logger.warn("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -101,11 +119,16 @@ public class ClassService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classDTOSet);
     }
 
-    public Response<Set<StudentInClassResponse>> getStudentInClass(Integer classId) {
-    	logger.info("getStudentInClass(classId: {})", classId);
+    public Response<Set<StudentInClassResponse>> getStudentInClassByLecturer(Integer classId,String lecturerEmail) {
         if (classId == null) {
             logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        logger.info("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, classId);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
         Set<Student> studentSet = classRepository.findOneById(classId).getStudentSet();
         if (studentSet == null) {
@@ -127,11 +150,16 @@ public class ClassService {
     }
 
     @Transactional
-    public Response<Void> removeStudentInClass(Integer studentId, Integer classId) {
-    	logger.info("removeStudentInClass(studentId: {}, classId: {})", studentId, classId);
+    public Response<Void> removeStudentInClassByLecturer(Integer studentId, Integer classId,String lecturerEmail) {
         if (studentId == null) {
-            logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            logger.warn("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        logger.info("{}{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, classId,studentId);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
         if (classRepository.existsInClass(studentId, classId) != null) //exist
         {
@@ -145,21 +173,25 @@ public class ClassService {
         }
     }
 
-    public Response<Void> changeStudentGroup(Integer classId, Integer studentId, Integer groupNumber) {
-    	logger.info("changeStudentGroup(classId: {}, studentId: {}, groupNumber: {})", classId, studentId, groupNumber);
-        if (classRepository.existsInClass(studentId, classId) != null) //exist
+    public Response<Void> changeStudentGroupByLecturer(Integer classId, Integer studentId, Integer groupNumber,String lecturerEmail) {
+        logger.info("{}{}{}", CHANGE_STUDENT_GROUP_MESSAGE, classId,studentId);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
+        if (classRepository.existsInClass(studentId, classId) == null) //exist
         {
-            studentGroupRepository.updateStudentGroup(studentId, classId, groupNumber);
-            logger.info("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
-        } else {
             logger.warn("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
+        studentGroupRepository.updateStudentGroup(studentId, classId, groupNumber);
+        logger.info("{}{}", CHANGE_STUDENT_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+
     }
 
     public Response<Void> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
-    	logger.info("enrollStudentToClass(classId: {}, studentId: {}, enrollKey: {})", classId, studentId, enrollKey);
         if (classId == null || studentId == null || !classRepository.existsById(classId) 
         		|| !studentRepository.existsById(studentId)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -177,8 +209,7 @@ public class ClassService {
         }
     }
 
-    public Response<Set<ClassByStudentResponse>> getClassesBySearchStr(String search, Integer studentId) {
-    	logger.info("getClassesBySearchStr(search: {}, studentId: {})", search, studentId);
+    public Response<Set<ClassByStudentResponse>> getClassesBySearchStrByStudent(String search, Integer studentId) {
         if (studentId == null) {
             logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -193,7 +224,24 @@ public class ClassService {
         }).collect(Collectors.toSet());
         logger.info("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classByStudentResponseSet);
-
     }
 
+    @Transactional
+    public Response<Void> unenrollStudentInClass(Integer studentId, Integer classId) {
+        logger.info("removeStudentInClass(studentId: {}, classId: {})", studentId, classId);
+        if (studentId == null) {
+            logger.warn("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        if (classRepository.existsInClass(studentId, classId) != null) //exist
+        {
+            classRepository.deleteStudentInClass(studentId, classId);
+            studentGroupRepository.deleteStudentInGroup(studentId, classId);
+            logger.info("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        } else {
+            logger.warn("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+    }
 }

@@ -31,7 +31,9 @@ public class GatewayInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try {
-            request.setAttribute("userEmail", verifyRequest(request));//get user email if request check success
+            EmailVerifyDTO emailVerifyDTO = verifyRequest(request);
+            request.setAttribute("userEmail", emailVerifyDTO.getEmail());//get user email if request check success
+            request.setAttribute("userRole",emailVerifyDTO.getRole());
             return true;
         } catch (NoAccessRoleException e) {
             response.sendError(403, "User do not have role to access this api");
@@ -61,37 +63,34 @@ public class GatewayInterceptor implements HandlerInterceptor {
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 
-    private String verifyRequest(HttpServletRequest request) throws RuntimeException {
+    private EmailVerifyDTO verifyRequest(HttpServletRequest request) throws RuntimeException {
         String httpMethod = request.getMethod();
         String servletPath = request.getServletPath();
         String accessToken = request.getHeader(GatewayConstant.AUTHORIZATION_HEADER);
-        String accessUserEmail;
-        String accessUserRole;
+        EmailVerifyDTO emailVerifyDTO;
         if (accessToken == null) {
             logger.info("No access token");
             logger.warn("Use test user");
             //throw new NoTokenException();
-            accessUserEmail = GatewayConstant.EMAIL_TEST;
-            accessUserRole = GatewayConstant.ROLE_TEST;
-            logger.info("Path:{} Role:{} Email:{}", servletPath, accessUserRole, accessUserEmail);
+            emailVerifyDTO = new EmailVerifyDTO(GatewayConstant.EMAIL_TEST,GatewayConstant.ROLE_TEST);
+            logger.info("Path:{} Role:{} Email:{}", servletPath, emailVerifyDTO);
             ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
-            if (apiEntity == null) return accessUserEmail;
-            verifyRole(apiEntity.getRole(), accessUserRole);
+            if (apiEntity == null) throw new NotFoundApiException();
+            verifyRole(apiEntity.getRole(), emailVerifyDTO.getRole());
             logger.info("Request validated. Start forward request to controller");
-            return accessUserEmail;
+            return emailVerifyDTO;
         } else {
-            EmailVerifyDTO emailVerifyDTO = getEmailVerifiedEntity(accessToken);
+            emailVerifyDTO = getEmailVerifiedEntity(accessToken);
             if (emailVerifyDTO.getEmail() == null)
                 throw new WrongTokenException();
-            accessUserEmail = emailVerifyDTO.getEmail();
-            accessUserRole = emailVerifyDTO.getRole();
+
         }
-        logger.info("Path:{} Role:{} Email:{}", servletPath, accessUserRole, accessUserEmail);
+        logger.info("Path:{} VerifyDTO:{}", servletPath,emailVerifyDTO);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
         if (apiEntity == null) throw new NotFoundApiException();
-        verifyRole(apiEntity.getRole(), accessUserRole);
+        verifyRole(apiEntity.getRole(), emailVerifyDTO.getRole());
         logger.info("Request validated. Start forward request to controller");
-        return accessUserEmail;
+        return emailVerifyDTO;
     }
 
 
@@ -103,6 +102,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
                 return apiEntity;
             }
         }
+        logger.warn("Not found api");
         return null;
     }
 

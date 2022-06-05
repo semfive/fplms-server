@@ -12,14 +12,11 @@ import plms.ManagementService.model.request.CreateGroupRequest;
 import plms.ManagementService.model.response.GroupDetailResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.dto.GroupDTO;
+import plms.ManagementService.repository.*;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Project;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
-import plms.ManagementService.repository.ClassRepository;
-import plms.ManagementService.repository.GroupRepository;
-import plms.ManagementService.repository.ProjectRepository;
-import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.entity.Group;
 
 import java.sql.Timestamp;
@@ -37,10 +34,16 @@ public class GroupService {
     @Autowired
     ProjectRepository projectRepository;
     @Autowired
+    StudentRepository studentRepository;
+    @Autowired
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(GroupService.class);
-    private static final String GET_GROUP_OF_CLASS = "Get group of class: ";
+    private static final String CREATE_GROUP_MESSAGE = "Create group : ";
+    private static final String UPDATE_GROUP_MESSAGE = "Update group : ";
+    private static final String DELETE_GROUP_MESSAGE = "Delete group : ";
+
+    private static final String GET_GROUP_OF_CLASS_MESSAGE = "Get group of class: ";
     private static final String JOINED_OTHER_GROUP_MESSAGE = "Student already joined other group";
     private static final String NOT_IN_GROUP_MESSAGE = "Student not in group";
     private static final String GROUP_FULL_MESSAGE = "Group is full";
@@ -49,14 +52,18 @@ public class GroupService {
     private static final String REMOVE_STUDENT_FROM_GROUP_MESSAGE = "Remove student from group: ";
     private static final String GET_GROUP_IN_CLASS_MESSAGE = "Get group in class: ";
     private static final String CHANGE_GROUP_LEADER_MESSAGE = "Change group leader: ";
-    private static final String CHOOSE_PROJECT = "Choose project in group: {}";
+    private static final String CHOOSE_PROJECT = "Choose project in group: ";
 
     @Transactional
-    public Response<Void> createGroupRequest(CreateGroupRequest createGroupRequest) {
-    	logger.info("createGroupRequest(createGroupRequest: {})", createGroupRequest);
-
+    public Response<Void> createGroupRequestByLecturer(CreateGroupRequest createGroupRequest, String lecturerEmail) {
+        logger.info("{}{}", CREATE_GROUP_MESSAGE, createGroupRequest);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(createGroupRequest.getClassId()).equals(lecturerEmail)) {
+            logger.warn("{}{}", CREATE_GROUP_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         if (createGroupRequest.getGroupQuantity() == null || createGroupRequest.getMemberQuantity() == null) {
-            logger.warn("{}{}", "Create group : ", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            logger.warn("{}{}", CREATE_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
         Group group = modelMapper.map(createGroupRequest, Group.class);
@@ -75,13 +82,17 @@ public class GroupService {
             group.setNumber(index);
             groupRepository.save(group);
         }
-        logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Void> updateGroup(Integer classId, GroupDTO groupDTO) {
-    	logger.info("updateGroup(classId: {}, groupDTO: {})", classId, groupDTO);
-    	
+    public Response<Void> updateGroupByLecturer(Integer classId, GroupDTO groupDTO, String lecturerEmail) {
+        logger.info("{}{}", UPDATE_GROUP_MESSAGE, groupDTO);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", UPDATE_GROUP_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         if (groupDTO.getId() == null || groupRepository.isGroupExistsInClass(groupDTO.getId(), classId) == null) {
             logger.warn("Update group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
@@ -94,23 +105,31 @@ public class GroupService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Void> deleteGroup(Integer groupId, Integer classId) {
-    	logger.info("deleteGroup(groupId: {}, classId: {})", groupId, classId);
-
+    public Response<Void> deleteGroupByLecturer(Integer groupId, Integer classId, String lecturerEmail) {
+        logger.info("{}{}{}", DELETE_GROUP_MESSAGE, groupId, classId);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", DELETE_GROUP_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
-            logger.warn("Delete group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            logger.warn("{}{}", DELETE_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         logger.info("Delete group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Set<GroupDTO>> getGroupOfClass(Integer classId) {
-    	logger.info("getGroupOfClass(classId: {})", classId);
-
+    public Response<Set<GroupDTO>> getGroupOfClassByLecturer(Integer classId, String lecturerEmail) {
+        logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, classId);
+        //check if the class not of the lecturer
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
         Class classEntity = classRepository.findOneById(classId);
         if (classEntity == null) {
-            logger.warn("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
@@ -120,13 +139,36 @@ public class GroupService {
                     return groupDTO;
                 })
                 .collect(Collectors.toSet());
-        logger.info("{}{}", GET_GROUP_OF_CLASS, ServiceMessage.SUCCESS_MESSAGE);
+        logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTOSet);
+    }
+
+    public Response<Set<GroupDTO>> getGroupOfClassByStudent(Integer classId, String studentEmail) {
+        logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, classId);
+        //check if the class not of the lecturer
+        if (classRepository.existsInClass(studentRepository.findStudentIdByEmail(studentEmail), classId) == null) {
+            logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
+        Class classEntity = classRepository.findOneById(classId);
+        if (classEntity == null) {
+            logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
+                    GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+                    if (group.getProject() != null)
+                        groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+                    return groupDTO;
+                })
+                .collect(Collectors.toSet());
+        logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTOSet);
     }
 
     @Transactional
     public Response<Void> addStudentToGroup(Integer classId, Integer groupId, Integer studentId) {
-    	logger.info("addStudentToGroup(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
+        logger.info("addStudentToGroup(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
 
         if (classId == null || groupId == null || studentId == null) {
             logger.warn("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -157,21 +199,21 @@ public class GroupService {
         logger.info("{}{}", ADD_STUDENT_TO_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
-    
+
     @Transactional
     public Response<Void> removeStudentFromGroupByLeader(Integer classId, Integer groupId, Integer studentId, Integer leaderId) {
-    	logger.info("removeStudentFromGroupByLeader(classId: {}, groupId: {}, studentId: {}, leaderId: {})", classId, groupId, studentId, leaderId);
+        logger.info("removeStudentFromGroupByLeader(classId: {}, groupId: {}, studentId: {}, leaderId: {})", classId, groupId, studentId, leaderId);
 
-    	if (leaderId == null) {
-    		logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        if (leaderId == null) {
+            logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-    	}
-    	return removeStudentFromGroup(classId, groupId, studentId);
+        }
+        return removeStudentFromGroup(classId, groupId, studentId);
     }
 
     @Transactional
     public Response<Void> removeStudentFromGroup(Integer classId, Integer groupId, Integer studentId) {
-    	logger.info("removeStudentFromGroup(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
+        logger.info("removeStudentFromGroup(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
 
         if (classId == null || groupId == null || studentId == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -191,23 +233,23 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ENROLL_TIME_OVER);
         }
         if (studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
-        	Integer newLeaderId = studentGroupRepository.chooseRandomGroupMember(groupId);
-        	if (newLeaderId != null) {
-        		studentGroupRepository.addRandomGroupLeader(groupId, newLeaderId);
-        	}
+            Integer newLeaderId = studentGroupRepository.chooseRandomGroupMember(groupId);
+            if (newLeaderId != null) {
+                studentGroupRepository.addRandomGroupLeader(groupId, newLeaderId);
+            }
         }
         studentGroupRepository.deleteStudentInGroup(studentId, classId);
-        
+
         logger.info("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 
     }
 
     public Response<GroupDetailResponse> getGroupByGroupIdAndClassId(Integer groupId, Integer classId, Integer studentId) {
-    	logger.info("getGroupByGroupIdAndClassId(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
+        logger.info("getGroupByGroupIdAndClassId(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
 
         if (classId == null || groupId == null || studentId == null || !groupRepository.existsById(groupId) ||
-        		!classRepository.existsById(classId)) {
+                !classRepository.existsById(classId)) {
             logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } else if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
@@ -220,64 +262,63 @@ public class GroupService {
             Group group = groupRepository.findOneById(groupId);
             GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
             groupDetailResponse.setStudentDtoSet(group.getStudentGroupSet().stream()
-            		.map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
-            		.collect(Collectors.toSet()));
+                    .map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
+                    .collect(Collectors.toSet()));
             groupDetailResponse.setLeaderId(studentGroupRepository.findLeaderInGroup(groupId));
             if (group.getProject() != null)
-            	groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+                groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
             logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponse);
         }
     }
-    
+
     @Transactional
     public Response<Void> changeGroupLeader(Integer groupId, Integer leaderId, Integer newLeaderId) {
-    	logger.info("changeGroupLeader(groupId: {}, leaderId: {}, newLeaderId: {})", groupId, leaderId, newLeaderId);
+        logger.info("changeGroupLeader(groupId: {}, leaderId: {}, newLeaderId: {})", groupId, leaderId, newLeaderId);
 
-    	if (groupId == null || leaderId == null || newLeaderId == null) {
+        if (groupId == null || leaderId == null || newLeaderId == null) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);    	
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-    	if (studentGroupRepository.isStudentExistInGroup(groupId, newLeaderId) == null ||
-    			!leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
+        if (studentGroupRepository.isStudentExistInGroup(groupId, newLeaderId) == null ||
+                !leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);    	
-    	}
-    	if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ENROLL_TIME_OVER);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ENROLL_TIME_OVER);
         }
-    	studentGroupRepository.updateGroupLeader(groupId, leaderId, 0);  	 //remove old leader
-    	studentGroupRepository.updateGroupLeader(groupId, newLeaderId, 1);   //add new leader
-    	logger.info("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);    
-    }
-    
-    @Transactional
-    public Response<Void> chooseProjectInGroup(Integer classId, Integer groupId, Integer projectId, Integer studentId) {
-    	logger.info("chooseProjectInGroup(classId: {}, groupId: {}, projectId: {}, studentId: {})", classId, groupId, projectId, studentId);
-
-    	if (classId == null || groupId == null || projectId == null || studentId == null) {
-            logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);    	
-        }
-    	if (groupRepository.isGroupExistsInClass(groupId, classId) == null ||
-    			projectRepository.isProjectExistsInClass(projectId, classId) == null) {
-    		logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-    	}
-    	if (!studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
-    		logger.warn("{}{}", CHOOSE_PROJECT, "Not a leader");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Not a leader");
-    	}
-    	if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
-            logger.warn("{}{}", CHOOSE_PROJECT, ENROLL_TIME_OVER);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ENROLL_TIME_OVER);
-        }
-    	groupRepository.updateProjectinGroup(groupId, projectId);
-    	logger.info("Choose project in group success.");
+        studentGroupRepository.updateGroupLeader(groupId, leaderId, 0);     //remove old leader
+        studentGroupRepository.updateGroupLeader(groupId, newLeaderId, 1);   //add new leader
+        logger.info("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
+    @Transactional
+    public Response<Void> chooseProjectInGroup(Integer classId, Integer groupId, Integer projectId, Integer studentId) {
+        logger.info("chooseProjectInGroup(classId: {}, groupId: {}, projectId: {}, studentId: {})", classId, groupId, projectId, studentId);
+
+        if (classId == null || groupId == null || projectId == null || studentId == null) {
+            logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        if (groupRepository.isGroupExistsInClass(groupId, classId) == null ||
+                projectRepository.isProjectExistsInClass(projectId, classId) == null) {
+            logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        if (!studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
+            logger.warn("{}{}", CHOOSE_PROJECT, "Not a leader");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Not a leader");
+        }
+        if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
+            logger.warn("{}{}", CHOOSE_PROJECT, ENROLL_TIME_OVER);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ENROLL_TIME_OVER);
+        }
+        groupRepository.updateProjectinGroup(groupId, projectId);
+        logger.info("Choose project in group success.");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
 
 }

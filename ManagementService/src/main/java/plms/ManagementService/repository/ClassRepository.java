@@ -34,4 +34,7 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Query(nativeQuery = true, value = "select * from CLASS where name like ?1 and is_disable = 0")
     public Set<Class> getClassBySearchStr(String search);
 
+    @Query(nativeQuery = true, value = "SELECT email FROM LECTURER WHERE id = (SELECT LECTURER_id FROM CLASS WHERE id = ?1)")
+    public String findLecturerEmailOfClass(Integer classId);
+
 }

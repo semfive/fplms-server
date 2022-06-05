@@ -27,7 +27,7 @@ public class Student {
     private String code;
     @Column(name = "image_url")
     private String imageUrl;
-    @Column(name = "is_disable")
+    @Column(name = "is_disable",insertable = false)
     private Boolean isDisable;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

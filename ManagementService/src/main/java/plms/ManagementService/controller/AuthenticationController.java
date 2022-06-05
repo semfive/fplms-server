@@ -2,6 +2,7 @@ package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import plms.ManagementService.model.request.CreateUserRequest;
@@ -13,7 +14,8 @@ public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;
     @PostMapping
-    public void createUser(CreateUserRequest createUserRequest){
+    public void createUser(@RequestBody CreateUserRequest createUserRequest){
         authenticationService.createUser(createUserRequest);
     }
 }
+

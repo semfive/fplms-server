@@ -21,60 +21,62 @@ public class ClassController {
     StudentService studentService;
 
     @PostMapping
-    public Response<Void> createClass(@RequestBody ClassDTO classDTO) {
-        return classService.createClass(classDTO,1);
+    public Response<Void> createClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
+
+        return classService.createClassByLecturer(classDTO, userEmail);
     }
 
     @PutMapping
-    public Response<Void> updateClass(@RequestBody ClassDTO classDTO) {
-        return classService.updateClass(classDTO);
+    public Response<Void> updateClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
+
+        return classService.updateClassByLecturer(classDTO, userEmail);
     }
 
     @DeleteMapping(value = "/{classId}")
-    public Response<Void> deleteClass(@PathVariable int classId) {
-        return classService.deleteClass(classId);
+    public Response<Void> deleteClassByLecturer(@PathVariable int classId, @RequestAttribute(required = false) String userEmail) {
+        return classService.deleteClassByLecturer(classId, userEmail);
     }
 
     @GetMapping
-    public Response<Set<ClassDTO>> getClassOfLecturer(@RequestHeader String token) {
-        return classService.getClassOfLecture("t@gmail.com");// mock data
+    public Response<Set<ClassDTO>> getClassOfLecturer(@RequestAttribute(required = false) String userEmail) {
+        return classService.getClassOfLecture(userEmail);
     }
 
     @GetMapping(value = "/{id}/students")
-    public Response<Set<StudentInClassResponse>> getStudentInClass(@PathVariable int id) {
-        return classService.getStudentInClass(id);
+    public Response<Set<StudentInClassResponse>> getStudentInClassByLecturer(@PathVariable int id, @RequestAttribute(required = false) String userEmail) {
+        return classService.getStudentInClassByLecturer(id, userEmail);
     }
 
     @DeleteMapping(value = "/{classId}/students/{studentId}")
-    public Response<Void> removeStudentInClass(@PathVariable int classId, @PathVariable int studentId) {
-        return classService.removeStudentInClass(studentId, classId);
+    public Response<Void> removeStudentInClassByLecturer(@PathVariable int classId, @PathVariable int studentId, @RequestAttribute(required = false) String userEmail) {
+        return classService.removeStudentInClassByLecturer(studentId, classId, userEmail);
     }
 
     @PutMapping(value = "/{classId}/students/{studentId}/groups/{groupNumber}")
-    public Response<Void> changeStudentGroup(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber) {
-        return classService.changeStudentGroup(studentId, classId, groupNumber);
+    public Response<Void> changeStudentGroupByLecturer(@PathVariable int classId, @PathVariable int studentId, @PathVariable int groupNumber, @RequestAttribute(required = false) String userEmail) {
+        return classService.changeStudentGroupByLecturer(studentId, classId, groupNumber, userEmail);
     }
-    
+
     @PostMapping("/{classId}/enroll")
     public Response<Void> enrollStudentToClass(@RequestAttribute(required = false) String userEmail,
-    		@PathVariable Integer classId,
-    		@RequestBody String enrollKey) {
-    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
-    	return classService.enrollStudentToClass(classId, studentId, enrollKey);
+                                               @PathVariable Integer classId,
+                                               @RequestBody String enrollKey) {
+        Integer studentId = studentService.getStudentIdByEmail(userEmail);
+        return classService.enrollStudentToClass(classId, studentId, enrollKey);
     }
-    
+
     @DeleteMapping("/{classId}/unenroll")
     public Response<Void> unenrollStudentFromClass(@RequestAttribute(required = false) String userEmail,
-    		@PathVariable Integer classId) {
-    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
-    	return classService.removeStudentInClass(studentId, classId);
+                                                   @PathVariable Integer classId) {
+        Integer studentId = studentService.getStudentIdByEmail(userEmail);
+        return classService.unenrollStudentInClass(studentId, classId);
     }
-    
+
     @GetMapping("/student")
-    public Response<Set<ClassByStudentResponse>> getClassBySearch(@RequestAttribute(required = false) String userEmail,
-    		@RequestParam(required = false, name = "search") String search) {
-    	Integer studentId = studentService.getStudentIdByEmail(userEmail);
-    	return classService.getClassesBySearchStr(search, studentId);
+    public Response<Set<ClassByStudentResponse>> getClassesBySearchStrByStudent(@RequestAttribute(required = false) String userEmail,
+                                                                  @RequestParam(required = false, name = "search") String search) {
+        Integer studentId = studentService.getStudentIdByEmail(userEmail);
+        return classService.getClassesBySearchStrByStudent(search, studentId);
     }
 
 }
