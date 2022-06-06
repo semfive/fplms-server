@@ -14,13 +14,13 @@ import plms.ManagementService.service.AuthenticationService;
 import plms.ManagementService.service.MeetingService;
 
 @RestController
-@RequestMapping("/api/management/classes/{classId}/groups/{groupId}/meetings")
+@RequestMapping("/api/management/meetings")
 public class MeetingController {
 	@Autowired
 	MeetingService meetingService;
 	@Autowired
 	AuthenticationService authenticationService;
-	@GetMapping
+	@GetMapping("/classes/{classId}/groups/{groupId}")
 	public Response<Set<MeetingDTO>> getMeetingInGroup(@PathVariable Integer classId, 
 			@PathVariable Integer groupId,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
