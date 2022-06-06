@@ -89,6 +89,30 @@ namespace DiscussionService.Controllers
             }
         }
 
+        [HttpPut("{answerId}/accept")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> AcceptAnswer([FromRoute] Guid answerId)
+        {
+            try
+            {
+                var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+                if (answer == null)
+                {
+                    return NotFound();
+                }
+
+                answer.Accepted = true;
+                _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
+                await _repositoryWrapper.SaveAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPut("{answerId}")]
         [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
