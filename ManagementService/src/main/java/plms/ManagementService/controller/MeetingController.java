@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -22,8 +23,8 @@ public class MeetingController {
 	@Autowired
 	AuthenticationService authenticationService;
 	@GetMapping
-	public Response<Set<MeetingDTO>> getMeetingInGroup(@RequestParam Integer classId, 
-			@RequestParam Integer groupId, @RequestAttribute(required = false) String userRole,
+	public Response<Set<MeetingDTO>> getMeetingInGroup(@RequestParam(required = false) Integer classId, 
+			@RequestParam(required = false) Integer groupId, @RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
