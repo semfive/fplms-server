@@ -8,10 +8,12 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import plms.ManagementService.model.dto.ProjectDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
+import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.LecturerRepository;
 import plms.ManagementService.repository.ProjectRepository;
 import plms.ManagementService.repository.StudentRepository;
@@ -30,6 +32,8 @@ public class ProjectService {
 	@Autowired
 	ClassRepository classRepository;
 	@Autowired
+	GroupRepository groupRepository;
+	@Autowired
 	StudentRepository studentRepository;
 	@Autowired
 	LecturerRepository lecturerRepository;
@@ -39,6 +43,8 @@ public class ProjectService {
 	private static final Logger logger = LogManager.getLogger(ProjectService.class);
 	private static final String GET_PROJECT = "Get project from class: ";
 	private static final String ADD_PROJECT = "Add project to class: ";
+	private static final String UPDATE_PROJECT = "Update project in class: ";
+	private static final String DELETE_PROJECT = "Delete project in class: ";
 
 
 	public Response<Set<ProjectDTO>> getProjectFromClassByStudent(Integer classId, String userEmail) {
@@ -63,7 +69,7 @@ public class ProjectService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
 		if (!lecturerId.equals(classRepository.findOneById(classId).getLecturer().getId())) {
-			logger.warn("{}{}", GET_PROJECT, "Student not manage class");
+			logger.warn("{}{}", GET_PROJECT, "Lecturer not manage class");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not manage class");
 		}
 		return getProjectFromClass(classId);
@@ -76,13 +82,16 @@ public class ProjectService {
             logger.warn("Get project from class: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-		Set<Project> projectSet = projectRepository.findBySubject(new Subject(classRepository.findSubjectId(classId)));
+		Set<Project> projectSet = projectRepository
+				.findBySubjectIdAndLecturerId(classRepository.findOneById(classId).getSubject().getId(),
+												classRepository.findOneById(classId).getLecturer().getId());
 		Set<ProjectDTO> projectDtoSet = projectSet.stream()
 				.map(projectEntity -> modelMapper.map(projectEntity, ProjectDTO.class)).collect(Collectors.toSet());
 		logger.info("Get project from class success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, projectDtoSet);
 	}
 	
+	@Transactional
 	public Response<Void> addProject(ProjectDTO projectDTO, String userEmail) {
     	logger.info("addProject(projectDTO: {}, userEmail: {})", projectDTO, userEmail);
 		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
@@ -98,6 +107,55 @@ public class ProjectService {
     	project.setLecturer(lecturerRepository.findOneByEmail(userEmail));
     	projectRepository.save(project);
 		logger.info("Add project success.");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+	}
+	
+	@Transactional
+	public Response<Void> updateProject(ProjectDTO projectDTO, String userEmail) {
+    	logger.info("updateProject(projectDTO: {}, userEmail: {})", projectDTO, userEmail);
+		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+    	if (lecturerId == null) {
+            logger.warn("{}{}", UPDATE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+		}
+    	if (!subjectRepository.existsById(projectDTO.getSubjectId())) {
+    		logger.warn("{}{}", UPDATE_PROJECT, "Subject not exist");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject not exist");
+    	}
+    	if (projectRepository.existsByLecturerId(lecturerId, projectDTO.getId()) == null) {
+    		logger.warn("{}{}", UPDATE_PROJECT, "Lecturer not own this project.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not own this project.");
+    	}
+    	Project project = modelMapper.map(projectDTO, Project.class);
+    	project.setLecturer(lecturerRepository.findOneByEmail(userEmail));
+    	projectRepository.save(project);
+		logger.info("Update project success.");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+	}
+	
+	@Transactional
+	public Response<Void> deleteProject(Integer projectId, String userEmail) {
+    	logger.info("deleteProject(projectId: {}, userEmail: {})", projectId, userEmail);
+		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+    	if (lecturerId == null) {
+            logger.warn("{}{}", DELETE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+		}
+    	if (!projectRepository.existsById(projectId)) {
+            logger.warn("{}{}", DELETE_PROJECT, "Project not exist");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Project not exist");
+    	}
+    	if (projectRepository.existsByLecturerId(lecturerId, projectId) == null) {
+    		logger.warn("{}{}", DELETE_PROJECT, "Lecturer not own this project.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not own this project.");
+    	}
+    	if (groupRepository.existByProject(projectId) != null) {
+    		logger.warn("{}{}", DELETE_PROJECT, "At least one group used this project.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "At least one group used this project.");
+
+    	}
+    	projectRepository.delete(new Project(projectId));
+    	logger.info("Update project success.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	

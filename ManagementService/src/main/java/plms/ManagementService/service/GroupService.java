@@ -305,8 +305,8 @@ public class GroupService {
         }
         if (groupRepository.isGroupExistsInClass(groupId, classId) == null ||
                 projectRepository.isProjectExistsInClass(projectId, classId) == null) {
-            logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            logger.warn("{}{}", CHOOSE_PROJECT, "Project not exist in class");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Project not exist in class");
         }
         if (!studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", CHOOSE_PROJECT, "Not a leader");

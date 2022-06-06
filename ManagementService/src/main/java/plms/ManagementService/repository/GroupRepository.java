@@ -14,6 +14,9 @@ import plms.ManagementService.repository.entity.Group;
 public interface GroupRepository extends JpaRepository<Group, Integer> {
 
     Group findOneById(Integer groupId);
+    
+    @Query(nativeQuery = true, value = "select id from `GROUP` where PROJECT_id = ?1 limit 1")
+    Integer existByProject(Integer projectId);
 
     @Query(nativeQuery = true, value = "select GROUP_id from STUDENT_GROUP where STUDENT_id = ?1 and CLASS_id = ?2")
     Integer findGroupByStudentIdAndClassId(Integer studentId, Integer classId);

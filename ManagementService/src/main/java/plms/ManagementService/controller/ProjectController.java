@@ -3,6 +3,7 @@ package plms.ManagementService.controller;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,5 +56,18 @@ public class ProjectController {
 			@RequestBody ProjectDTO projectDTO) {
 		return projectService.addProject(projectDTO, userEmail);
 	}
+	
+	@PutMapping
+	public Response<Void> updateProject(@RequestAttribute(required = false) String userEmail, 
+			@RequestBody ProjectDTO projectDTO) {
+		return projectService.updateProject(projectDTO, userEmail);
+	}
+	
+	@DeleteMapping("/{projectId}")
+	public Response<Void> deleteProject(@RequestAttribute(required = false) String userEmail, 
+			@PathVariable Integer projectId) {
+		return projectService.deleteProject(projectId, userEmail);
+	}
+
 	
 }
