@@ -29,10 +29,8 @@ public class AuthenticationService {
                 return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             }
             lecturerRepository.save(new Lecturer(createUserRequest.getName(), createUserRequest.getEmail(), createUserRequest.getImageUrl()));
-
             logger.info("{}{}", CREATE_USER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
-
         }
         if (studentRepository.existsByEmail(createUserRequest.getEmail())) {
             logger.warn("{}{}", CREATE_USER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -43,11 +41,11 @@ public class AuthenticationService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Integer getLectureIdByEmail(String email){
+    public Integer getLectureIdByEmail(String email) {
         return lecturerRepository.findLecturerIdByEmail(email);
     }
 
-    public Integer getStudentIdByEmail(String email){
+    public Integer getStudentIdByEmail(String email) {
         return studentRepository.findStudentIdByEmail(email);
     }
 }

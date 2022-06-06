@@ -125,5 +125,11 @@ namespace AuthService.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpOptions("login")]
+        public IActionResult Preflight()
+        {
+            return Ok();
+        }
     }
 }

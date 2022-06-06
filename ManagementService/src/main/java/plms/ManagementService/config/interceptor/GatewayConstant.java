@@ -35,6 +35,7 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("updateGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", PUT_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", DELETE_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/cycle-reports/{reportId:\\d+}/feedback", PUT_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("scheduleMeeting", "/api/management/meetings", POST_METHOD, ROLE_LECTURE));
 
         //student role
         apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId:\\d+}/enroll", POST_METHOD, ROLE_STUDENT));
@@ -56,8 +57,7 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("getProgressReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/progress-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURE)));
         apiEntities.add(new ApiEntity("addProgressReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/progress-reports", POST_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("deleteProgressReport", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/progress-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
-        
-        apiEntities.add(new ApiEntity("getMeeting", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/meetings", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURE)));
+        apiEntities.add(new ApiEntity("getMeeting", "/api/management/meetings", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURE)));
 
     }
 
