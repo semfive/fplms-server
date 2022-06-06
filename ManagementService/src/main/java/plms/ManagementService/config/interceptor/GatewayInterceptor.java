@@ -83,7 +83,6 @@ public class GatewayInterceptor implements HandlerInterceptor {
             emailVerifyDTO = getEmailVerifiedEntity(accessToken);
             if (emailVerifyDTO.getEmail() == null)
                 throw new WrongTokenException();
-
         }
         logger.info("Path:{} VerifyDTO:{}", servletPath,emailVerifyDTO);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
