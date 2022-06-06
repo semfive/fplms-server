@@ -32,6 +32,9 @@ public class Lecturer {
     private Set<Class> classSet;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
     private Set<Meeting> meetingSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
+    private Set<Project> projectSet;
+    
 
     public Lecturer(Integer id) {
         this.id = id;

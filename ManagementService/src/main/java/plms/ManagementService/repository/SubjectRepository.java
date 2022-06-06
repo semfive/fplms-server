@@ -6,4 +6,5 @@ import plms.ManagementService.repository.entity.Subject;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
+	
 }

@@ -15,6 +15,7 @@ import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.LecturerRepository;
 import plms.ManagementService.repository.ProjectRepository;
 import plms.ManagementService.repository.StudentRepository;
+import plms.ManagementService.repository.SubjectRepository;
 import plms.ManagementService.repository.entity.Project;
 import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
@@ -32,9 +33,13 @@ public class ProjectService {
 	StudentRepository studentRepository;
 	@Autowired
 	LecturerRepository lecturerRepository;
+	@Autowired
+	SubjectRepository subjectRepository;
 	
 	private static final Logger logger = LogManager.getLogger(ProjectService.class);
 	private static final String GET_PROJECT = "Get project from class: ";
+	private static final String ADD_PROJECT = "Add project to class: ";
+
 
 	public Response<Set<ProjectDTO>> getProjectFromClassByStudent(Integer classId, String userEmail) {
     	logger.info("getProjectFromClassByStudent(classId: {}, userEmail: {})", classId, userEmail);
@@ -63,7 +68,6 @@ public class ProjectService {
 		}
 		return getProjectFromClass(classId);
 	}
-		
 	
 	public Response<Set<ProjectDTO>> getProjectFromClass(Integer classId) {
     	logger.info("getProjectFromClass(classId: {})", classId);
@@ -77,6 +81,24 @@ public class ProjectService {
 				.map(projectEntity -> modelMapper.map(projectEntity, ProjectDTO.class)).collect(Collectors.toSet());
 		logger.info("Get project from class success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, projectDtoSet);
+	}
+	
+	public Response<Void> addProject(ProjectDTO projectDTO, String userEmail) {
+    	logger.info("addProject(projectDTO: {}, userEmail: {})", projectDTO, userEmail);
+		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+    	if (lecturerId == null) {
+            logger.warn("{}{}", ADD_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+		}
+    	if (!subjectRepository.existsById(projectDTO.getSubjectId())) {
+    		logger.warn("{}{}", ADD_PROJECT, "Subject not exist");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject not exist");
+    	}
+    	Project project = modelMapper.map(projectDTO, Project.class);
+    	project.setLecturer(lecturerRepository.findOneByEmail(userEmail));
+    	projectRepository.save(project);
+		logger.info("Add project success.");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
 	
