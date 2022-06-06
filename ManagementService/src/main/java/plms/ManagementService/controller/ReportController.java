@@ -27,7 +27,7 @@ import plms.ManagementService.service.ReportService;
 import plms.ManagementService.service.StudentService;
 
 @RestController
-@RequestMapping("/api/management/classes/{classId}/groups/{groupId}")
+@RequestMapping("/api/management")
 public class ReportController {
 	@Autowired
 	ReportService reportService;
@@ -35,8 +35,8 @@ public class ReportController {
     StudentService studentService;
 	
 	@GetMapping("/cycle-reports")
-	public Response<Set<CycleReportDTO>> getCycleReportFromGroup(@PathVariable Integer classId,
-			@PathVariable Integer groupId, @RequestAttribute(required = false) String userRole,
+	public Response<Set<CycleReportDTO>> getCycleReportFromGroup(@RequestParam Integer classId,
+			@RequestParam Integer groupId, @RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
@@ -54,7 +54,7 @@ public class ReportController {
 	
 	@PostMapping("/cycle-reports")
 	public Response<Void> addCycleReport(@RequestAttribute(required = false) String userEmail,
-			@PathVariable Integer groupId,
+			@RequestParam Integer groupId,
 			@RequestBody CreateCycleReportRequest createCycleReportRequest) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.addCycleReport(createCycleReportRequest, groupId, studentId);
@@ -62,7 +62,7 @@ public class ReportController {
 	
 	@DeleteMapping("/cycle-reports/{reportId}")
 	public Response<Void> deleteCycleReport(@RequestAttribute(required = false) String userEmail,
-			@PathVariable Integer groupId, @PathVariable Integer reportId) {
+			@RequestParam Integer groupId, @PathVariable Integer reportId) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.deleteCycleReport(groupId, reportId, studentId);
 	}
@@ -70,13 +70,13 @@ public class ReportController {
 	@PutMapping("/cycle-reports/{reportId}/feedback")
 	public Response<Void> feedbackCycleReport(@RequestAttribute(required = false) String userEmail,
 			@RequestBody String feedback,
-			@PathVariable Integer groupId, @PathVariable Integer reportId) {
+			@RequestParam Integer groupId, @PathVariable Integer reportId) {
 		return reportService.feedbackCycleReport(groupId, reportId, userEmail, feedback);
 	}
 	
 	@GetMapping("/progress-reports")
-	public Response<Set<ProgressReportDTO>> getProgressReportFromGroup(@PathVariable Integer classId,
-			@PathVariable Integer groupId, @RequestAttribute(required = false) String userRole,
+	public Response<Set<ProgressReportDTO>> getProgressReportFromGroup(@RequestParam Integer classId,
+			@RequestParam Integer groupId, @RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
@@ -93,7 +93,7 @@ public class ReportController {
 	
 	@PostMapping("/progress-reports")
 	public Response<Void> addProgressReport(@RequestAttribute(required = false) String userEmail,
-			@PathVariable Integer groupId,
+			@RequestParam Integer groupId,
 			@RequestBody CreateProgressReportRequest createProgressReportRequest) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.addProgressReport(createProgressReportRequest, groupId, studentId);
@@ -101,7 +101,7 @@ public class ReportController {
 	
 	@DeleteMapping("/progress-reports/{reportId}")
 	public Response<Void> deleteProgressReport(@RequestAttribute(required = false) String userEmail,
-			@PathVariable Integer groupId, @PathVariable Integer reportId) {
+			@RequestParam Integer groupId, @PathVariable Integer reportId) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
 		return reportService.deleteProgressReport(groupId, reportId, studentId);
 	}

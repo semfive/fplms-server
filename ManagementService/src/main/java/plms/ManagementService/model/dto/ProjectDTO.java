@@ -17,6 +17,7 @@ public class ProjectDTO {
     private String context;
     private String actors;
     private String requirements;
+    private Integer subjectId;
     
 	@Override
 	public String toString() {

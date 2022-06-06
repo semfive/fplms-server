@@ -34,6 +34,9 @@ public class Project {
     private Set<Group> groupSet;
     @ManyToOne(fetch = FetchType.EAGER)
     private Subject subject;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Lecturer lecturer;
+    
     public Project(Integer id) {
         this.id = id;
     }
