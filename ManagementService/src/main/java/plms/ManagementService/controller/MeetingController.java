@@ -21,9 +21,9 @@ public class MeetingController {
 	MeetingService meetingService;
 	@Autowired
 	AuthenticationService authenticationService;
-	@GetMapping("/classes/{classId}/groups/{groupId}")
-	public Response<Set<MeetingDTO>> getMeetingInGroup(@PathVariable Integer classId, 
-			@PathVariable Integer groupId, @RequestAttribute(required = false) String userRole,
+	@GetMapping
+	public Response<Set<MeetingDTO>> getMeetingInGroup(@RequestParam Integer classId, 
+			@RequestParam Integer groupId, @RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
