@@ -34,7 +34,7 @@ namespace AuthService.Controllers
                     return BadRequest("Invalid Authentication.");
                 }
 
-                if (!payload.Email.Contains("@fpt") && !payload.Email.Contains("@fe"))
+                if (!payload.Email.Contains("@fpt.edu.vn") && !payload.Email.Contains("_fe"))
                 {
                     return BadRequest("Invalid Authentication.");
                 }
@@ -75,7 +75,7 @@ namespace AuthService.Controllers
                         managementResult.Wait();
                     }
 
-                    if (userDto.Email.Contains("@fe.edu.vn"))
+                    if (userDto.Email.Contains(".fe"))
                     {
                         Console.WriteLine("\nSend POST request to DiscussionService");
                         var result = httpClient.PostAsync(_config.GetConnectionString("DiscussionService") + "lecturers", data);

@@ -36,12 +36,12 @@ namespace AuthService.Jwt
                 new Claim(ClaimTypes.Email, payload.Email)
             };
 
-            if (payload.Email.Contains("@fpt"))
+            if (payload.Email.Contains("@fpt.edu.vn"))
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Student"));
             }
 
-            if (payload.Email.Contains("@fe"))
+            if (payload.Email.Contains(".fe"))
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Lecturer"));
             }
