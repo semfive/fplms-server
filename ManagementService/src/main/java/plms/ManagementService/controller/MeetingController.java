@@ -43,4 +43,9 @@ public class MeetingController {
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
 		return meetingService.scheduleMeetingByLecturer(meetingDTO);
 	}
+	@PutMapping
+	public Response<Void> updateMeetingByLecturer(@RequestBody MeetingDTO meetingDTO,@RequestAttribute(required = false) String userEmail){
+		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
+		return meetingService.updateMeetingByLecturer(meetingDTO);
+	}
 }

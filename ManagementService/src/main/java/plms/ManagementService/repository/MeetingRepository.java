@@ -26,6 +26,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Integer> {
 	@Query(nativeQuery = true, value = "select * from MEETING where GROUP_id in (select GROUP_id from STUDENT_GROUP where STUDENT_id = ?1) and schedule_time >= ?2 and schedule_time <= ?3")
 	Set<Meeting> findByStudentId(Integer studentId, Timestamp startDate, Timestamp endDate);
 
+	Meeting findOneById(Integer id);
 
 	
 }

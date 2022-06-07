@@ -41,6 +41,7 @@ public class GatewayConstant {
 
         apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/cycle-reports/{reportId:\\d+}/feedback", PUT_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("scheduleMeeting", "/api/management/meetings", POST_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("scheduleMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURE));
 
         //student role
         apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId:\\d+}/enroll", POST_METHOD, ROLE_STUDENT));
