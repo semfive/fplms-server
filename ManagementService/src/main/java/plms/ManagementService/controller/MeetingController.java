@@ -48,4 +48,9 @@ public class MeetingController {
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
 		return meetingService.updateMeetingByLecturer(meetingDTO);
 	}
+
+	@DeleteMapping
+	public Response<Void> deleteMeetingByLecturer(@RequestParam Integer meetingId,@RequestAttribute(required = false) String userEmail){
+		return meetingService.deleteMeetingByLecturer(authenticationService.getLectureIdByEmail(userEmail),meetingId);
+	}
 }

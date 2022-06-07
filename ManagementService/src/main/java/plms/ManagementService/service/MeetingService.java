@@ -48,6 +48,7 @@ public class MeetingService {
     private static final String GET_MEETING = "Get meeting: ";
     private static final String SCHEDULING_MEETING_MESSAGE = "Schedule meeting: ";
     private static final String UPDATE_MEETING_MESSAGE = "Update meeting: ";
+    private static final String DELETE_MEETING_MESSAGE = "Update meeting: ";
 
     public Response<Set<MeetingDTO>> getMeetingInGroupByStudent(Integer classId, Integer groupId,
                                                                 Timestamp startDate, Timestamp endDate, String userEmail) {
@@ -167,22 +168,34 @@ public class MeetingService {
     public Response<Void> updateMeetingByLecturer(MeetingDTO meetingDTO) {
         logger.info("{}{}", UPDATE_MEETING_MESSAGE, meetingDTO);
         Meeting meeting = meetingRepository.findOneById(meetingDTO.getId());
-        if (meetingDTO.getLecturerId() != meeting.getLecturer().getId()) {
+        if (meetingDTO.getLecturerId().equals(meeting.getLecturer().getId())) {
             logger.warn("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
-        if (meetingDTO.getTitle() == null || meetingDTO.getScheduleTime() == null || meetingDTO.getLink() == null || meetingDTO.getGroupId() == meeting.getGroup().getId()) {
+        if (meetingDTO.getTitle() == null || meetingDTO.getScheduleTime() == null || meetingDTO.getLink() == null || meetingDTO.getGroupId().equals(meeting.getGroup().getId())) {
             logger.warn("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.UNAUTHENTICATED_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-		meeting.setFeedback(meetingDTO.getFeedback());
-		meeting.setLink(meetingDTO.getLink());
-		meeting.setScheduleTime(meetingDTO.getScheduleTime());
-		meeting.setTitle(meetingDTO.getTitle());
-		meetingRepository.save(meeting);
-		logger.info("{}{}", UPDATE_MEETING_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-		return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
-
+        meeting.setFeedback(meetingDTO.getFeedback());
+        meeting.setLink(meetingDTO.getLink());
+        meeting.setScheduleTime(meetingDTO.getScheduleTime());
+        meeting.setTitle(meetingDTO.getTitle());
+        meetingRepository.save(meeting);
+        logger.info("{}{}", UPDATE_MEETING_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
+
+    public Response<Void> deleteMeetingByLecturer(Integer lectureId, Integer meetingId) {
+        logger.info("{}{}", DELETE_MEETING_MESSAGE,meetingId);
+        if(!meetingRepository.findOneById(meetingId).getLecturer().getId().equals(lectureId))
+        {
+            logger.warn("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
+        meetingRepository.deleteById(meetingId);
+        logger.info("{}{}", DELETE_MEETING_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+
 
 }
