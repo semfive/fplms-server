@@ -34,7 +34,7 @@ namespace AuthService.Controllers
                     return BadRequest("Invalid Authentication.");
                 }
 
-                if (!payload.Email.Contains("@fpt.edu.vn") && !payload.Email.Contains("_fe"))
+                if (!payload.Email.Contains("@fpt.edu.vn") && !payload.Email.Contains(".fe"))
                 {
                     return BadRequest("Invalid Authentication.");
                 }
