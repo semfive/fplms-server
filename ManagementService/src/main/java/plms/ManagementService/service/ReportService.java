@@ -49,6 +49,7 @@ public class ReportService {
 	ModelMapper modelMapper;
 	
 	private static final Logger logger = LogManager.getLogger(ReportService.class);
+	private static final String REPPORT_NOT_IN_GROUP = "Report is not belong to this group.";
 	private static final String NOT_IN_GROUP = "Student not in group.";
 	private static final String NOT_A_LEADER = "Not a leader.";
 	private static final String LECTURER_NOT_MANAGE = "Lecturer not manage this class.";
@@ -155,8 +156,8 @@ public class ReportService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_A_LEADER);
 		}
 		if (cycleReportRepository.existsByIdAndGroupId(groupId, reportId) == null) {
-			logger.warn("{}{}", DELETE_CYCLE_REPORT, "Report is not belong to this group.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Report is not belong to this group.");
+			logger.warn("{}{}", DELETE_CYCLE_REPORT, REPPORT_NOT_IN_GROUP);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, REPPORT_NOT_IN_GROUP);
 		}
 		cycleReportRepository.delete(new CycleReport(reportId));
 		logger.info("Delete cycle report success.");
@@ -178,8 +179,8 @@ public class ReportService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
 		}
 		if (cycleReportRepository.existsByIdAndGroupId(groupId, reportId) == null) {
-			logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, "Report is not belong to this group.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Report is not belong to this group.");
+			logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, REPPORT_NOT_IN_GROUP);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, REPPORT_NOT_IN_GROUP);
 		}
 		cycleReportRepository.addFeedback(reportId, feedback);
 		logger.info("Feedback cycle report successful.");

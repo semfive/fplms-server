@@ -13,9 +13,11 @@ import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
+import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.LecturerRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
+import plms.ManagementService.repository.SubjectRepository;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Lecturer;
 import plms.ManagementService.repository.entity.Student;
@@ -34,7 +36,13 @@ public class ClassService {
     @Autowired
     StudentGroupRepository studentGroupRepository;
     @Autowired
+    SubjectRepository subjectRepository;
+    @Autowired
+    GroupRepository groupRepository;
+    @Autowired
     LecturerRepository lecturerRepository;
+    @Autowired
+    GroupService groupService;
     @Autowired
     ModelMapper modelMapper;
 
@@ -53,10 +61,9 @@ public class ClassService {
 
     public Response<Void> createClassByLecturer(ClassDTO classDTO, String lecturerEmail) {
         logger.info("{}{}", CREATE_CLASS_MESSAGE, classDTO);
-        //check if the class not of the lecturer
-        if (!classRepository.findLecturerEmailOfClass(classDTO.getId()).equals(lecturerEmail)) {
-            logger.warn("{}{}", CREATE_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
-            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        if (!subjectRepository.existsById(classDTO.getSubjectId())) {
+        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Subject not exist.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
@@ -78,9 +85,14 @@ public class ClassService {
             logger.warn("{}{}", UPDATE_CLASS_MESSAGE,ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
+        if (!subjectRepository.existsById(classDTO.getSubjectId())) {
+        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Subject not exist.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject not exist.");
+        }
         Class classEntity = modelMapper.map(classDTO, Class.class);
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
         classEntity.setIsDisable(false); // class is always not disable until being deleted
+        classEntity.setLecturer(new Lecturer(lecturerRepository.findLecturerIdByEmail(lecturerEmail)));
         classRepository.save(classEntity);
         logger.info("Update class success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -89,6 +101,10 @@ public class ClassService {
     public Response<Void> deleteClassByLecturer(Integer classId, String lecturerEmail) {
         logger.info("{}{}", DELETE_CLASS_MESSAGE, classId);
         //check if the class not of the lecturer
+        if (!classRepository.existsById(classId)) {
+            logger.warn("{}{}", DELETE_CLASS_MESSAGE,ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
         if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
             logger.warn("{}{}", DELETE_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
@@ -163,8 +179,10 @@ public class ClassService {
         }
         if (classRepository.existsInClass(studentId, classId) != null) //exist
         {
-            classRepository.deleteStudentInClass(studentId, classId);
-            studentGroupRepository.deleteStudentInGroup(studentId, classId);
+            Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+            if (groupId != null)
+            	groupService.removeStudentFromGroup(classId, groupId, studentId);
+            classRepository.deleteStudentInClass(studentId, classId);      
             logger.info("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
         } else {
@@ -235,8 +253,10 @@ public class ClassService {
         }
         if (classRepository.existsInClass(studentId, classId) != null) //exist
         {
+            Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+            if (groupId != null)
+            	groupService.removeStudentFromGroup(classId, groupId, studentId);
             classRepository.deleteStudentInClass(studentId, classId);
-            studentGroupRepository.deleteStudentInGroup(studentId, classId);
             logger.info("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
         } else {

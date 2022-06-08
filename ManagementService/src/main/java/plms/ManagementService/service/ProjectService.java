@@ -41,6 +41,8 @@ public class ProjectService {
 	SubjectRepository subjectRepository;
 	
 	private static final Logger logger = LogManager.getLogger(ProjectService.class);
+	private static final String PROJECT_NOT_MANAGE = "Lecturer not manage this project.";
+	private static final String SUBJECT_NOT_EXIST = "Subject not exist";
 	private static final String GET_PROJECT = "Get project from class: ";
 	private static final String ADD_PROJECT = "Add project to class: ";
 	private static final String UPDATE_PROJECT = "Update project in class: ";
@@ -100,8 +102,8 @@ public class ProjectService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
     	if (!subjectRepository.existsById(projectDTO.getSubjectId())) {
-    		logger.warn("{}{}", ADD_PROJECT, "Subject not exist");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject not exist");
+    		logger.warn("{}{}", ADD_PROJECT, SUBJECT_NOT_EXIST);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, SUBJECT_NOT_EXIST);
     	}
     	Project project = modelMapper.map(projectDTO, Project.class);
     	project.setLecturer(lecturerRepository.findOneByEmail(userEmail));
@@ -119,12 +121,12 @@ public class ProjectService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
     	if (!subjectRepository.existsById(projectDTO.getSubjectId())) {
-    		logger.warn("{}{}", UPDATE_PROJECT, "Subject not exist");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject not exist");
+    		logger.warn("{}{}", UPDATE_PROJECT, SUBJECT_NOT_EXIST);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, SUBJECT_NOT_EXIST);
     	}
     	if (projectRepository.existsByLecturerId(lecturerId, projectDTO.getId()) == null) {
-    		logger.warn("{}{}", UPDATE_PROJECT, "Lecturer not own this project.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not own this project.");
+    		logger.warn("{}{}", UPDATE_PROJECT, PROJECT_NOT_MANAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, PROJECT_NOT_MANAGE);
     	}
     	Project project = modelMapper.map(projectDTO, Project.class);
     	project.setLecturer(lecturerRepository.findOneByEmail(userEmail));
@@ -146,15 +148,15 @@ public class ProjectService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Project not exist");
     	}
     	if (projectRepository.existsByLecturerId(lecturerId, projectId) == null) {
-    		logger.warn("{}{}", DELETE_PROJECT, "Lecturer not own this project.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not own this project.");
+    		logger.warn("{}{}", DELETE_PROJECT, PROJECT_NOT_MANAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, PROJECT_NOT_MANAGE);
     	}
     	if (groupRepository.existByProject(projectId) != null) {
     		logger.warn("{}{}", DELETE_PROJECT, "At least one group used this project.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "At least one group used this project.");
     	}
-    	projectRepository.delete(new Project(projectId));
-    	logger.info("Update project success.");
+    	projectRepository.deleteProject(projectId);
+    	logger.info("Delete project success.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
