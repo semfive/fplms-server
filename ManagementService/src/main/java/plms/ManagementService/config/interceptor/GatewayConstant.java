@@ -33,7 +33,7 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("getGroupOfClass", "/api/management/classes/{classId:\\d+}/groups", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURE)));
         apiEntities.add(new ApiEntity("createGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", POST_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("updateGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", PUT_METHOD, ROLE_LECTURE));
-        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", DELETE_METHOD, ROLE_LECTURE));
+        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", PUT_METHOD, ROLE_LECTURE));
         
         apiEntities.add(new ApiEntity("addProjectByLecturer", "/api/management/projects", POST_METHOD, ROLE_LECTURE));
         apiEntities.add(new ApiEntity("updateProjectByLecturer", "/api/management/projects", PUT_METHOD, ROLE_LECTURE));
