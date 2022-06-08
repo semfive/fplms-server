@@ -75,7 +75,7 @@ public class GroupService {
         if (startGroupNumber == null) // there is no group in class
             startGroupNumber = 0;
         startGroupNumber++;
-        for (int index = startGroupNumber; index < startGroupNumber + createGroupRequest.getMemberQuantity(); index++) {
+        for (int index = startGroupNumber; index < startGroupNumber + createGroupRequest.getGroupQuantity(); index++) {
             group = modelMapper.map(createGroupRequest, Group.class);
             group.setId(null);
             group.setClassEntity(new Class(createGroupRequest.getClassId()));
@@ -99,7 +99,8 @@ public class GroupService {
         }
         Group group = modelMapper.map(groupDTO, Group.class);
         group.setClassEntity(new Class(classId));
-        group.setProject(new Project(groupDTO.getProjectDTO().getId()));
+        if (groupDTO.getProjectDTO() != null)
+        	group.setProject(new Project(groupDTO.getProjectDTO().getId()));
         groupRepository.save(group);
         logger.info("Update group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -116,6 +117,8 @@ public class GroupService {
             logger.warn("{}{}", DELETE_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
+        studentGroupRepository.deleteAllStudentInGroup(groupId);
+        groupRepository.delete(new Group(groupId));
         logger.info("Delete group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
