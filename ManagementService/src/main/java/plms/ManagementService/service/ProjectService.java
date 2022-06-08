@@ -152,7 +152,6 @@ public class ProjectService {
     	if (groupRepository.existByProject(projectId) != null) {
     		logger.warn("{}{}", DELETE_PROJECT, "At least one group used this project.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "At least one group used this project.");
-
     	}
     	projectRepository.delete(new Project(projectId));
     	logger.info("Update project success.");
