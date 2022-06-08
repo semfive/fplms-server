@@ -122,8 +122,8 @@ public class GroupService {
 
     public Response<Set<GroupDTO>> getGroupOfClassByLecturer(Integer classId, String lecturerEmail) {
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, classId);
-        //check if the class not of the lecturer
-        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+        //check if the class not of the lecturer  
+        if (!lecturerEmail.equals(classRepository.findLecturerEmailOfClass(classId))) {
             logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
