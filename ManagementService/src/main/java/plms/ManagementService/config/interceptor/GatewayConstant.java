@@ -44,6 +44,9 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("updateMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("deleteMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("getStudentById", "/api/management/students/{studentId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        
+        apiEntities.add(new ApiEntity("getSubject", "/api/management/subjects", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+
         //student role
         apiEntities.add(new ApiEntity("enrollClass", "/api/management/classes/{classId:\\d+}/enroll", POST_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId:\\d+}/unenroll", DELETE_METHOD, ROLE_STUDENT));
