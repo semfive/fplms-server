@@ -42,7 +42,7 @@ public class ReportController {
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "endDate") Timestamp endDate) {
-		if (userRole.equals(GatewayConstant.ROLE_LECTURE)) {
+		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
 			return reportService.getCycleReportInGroupByLecturer(classId, groupId, startDate, endDate, userEmail);
 		} 
 		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
@@ -82,7 +82,7 @@ public class ReportController {
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "endDate") Timestamp endDate) {
-		if (userRole.equals(GatewayConstant.ROLE_LECTURE)) {
+		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
 			return reportService.getProgressReportInGroupByLecturer(classId, groupId, startDate, endDate, userEmail);
 		} 
 		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {

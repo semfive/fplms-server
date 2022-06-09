@@ -9,7 +9,7 @@ import plms.ManagementService.model.request.CreateUserRequest;
 import plms.ManagementService.service.AuthenticationService;
 
 @RestController
-@RequestMapping(value = "/api/management/auth")
+@RequestMapping(value = "/api/auth/management")
 public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;

@@ -35,7 +35,7 @@ public class ProjectController {
 	public Response<Set<ProjectDTO>> getAllProjects(@RequestParam Integer classId,
 			@RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail) {
-		if (userRole.equals(GatewayConstant.ROLE_LECTURE)) {
+		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
 			return projectService.getProjectFromClassByLecturer(classId, userEmail);
 		} 
 		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
