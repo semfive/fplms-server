@@ -24,7 +24,7 @@ public class GroupController {
     @GetMapping
     public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable int classId
             , @RequestAttribute(required = false) String userEmail, @RequestAttribute(required = false) String userRole) {
-        if (userRole.equals(GatewayConstant.ROLE_LECTURE))
+        if (userRole.equals(GatewayConstant.ROLE_LECTURER))
             return groupService.getGroupOfClassByLecturer(classId, userEmail);
         if (userRole.equals(GatewayConstant.ROLE_STUDENT))
             return groupService.getGroupOfClassByStudent(classId, userEmail);
