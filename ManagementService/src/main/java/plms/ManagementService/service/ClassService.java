@@ -11,6 +11,7 @@ import plms.ManagementService.model.response.ClassByStudentResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
+import plms.ManagementService.model.dto.LecturerDTO;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.GroupRepository;
@@ -237,6 +238,7 @@ public class ClassService {
         Set<ClassByStudentResponse> classByStudentResponseSet = classSet.stream().map(classEntity -> {
             ClassByStudentResponse classByStudentResponse = modelMapper.map(classEntity, ClassByStudentResponse.class);
             classByStudentResponse.setSubjectId(classEntity.getSubject().getId());
+            classByStudentResponse.setLecturerDto(modelMapper.map(classEntity.getLecturer(), LecturerDTO.class));
             classByStudentResponse.setJoin(classRepository.existsInClass(studentId, classEntity.getId()) != null);
             return classByStudentResponse;
         }).collect(Collectors.toSet());
