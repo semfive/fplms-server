@@ -137,6 +137,8 @@ public class GroupService {
         }
         Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
                     GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+                    groupDTO.setMaxMemberQuantity(group.getMemberQuantity());
+                    groupDTO.setCurrentMemberQuantity(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
                     if (group.getProject() != null)
                         groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
                     return groupDTO;
@@ -148,8 +150,9 @@ public class GroupService {
 
     public Response<Set<GroupDTO>> getGroupOfClassByStudent(Integer classId, String studentEmail) {
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, classId);
-        //check if the class not of the lecturer
-        if (classRepository.existsInClass(studentRepository.findStudentIdByEmail(studentEmail), classId) == null) {
+        //check if the class not of the student
+        Integer studentId = studentRepository.findStudentIdByEmail(studentEmail);
+        if (classRepository.existsInClass(studentId, classId) == null) {
             logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
@@ -160,6 +163,9 @@ public class GroupService {
         }
         Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
                     GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
+                    groupDTO.setMaxMemberQuantity(group.getMemberQuantity());
+                    groupDTO.setCurrentMemberQuantity(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
+                    groupDTO.setJoin(studentGroupRepository.isStudentExistInGroup(group.getId(), studentId) != null);
                     if (group.getProject() != null)
                         groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
                     return groupDTO;
