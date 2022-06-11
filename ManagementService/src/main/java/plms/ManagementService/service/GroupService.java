@@ -93,9 +93,15 @@ public class GroupService {
             logger.warn("{}{}", UPDATE_GROUP_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
-        if (groupDTO.getId() == null || groupRepository.isGroupExistsInClass(groupDTO.getId(), classId) == null) {
+        Integer groupNumber = groupRepository.findGroupNumber(groupDTO.getId(), classId);
+        if (groupDTO.getId() == null || groupNumber == null) {
             logger.warn("Update group: {}", ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.NOT_FOUND_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        // not accept chane in the same group
+        if(groupNumber.equals(groupDTO.getNumber())){
+            logger.warn("Update group: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Group number already exist");
         }
         Group group = modelMapper.map(groupDTO, Group.class);
         group.setClassEntity(new Class(classId));
@@ -325,7 +331,7 @@ public class GroupService {
             logger.warn("{}{}", CHOOSE_PROJECT, ENROLL_TIME_OVER);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ENROLL_TIME_OVER);
         }
-        groupRepository.updateProjectinGroup(groupId, projectId);
+        groupRepository.updateProjectInGroup(groupId, projectId);
         logger.info("Choose project in group success.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }

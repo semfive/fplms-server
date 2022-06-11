@@ -23,6 +23,9 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
 
     @Query(nativeQuery = true, value = "select id from `GROUP` where id = ?1 and CLASS_id = ?2")
     Integer isGroupExistsInClass(Integer groupId, Integer classId);
+
+    @Query(nativeQuery = true, value = "select group_number from `GROUP` where GROUP_id = ?1 and CLASS_id = ?2")
+    Integer findGroupNumber(Integer groupId, Integer classId);
     
     @Query(nativeQuery = true, value = "select member_quantity from `GROUP` where id = ?1")
     Integer getGroupLimitNumber(Integer groupId);
@@ -33,7 +36,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Modifying
 	@Transactional
 	@Query(nativeQuery = true, value = "update `GROUP` set PROJECT_id = ?2 where id = ?1")
-	void updateProjectinGroup(Integer groupId, Integer projectId);
+	void updateProjectInGroup(Integer groupId, Integer projectId);
     
     @Query(nativeQuery = true, value = "select id from `GROUP` where id = ?1 and enroll_time > ?2")
     Integer isEnrollTimeOver(Integer groupId, Timestamp currentTime);
