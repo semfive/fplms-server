@@ -129,7 +129,7 @@ public class GroupService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
-    public Response<Set<GroupDTO>> getGroupOfClassByLecturer(Integer classId, String lecturerEmail) {
+    public Response<Set<GroupDetailResponse>> getGroupOfClassByLecturer(Integer classId, String lecturerEmail) {
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, classId);
         //check if the class not of the lecturer  
         if (!lecturerEmail.equals(classRepository.findLecturerEmailOfClass(classId))) {
@@ -141,20 +141,20 @@ public class GroupService {
             logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
-        Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
-                    GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
-                    groupDTO.setMaxMemberQuantity(group.getMemberQuantity());
-                    groupDTO.setCurrentMemberQuantity(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
+        Set<GroupDetailResponse> groupDetailResponses = classEntity.getGroupSet().stream().map(group -> {
+        	GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
+        		groupDetailResponse.setMemberQuantity(group.getMemberQuantity());            
+        		groupDetailResponse.setCurrentNumber(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
                     if (group.getProject() != null)
-                        groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
-                    return groupDTO;
+                    	groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+                    return groupDetailResponse;
                 })
                 .collect(Collectors.toSet());
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTOSet);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponses);
     }
 
-    public Response<Set<GroupDTO>> getGroupOfClassByStudent(Integer classId, String studentEmail) {
+    public Response<Set<GroupDetailResponse>> getGroupOfClassByStudent(Integer classId, String studentEmail) {
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, classId);
         //check if the class not of the student
         Integer studentId = studentRepository.findStudentIdByEmail(studentEmail);
@@ -167,18 +167,17 @@ public class GroupService {
             logger.warn("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
-        Set<GroupDTO> groupDTOSet = classEntity.getGroupSet().stream().map(group -> {
-                    GroupDTO groupDTO = modelMapper.map(group, GroupDTO.class);
-                    groupDTO.setMaxMemberQuantity(group.getMemberQuantity());
-                    groupDTO.setCurrentMemberQuantity(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
-                    groupDTO.setJoin(studentGroupRepository.isStudentExistInGroup(group.getId(), studentId) != null);
+        Set<GroupDetailResponse> groupDetailResponses = classEntity.getGroupSet().stream().map(group -> {
+        	GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
+        		groupDetailResponse.setMemberQuantity(group.getMemberQuantity());            
+        		groupDetailResponse.setCurrentNumber(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
                     if (group.getProject() != null)
-                        groupDTO.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
-                    return groupDTO;
+                    	groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+                    return groupDetailResponse;
                 })
                 .collect(Collectors.toSet());
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDTOSet);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponses);
     }
 
     @Transactional

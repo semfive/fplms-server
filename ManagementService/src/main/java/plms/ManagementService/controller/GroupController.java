@@ -22,7 +22,7 @@ public class GroupController {
     StudentService studentService;
 
     @GetMapping
-    public Response<Set<GroupDTO>> getGroupOfClass(@PathVariable int classId
+    public Response<Set<GroupDetailResponse>> getGroupOfClass(@PathVariable int classId
             , @RequestAttribute(required = false) String userEmail, @RequestAttribute(required = false) String userRole) {
         if (userRole.equals(GatewayConstant.ROLE_LECTURER))
             return groupService.getGroupOfClassByLecturer(classId, userEmail);
