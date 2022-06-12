@@ -12,7 +12,6 @@ import plms.ManagementService.repository.entity.Group;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Integer> {
-
     Group findOneById(Integer groupId);
     
     @Query(nativeQuery = true, value = "select id from `GROUP` where PROJECT_id = ?1 limit 1")
@@ -43,4 +42,19 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
 
     @Query(nativeQuery = true, value = "SELECT LECTURER_id FROM CLASS WHERE id = (SELECT CLASS_id FROM `GROUP` WHERE id = ?1)")
     Integer findLectureIdOfGroup(Integer groupId);
+    
+    @Query(nativeQuery = true, value = "select is_disable from `GROUP` where id = ?1")
+    Integer isGroupDisable(Integer groupId);
+    
+    @Modifying
+	@Transactional
+	@Query(nativeQuery = true, value = "update `GROUP` set is_disable = 1 where id = ?1")
+	void setGroupDisable(Integer groupId);
+    
+    @Modifying
+   	@Transactional
+   	@Query(nativeQuery = true, value = "update `GROUP` set is_disable = 0 where id = ?1")
+   	void setGroupEnable(Integer groupId);
+
+
 }

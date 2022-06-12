@@ -12,8 +12,8 @@ public class GatewayConstant {
     public static final String ROLE_STUDENT = "STUDENT";
     public static final String ROLE_LECTURER = "LECTURER";
      static final String ROLE_SPLIT_STRING = "&";
-    public static final String EMAIL_TEST = "stu4@gmail.com";
-    public static final String ROLE_TEST = ROLE_STUDENT;
+    public static final String EMAIL_TEST = "lec1@gmail.com";
+    public static final String ROLE_TEST = ROLE_LECTURER;
     
     private static final String GET_METHOD = "GET";
     private static final String POST_METHOD = "POST";
@@ -33,7 +33,9 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("getGroupOfClass", "/api/management/classes/{classId:\\d+}/groups", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("createGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", POST_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("updateGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups", PUT_METHOD, ROLE_LECTURER));
-        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", PUT_METHOD, ROLE_LECTURER));
+        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", DELETE_METHOD, ROLE_LECTURER));
+        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/disable", PUT_METHOD, ROLE_LECTURER));
+        apiEntities.add(new ApiEntity("deleteGroupByLecturer", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/enable", PUT_METHOD, ROLE_LECTURER));
         
         apiEntities.add(new ApiEntity("addProjectByLecturer", "/api/management/projects", POST_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("updateProjectByLecturer", "/api/management/projects", PUT_METHOD, ROLE_LECTURER));

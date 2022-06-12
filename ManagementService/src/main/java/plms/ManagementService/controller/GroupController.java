@@ -43,9 +43,19 @@ public class GroupController {
         return groupService.updateGroupByLecturer(classId, groupDTO, userEmail);
     }
 
-    @PutMapping("/{groupId}")
+    @DeleteMapping("/{groupId}")
     public Response<Void> deleteGroupByLecturer(@PathVariable int groupId, @PathVariable int classId, @RequestAttribute(required = false) String userEmail) {
         return groupService.deleteGroupByLecturer(groupId, classId, userEmail);
+    }
+    
+    @PutMapping("/{groupId}/disable")
+    public Response<Void> disableGroupByLecturer(@PathVariable int groupId, @PathVariable int classId, @RequestAttribute(required = false) String userEmail) {
+        return groupService.disableGroupByLecturer(groupId, classId, userEmail);
+    }
+    
+    @PutMapping("/{groupId}/enable")
+    public Response<Void> enableGroupByLecturer(@PathVariable int groupId, @PathVariable int classId, @RequestAttribute(required = false) String userEmail) {
+        return groupService.enableGroupByLecturer(groupId, classId, userEmail);
     }
 
     @GetMapping("/details")

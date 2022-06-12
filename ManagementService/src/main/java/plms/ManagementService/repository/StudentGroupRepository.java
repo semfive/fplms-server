@@ -57,5 +57,5 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Inte
     @Transactional
     @Query(nativeQuery = true, value = "update STUDENT_GROUP set is_leader = 1 where GROUP_id = ?1 and STUDENT_id = ?2")
     void addRandomGroupLeader(Integer groupId, Integer leaderId);
-    
+        
 }
