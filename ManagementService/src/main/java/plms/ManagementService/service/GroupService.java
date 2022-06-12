@@ -315,21 +315,21 @@ public class GroupService {
     }
 
     @Transactional
-    public Response<Void> chooseProjectInGroup(Integer classId, Integer groupId, Integer projectId, Integer studentId) {
-        logger.info("chooseProjectInGroup(classId: {}, groupId: {}, projectId: {}, studentId: {})", classId, groupId, projectId, studentId);
+    public Response<Void> chooseProjectInGroup(Integer classId, Integer projectId, Integer studentId) {
+        logger.info("chooseProjectInGroup(classId: {}, projectId: {}, studentId: {})", classId, projectId, studentId);
 
-        if (classId == null || groupId == null || projectId == null || studentId == null) {
+        if (classId == null || projectId == null || studentId == null) {
             logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        if (groupRepository.isGroupExistsInClass(groupId, classId) == null ||
-                projectRepository.isProjectExistsInClass(projectId, classId) == null) {
-            logger.warn("{}{}", CHOOSE_PROJECT, "Project not exist in class");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Project not exist in class");
-        }
+        Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
         if (!studentId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", CHOOSE_PROJECT, "Not a leader");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Not a leader");
+        }
+        if (!projectRepository.existsById(projectId)) {
+            logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
             logger.warn("{}{}", CHOOSE_PROJECT, ENROLL_TIME_OVER);

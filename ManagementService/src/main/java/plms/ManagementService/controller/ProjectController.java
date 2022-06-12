@@ -46,9 +46,9 @@ public class ProjectController {
 	
 	@PutMapping("/{projectId}")
 	public Response<Void> chooseProject(@RequestAttribute(required = false) String userEmail,
-			@RequestParam Integer classId, @RequestParam Integer groupId, @PathVariable Integer projectId) {
+			@RequestParam Integer classId, @PathVariable Integer projectId) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
-		return groupService.chooseProjectInGroup(classId, groupId, projectId, studentId);
+		return groupService.chooseProjectInGroup(classId, projectId, studentId);
 	}
 	
 	@PostMapping
