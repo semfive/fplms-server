@@ -182,7 +182,7 @@ public class ClassService {
         {
             Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
             if (groupId != null)
-            	groupService.removeStudentFromGroup(classId, groupId, studentId);
+            	groupService.removeStudentFromGroup(classId, studentId);
             classRepository.deleteStudentInClass(studentId, classId);      
             logger.info("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -257,7 +257,7 @@ public class ClassService {
         {
             Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
             if (groupId != null)
-            	groupService.removeStudentFromGroup(classId, groupId, studentId);
+            	groupService.removeStudentFromGroup(classId, studentId);
             classRepository.deleteStudentInClass(studentId, classId);
             logger.info("{}{}", REMOVE_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);

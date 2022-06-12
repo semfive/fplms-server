@@ -24,7 +24,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Query(nativeQuery = true, value = "select id from `GROUP` where id = ?1 and CLASS_id = ?2")
     Integer isGroupExistsInClass(Integer groupId, Integer classId);
 
-    @Query(nativeQuery = true, value = "select group_number from `GROUP` where GROUP_id = ?1 and CLASS_id = ?2")
+    @Query(nativeQuery = true, value = "select number from `GROUP` where id = ?1 and CLASS_id = ?2")
     Integer findGroupNumber(Integer groupId, Integer classId);
     
     @Query(nativeQuery = true, value = "select member_quantity from `GROUP` where id = ?1")
