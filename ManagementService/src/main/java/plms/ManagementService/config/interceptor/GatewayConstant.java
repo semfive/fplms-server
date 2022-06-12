@@ -12,8 +12,8 @@ public class GatewayConstant {
     public static final String ROLE_STUDENT = "STUDENT";
     public static final String ROLE_LECTURER = "LECTURER";
      static final String ROLE_SPLIT_STRING = "&";
-    public static final String EMAIL_TEST = "lec1@gmail.com";
-    public static final String ROLE_TEST = ROLE_LECTURER;
+    public static final String EMAIL_TEST = "stu1@gmail.com";
+    public static final String ROLE_TEST = ROLE_STUDENT;
     
     private static final String GET_METHOD = "GET";
     private static final String POST_METHOD = "POST";
@@ -52,11 +52,11 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("unenrollClass", "/api/management/classes/{classId:\\d+}/unenroll", DELETE_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("getClassList", "/api/management/classes/student", GET_METHOD, ROLE_STUDENT));
         
-        apiEntities.add(new ApiEntity("getGroupDetail", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}", GET_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("getGroupDetail", "/api/management/classes/{classId:\\d+}/groups/details", GET_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("joinGroup", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/join", POST_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("leaveGroup", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/leave", DELETE_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("removeFromGroupByLeader", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/remove/{removeStudentId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("changeGroupLeader", "/api/management/classes/{classId:\\d+}/groups/{groupId:\\d+}/changeLeader/{newLeaderId:\\d+}", PUT_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("leaveGroup", "/api/management/classes/{classId:\\d+}/groups/leave", DELETE_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("removeFromGroupByLeader", "/api/management/classes/{classId:\\d+}/groups/remove/{removeStudentId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("changeGroupLeader", "/api/management/classes/{classId:\\d+}/groups/changeLeader/{newLeaderId:\\d+}", PUT_METHOD, ROLE_STUDENT));
 
         apiEntities.add(new ApiEntity("getProjects", "/api/management/projects", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("chooseProject", "/api/management/projects/{projectId:\\d+}", PUT_METHOD, ROLE_STUDENT));

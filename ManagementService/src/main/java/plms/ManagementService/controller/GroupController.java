@@ -48,11 +48,11 @@ public class GroupController {
         return groupService.deleteGroupByLecturer(groupId, classId, userEmail);
     }
 
-    @GetMapping("/{groupId}")
+    @GetMapping("/details")
     public Response<GroupDetailResponse> getGroupByClassIdAndGroupId(@RequestAttribute(required = false) String userEmail,
-                                                                     @PathVariable Integer classId, @PathVariable Integer groupId) {
+                                                                     @PathVariable Integer classId) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
-        return groupService.getGroupByGroupIdAndClassId(groupId, classId, studentId);
+        return groupService.getGroupByClassId(classId, studentId);
     }
 
     @PostMapping("/{groupId}/join")
@@ -63,25 +63,25 @@ public class GroupController {
 
     }
 
-    @DeleteMapping("/{groupId}/leave")
+    @DeleteMapping("/leave")
     public Response<Void> removeStudentFromGroup(@RequestAttribute(required = false) String userEmail,
-                                                 @PathVariable Integer classId, @PathVariable Integer groupId) {
+                                                 @PathVariable Integer classId) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
-        return groupService.removeStudentFromGroup(classId, groupId, studentId);
+        return groupService.removeStudentFromGroup(classId, studentId);
 
     }
 
-    @DeleteMapping("/{groupId}/remove/{removeStudentId}")
+    @DeleteMapping("/remove/{removeStudentId}")
     public Response<Void> removeStudentFromGroupByLeader(@RequestAttribute(required = false) String userEmail,
-                                                         @PathVariable Integer classId, @PathVariable Integer groupId, @PathVariable Integer removeStudentId) {
-        Integer leaderId = studentService.getLeaderIdByEmail(userEmail, groupId);
-        return groupService.removeStudentFromGroupByLeader(classId, groupId, removeStudentId, leaderId);
+                                                         @PathVariable Integer classId, @PathVariable Integer removeStudentId) {
+        Integer leaderId = studentService.getStudentIdByEmail(userEmail);
+        return groupService.removeStudentFromGroupByLeader(classId, removeStudentId, leaderId);
     }
 
-    @PutMapping("/{groupId}/changeLeader/{newLeaderId}")
+    @PutMapping("/changeLeader/{newLeaderId}")
     public Response<Void> changeGroupLeader(@RequestAttribute(required = false) String userEmail,
-                                            @PathVariable Integer groupId, @PathVariable Integer newLeaderId) {
-        Integer leaderId = studentService.getLeaderIdByEmail(userEmail, groupId);
-        return groupService.changeGroupLeader(groupId, leaderId, newLeaderId);
+                                            @PathVariable Integer classId, @PathVariable Integer newLeaderId) {
+        Integer leaderId = studentService.getStudentIdByEmail(userEmail);
+        return groupService.changeGroupLeader(classId, leaderId, newLeaderId);
     }
 }

@@ -215,31 +215,36 @@ public class GroupService {
     }
 
     @Transactional
-    public Response<Void> removeStudentFromGroupByLeader(Integer classId, Integer groupId, Integer studentId, Integer leaderId) {
-        logger.info("removeStudentFromGroupByLeader(classId: {}, groupId: {}, studentId: {}, leaderId: {})", classId, groupId, studentId, leaderId);
+    public Response<Void> removeStudentFromGroupByLeader(Integer classId, Integer studentId, Integer leaderId) {
+        logger.info("removeStudentFromGroupByLeader(classId: {}, studentId: {}, leaderId: {})", classId, studentId, leaderId);
 
-        if (leaderId == null) {
+        if (classId == null || studentId == null || leaderId == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        return removeStudentFromGroup(classId, groupId, studentId);
+        Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+        if (!leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
+            logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        return removeStudentFromGroup(classId, studentId);
     }
 
     @Transactional
-    public Response<Void> removeStudentFromGroup(Integer classId, Integer groupId, Integer studentId) {
-        logger.info("removeStudentFromGroup(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
+    public Response<Void> removeStudentFromGroup(Integer classId, Integer studentId) {
+        logger.info("removeStudentFromGroup(classId: {}, studentId: {})", classId, studentId);
 
-        if (classId == null || groupId == null || studentId == null) {
+        if (classId == null || studentId == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        if (classRepository.existsInClass(studentId, classId) == null ||
-                groupRepository.isGroupExistsInClass(groupId, classId) == null) {
+        if (classRepository.existsInClass(studentId, classId) == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
-        if (!groupId.equals(groupRepository.findGroupByStudentIdAndClassId(studentId, classId))) {
-            logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_IN_GROUP_MESSAGE);
+        Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+        if (groupId == null) {
+        	logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_IN_GROUP_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP_MESSAGE);
         }
         if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
@@ -259,41 +264,41 @@ public class GroupService {
 
     }
 
-    public Response<GroupDetailResponse> getGroupByGroupIdAndClassId(Integer groupId, Integer classId, Integer studentId) {
-        logger.info("getGroupByGroupIdAndClassId(classId: {}, groupId: {}, studentId: {})", classId, groupId, studentId);
+    public Response<GroupDetailResponse> getGroupByClassId(Integer classId, Integer studentId) {
+        logger.info("getGroupByGroupIdAndClassId(classId: {}, studentId: {})", classId, studentId);
 
-        if (classId == null || groupId == null || studentId == null || !groupRepository.existsById(groupId) ||
-                !classRepository.existsById(classId)) {
+        if (classId == null || studentId == null || !classRepository.existsById(classId)) {
             logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-        } else if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
-            logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
-        } else if (studentGroupRepository.isStudentExistInGroup(groupId, studentId) == null) {
-            logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, "Student not exist in group");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Student not exist in group");
-        } else {
-            Group group = groupRepository.findOneById(groupId);
-            GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
-            groupDetailResponse.setStudentDtoSet(group.getStudentGroupSet().stream()
-                    .map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
-                    .collect(Collectors.toSet()));
-            groupDetailResponse.setLeaderId(studentGroupRepository.findLeaderInGroup(groupId));
-            if (group.getProject() != null)
-                groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
-            logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-            return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponse);
         }
+        Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+        if (groupId == null) {
+            logger.warn("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        Group group = groupRepository.findOneById(groupId);
+        GroupDetailResponse groupDetailResponse = modelMapper.map(group, GroupDetailResponse.class);
+        groupDetailResponse.setStudentDtoSet(group.getStudentGroupSet().stream()
+               .map(studentGroupEntity -> modelMapper.map(studentGroupEntity.getStudent(), StudentDTO.class))
+               .collect(Collectors.toSet()));
+		groupDetailResponse.setCurrentNumber(studentGroupRepository.getCurrentNumberOfMemberInGroup(group.getId()));
+        groupDetailResponse.setLeaderId(studentGroupRepository.findLeaderInGroup(groupId));
+        if (group.getProject() != null)
+            groupDetailResponse.setProjectDTO(modelMapper.map(group.getProject(), ProjectDTO.class));
+       logger.info("{}{}", GET_GROUP_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, groupDetailResponse);
+        
     }
 
     @Transactional
-    public Response<Void> changeGroupLeader(Integer groupId, Integer leaderId, Integer newLeaderId) {
-        logger.info("changeGroupLeader(groupId: {}, leaderId: {}, newLeaderId: {})", groupId, leaderId, newLeaderId);
+    public Response<Void> changeGroupLeader(Integer classId, Integer leaderId, Integer newLeaderId) {
+        logger.info("changeGroupLeader(classId: {}, leaderId: {}, newLeaderId: {})", classId, leaderId, newLeaderId);
 
-        if (groupId == null || leaderId == null || newLeaderId == null) {
+        if (classId == null || leaderId == null || newLeaderId == null) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
+        Integer groupId = groupRepository.findGroupByStudentIdAndClassId(leaderId, classId);
         if (studentGroupRepository.isStudentExistInGroup(groupId, newLeaderId) == null ||
                 !leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.ID_NOT_EXIST_MESSAGE);
