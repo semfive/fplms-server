@@ -25,6 +25,7 @@ import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
 
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,10 @@ public class ClassService {
         if (!subjectRepository.existsById(classDTO.getSubjectId())) {
         	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Subject not exist.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        if (!classDTO.getSemester().matches("SU\\d{2}|SP\\d{2}|FA\\d{2}")) {
+        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Invalid semester name.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Invalid semester name.");
         }
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
@@ -217,17 +222,35 @@ public class ClassService {
         		|| !studentRepository.existsById(studentId)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-        } else if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
+        } 
+        String season = classRepository.getClassSemester(classId).substring(0, 2);
+        String year = "20" + classRepository.getClassSemester(classId).substring(2);
+        Timestamp dealine = new Timestamp(System.currentTimeMillis());
+        if (season.equals("SP")) {  
+        	dealine = Timestamp.valueOf(year + "-04-30 00:00:00.0");
+        }
+        if (season.equals("SU")) {
+        	dealine = Timestamp.valueOf(year + "-08-31 00:00:00.0");
+        }
+        if (season.equals("FA")) {
+        	dealine = Timestamp.valueOf(year + "-12-31 00:00:00.0");
+        }
+        if (new Timestamp(System.currentTimeMillis()).after(dealine)) {
+        	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Enroll time is over");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Enroll time is over");
+        }
+        if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, INVALID_ENROLL_KEY_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSAGE);
-        } else if (classRepository.existsInClass(studentId, classId) != null) {
+        } 
+        if (classRepository.existsInClass(studentId, classId) != null) {
         	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Student already joined this class.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Student already joined this class.");
-        } else {
+        } 
             classRepository.insertStudentInClass(studentId, classId);
             logger.info("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
-        }
+        
     }
 
     public Response<Set<ClassByStudentResponse>> getClassesBySearchStrByStudent(String search, Integer studentId) {
