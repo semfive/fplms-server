@@ -211,6 +211,8 @@ public class ClassService {
     }
 
     public Response<Void> enrollStudentToClass(Integer classId, Integer studentId, String enrollKey) {
+        logger.info("enrollStudentToClass(classId: {}, studentId: {}, enrollKey: {})", classId, studentId,  enrollKey);
+
         if (classId == null || studentId == null || !classRepository.existsById(classId) 
         		|| !studentRepository.existsById(studentId)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -229,6 +231,8 @@ public class ClassService {
     }
 
     public Response<Set<ClassByStudentResponse>> getClassesBySearchStrByStudent(String search, Integer studentId) {
+        logger.info("getClassesBySearchStrByStudent(studentId: {}, search: {})", studentId, search);
+
         if (studentId == null) {
             logger.warn("{}{}", GET_CLASS_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);

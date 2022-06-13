@@ -22,5 +22,6 @@ public class GroupDetailResponse {
     private Timestamp enrollTime;
     private ProjectDTO projectDTO;
     private Integer leaderId;
+    private boolean isDisable;
     private Set<StudentDTO> studentDtoSet;
 }

@@ -19,7 +19,6 @@ import plms.ManagementService.repository.ProjectRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.SubjectRepository;
 import plms.ManagementService.repository.entity.Project;
-import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 

@@ -53,6 +53,7 @@ public class ReportService {
 	private static final String NOT_IN_GROUP = "Student not in group.";
 	private static final String NOT_A_LEADER = "Not a leader.";
 	private static final String LECTURER_NOT_MANAGE = "Lecturer not manage this class.";
+	private static final String GROUP_DISABLE = "Group is disable.";
 	private static final String DELETE_CYCLE_REPORT = "Delete cycle report: ";
 	private static final String DELETE_PROGRESS_REPORT = "Delete progres report: ";
 	private static final String GET_CYCLE_REPORT = "Get cycle report in group: ";
@@ -130,6 +131,10 @@ public class ReportService {
             logger.warn("Add cycle report: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
+		if (groupRepository.isGroupDisable(groupId) == 1) {
+            logger.warn("Add cycle report: {}", GROUP_DISABLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
+        }
 		if (!leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("Add cycle report: {}", NOT_A_LEADER);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_A_LEADER);
@@ -151,6 +156,10 @@ public class ReportService {
             logger.warn("{}{}", DELETE_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
+		if (groupRepository.isGroupDisable(groupId) == 1) {
+            logger.warn("{}{}", DELETE_CYCLE_REPORT, GROUP_DISABLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
+        }
 		if (!leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", DELETE_CYCLE_REPORT, NOT_A_LEADER);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_A_LEADER);
@@ -174,6 +183,10 @@ public class ReportService {
             logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
+		if (groupRepository.isGroupDisable(groupId) == 1) {
+            logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, GROUP_DISABLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
+        }
 		if (!lecturerId.equals(groupRepository.findOneById(groupId).getClassEntity().getLecturer().getId())) {
 			logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, LECTURER_NOT_MANAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
@@ -258,6 +271,10 @@ public class ReportService {
             logger.warn("Add progress report: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
+		if (groupRepository.isGroupDisable(groupId) == 1) {
+            logger.warn("Add progress report: {}", GROUP_DISABLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
+        }
 		if (studentGroupRepository.isStudentExistInGroup(groupId, studentId) == null) {
 			logger.warn("Add progress report: {}", NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
@@ -285,6 +302,10 @@ public class ReportService {
            logger.warn("{}{}", DELETE_PROGRESS_REPORT, NOT_IN_GROUP);
            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
 		}
+		if (groupRepository.isGroupDisable(groupId) == 1) {
+            logger.warn("{}{}", DELETE_PROGRESS_REPORT, GROUP_DISABLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
+        }
 		if (progressReportRepository.existsByIdAndGroupIdAndStudentId(groupId, reportId, studentId) == null) {
 			logger.warn("{}{}", DELETE_PROGRESS_REPORT, "Report is not belong to this student.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Report is not belong to this student.");
