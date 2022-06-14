@@ -1,65 +1,83 @@
 using System.Text;
 using AuthService.ActionFilters;
-// using System.Web.Http.Cors;
 using AuthService.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddCors(options =>
+    // Add services to the container.
+    builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+        });
+
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    builder.Services.AddAuthentication(opt =>
     {
-        options.AddDefaultPolicy(
-            builder =>
-            {
-                builder.WithOrigins("http://localhost:3000")
-                       .AllowAnyHeader()
-                       .AllowAnyMethod();
-            });
+        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
+            ValidAudience = jwtSettings.GetSection("validAudience").Value,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value))
+        };
     });
+    builder.Services.AddScoped<JwtHandler>();
+    builder.Services.AddScoped<ValidationFilterAttribute>();
 
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.AddAuthentication(opt =>
-{
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+
+    // Serilog
+    var logger = new LoggerConfiguration()
+                        .ReadFrom.Configuration(builder.Configuration)
+                        .Enrich.FromLogContext()
+                        .CreateLogger();
+    builder.Logging.ClearProviders();
+    builder.Logging.AddSerilog(logger);
+
+    builder.Services.AddControllers();
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
-        ValidAudience = jwtSettings.GetSection("validAudience").Value,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value))
-    };
-});
-builder.Services.AddScoped<JwtHandler>();
-builder.Services.AddScoped<ValidationFilterAttribute>();
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-var app = builder.Build();
+    app.UseHttpsRedirection();
+    app.UseCors(c => c.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    app.UseAuthorization();
+    app.MapControllers();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.Run();
 }
-
-
-app.UseHttpsRedirection();
-// app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-app.UseCors(c => c.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
