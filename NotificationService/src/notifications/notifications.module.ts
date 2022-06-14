@@ -6,7 +6,7 @@ import { NotificationsService } from './notifications.service';
 import { NotificationsGateway } from './notifications.gateway';
 
 @Module({
-  imports: [HttpModule, JwtStrategy],
+  imports: [HttpModule],
   controllers: [NotificationsController],
   providers: [NotificationsService, NotificationsGateway],
 })
