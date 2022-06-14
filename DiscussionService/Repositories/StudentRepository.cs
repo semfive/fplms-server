@@ -33,9 +33,9 @@ namespace DiscussionService.Repositories
             return await FindByCondition(student => student.Id.Equals(studentId)).FirstOrDefaultAsync();
         }
 
-        public async Task<Student> GetStudentByEmail(string email)
+        public async Task<Student> GetStudentByEmailAsync(string studentEmail)
         {
-            return await FindByCondition(student => student.Email.Equals(email)).FirstOrDefaultAsync();
+            return await FindByCondition(student => student.Email.Equals(studentEmail)).FirstOrDefaultAsync();
         }
 
         public void UpdateStudent(Student student)

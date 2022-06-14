@@ -63,8 +63,13 @@ namespace DiscussionService.Controllers
             try
             {
                 Lecturer lecturer = _mapper.Map<Lecturer>(createLecturerDto);
-                lecturer.Id = Guid.NewGuid();
+                var lecturerExists = await _repositoryWrapper.LecturerRepository.GetLecturerByEmailAsync(lecturer.Email);
+                if (lecturerExists != null)
+                {
+                    return Ok();
+                }
 
+                lecturer.Id = Guid.NewGuid();
                 _repositoryWrapper.LecturerRepository.Create(lecturer);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();
@@ -82,51 +87,51 @@ namespace DiscussionService.Controllers
 
         }
 
-        // [HttpGet("{lecturerId}/questions")]
-        // [ServiceFilter(typeof(ValidationFilterAttribute))]
-        // public async Task<IActionResult> GetLecturerQuestions([FromRoute] Guid lecturerId)
-        // {
-        //     try
-        //     {
-        //         var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsRemovedByLecturerId(lecturerId);
-        //         var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByIdAsync(lecturerId);
+        [HttpGet("{lecturerId}/questions")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetQuestionsRemovedByLecturer([FromRoute] Guid lecturerId)
+        {
+            try
+            {
+                var lecturerEmail = HttpContext.Items["userEmail"].ToString();
+                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsRemovedByLecturer(lecturerEmail);
+                // var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByIdAsync(lecturerId);
+                // foreach (var question in questions)
+                // {
+                //     question.RemovedBy = lecturer.Name;
+                // }
 
-        //         foreach (var question in questions)
-        //         {
-        //             question.RemovedBy = lecturer.Name;
-        //         }
+                var result = _mapper.Map<List<GetQuestionDto>>(questions);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
-        //         var result = _mapper.Map<List<GetQuestionDto>>(questions);
-        //         return Ok(result);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, "Internal server error");
-        //     }
-        // }
+        [HttpGet("{lecturerId}/answers")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetAnswersRemovedByLecturer([FromRoute] Guid lecturerId)
+        {
+            try
+            {
+                var lecturerEmail = HttpContext.Items["userEmail"].ToString();
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersRemovedByLecturer(lecturerEmail);
+                // var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByIdAsync(lecturerId);
+                // foreach (var answer in answers)
+                // {
+                //     answer.RemovedBy = lecturer.Name;
+                // }
 
-        // [HttpGet("{lecturerId}/answers")]
-        // [ServiceFilter(typeof(ValidationFilterAttribute))]
-        // public async Task<IActionResult> GetLecturerAnswers([FromRoute] Guid lecturerId)
-        // {
-        //     try
-        //     {
-        //         var answers = await _repositoryWrapper.AnswerRepository.GetAnswersRemovedByLecturerId(lecturerId);
-        //         var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByIdAsync(lecturerId);
-
-        //         foreach (var answer in answers)
-        //         {
-        //             answer.RemovedBy = lecturer.Name;
-        //         }
-
-        //         var result = _mapper.Map<List<GetQuestionDto>>(answers);
-        //         return Ok(result);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, "Internal server error");
-        //     }
-        // }
+                var result = _mapper.Map<List<GetAnswerDto>>(answers);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
     }
 }

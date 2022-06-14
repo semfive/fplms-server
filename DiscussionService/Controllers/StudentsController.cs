@@ -63,7 +63,7 @@ namespace DiscussionService.Controllers
             try
             {
                 Student student = _mapper.Map<Student>(createStudentDto);
-                var studentExists = await _repositoryWrapper.StudentRepository.GetStudentByEmail(student.Email);
+                var studentExists = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(student.Email);
                 if (studentExists != null)
                 {
                     return Ok();

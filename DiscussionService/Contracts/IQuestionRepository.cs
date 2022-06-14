@@ -9,7 +9,7 @@ namespace DiscussionService.Contracts
         Task<PagedList<Question>> GetAllQuestionsAsync(QuestionsQueryStringParameters queryStringParameters);
         Task<Question> GetQuestionByIdAsync(Guid questionId);
         Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId);
-        Task<IEnumerable<Question>> GetQuestionsRemovedByLecturerId(Guid lecturerId);
+        Task<IEnumerable<Question>> GetQuestionsRemovedByLecturer(string lecturerEmail);
         void CreateQuestion(Question question);
         void UpdateQuestion(Question question);
         void DeleteQuestion(Question question);
