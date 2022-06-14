@@ -32,7 +32,7 @@ public class ProjectController {
 	StudentService studentService;
 	
 	@GetMapping
-	public Response<Set<ProjectDTO>> getAllProjects(@RequestParam Integer classId,
+	public Response<Set<ProjectDTO>> getAllProjects(@RequestParam(required = false) Integer classId,
 			@RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail) {
 		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {

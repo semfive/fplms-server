@@ -51,7 +51,7 @@ public class ProjectService {
 	public Response<Set<ProjectDTO>> getProjectFromClassByStudent(Integer classId, String userEmail) {
     	logger.info("getProjectFromClassByStudent(classId: {}, userEmail: {})", classId, userEmail);
     	Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
-		if (studentId == null) {
+		if (studentId == null || classId == null) {
             logger.warn("{}{}", GET_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
@@ -69,17 +69,27 @@ public class ProjectService {
             logger.warn("{}{}", GET_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
+    	if (classId == null) {
+			return getAllProjectByLecturer(lecturerId);
+		}
+    	if (!classRepository.existsById(classId)) {
+    		logger.warn("{}{}", GET_PROJECT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+    	}
 		if (!lecturerId.equals(classRepository.findOneById(classId).getLecturer().getId())) {
 			logger.warn("{}{}", GET_PROJECT, "Lecturer not manage class");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not manage class");
 		}
+
 		return getProjectFromClass(classId);
+		
+		
 	}
 	
 	public Response<Set<ProjectDTO>> getProjectFromClass(Integer classId) {
     	logger.info("getProjectFromClass(classId: {})", classId);
     	
-		if (classId == null || classRepository.findOneById(classId) == null) {
+		if (classRepository.findOneById(classId) == null) {
             logger.warn("Get project from class: {}", ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
@@ -92,11 +102,20 @@ public class ProjectService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, projectDtoSet);
 	}
 	
+	public Response<Set<ProjectDTO>> getAllProjectByLecturer(Integer lecturerId) {
+		Set<Project> projectSet = projectRepository.findByLecturerId(lecturerId);
+		Set<ProjectDTO> projectDtoSet = projectSet.stream()
+				.map(projectEntity -> modelMapper.map(projectEntity, ProjectDTO.class)).collect(Collectors.toSet());
+		logger.info("Get project from class success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, projectDtoSet);
+
+	}
+	
 	@Transactional
 	public Response<Void> addProject(ProjectDTO projectDTO, String userEmail) {
     	logger.info("addProject(projectDTO: {}, userEmail: {})", projectDTO, userEmail);
 		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
-    	if (lecturerId == null) {
+    	if (lecturerId == null || projectDTO == null) {
             logger.warn("{}{}", ADD_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
@@ -115,7 +134,7 @@ public class ProjectService {
 	public Response<Void> updateProject(ProjectDTO projectDTO, String userEmail) {
     	logger.info("updateProject(projectDTO: {}, userEmail: {})", projectDTO, userEmail);
 		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
-    	if (lecturerId == null) {
+    	if (lecturerId == null || projectDTO == null) {
             logger.warn("{}{}", UPDATE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}

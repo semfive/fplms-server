@@ -282,6 +282,10 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
         Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+        if (groupId == null) {
+            logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
         if (!leaderId.equals(studentGroupRepository.findLeaderInGroup(groupId))) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -302,13 +306,13 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
         Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
-        if (groupRepository.isGroupDisable(groupId) == 1) {
-            logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, GROUP_DISABLE);
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
-        }
         if (groupId == null) {
         	logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, NOT_IN_GROUP_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP_MESSAGE);
+        }
+        if (groupRepository.isGroupDisable(groupId) == 1) {
+            logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, GROUP_DISABLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
         }
         if (groupRepository.isEnrollTimeOver(groupId, new Timestamp(System.currentTimeMillis())) == null) {
             logger.warn("{}{}", REMOVE_STUDENT_FROM_GROUP_MESSAGE, ENROLL_TIME_OVER);
@@ -362,6 +366,10 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
         Integer groupId = groupRepository.findGroupByStudentIdAndClassId(leaderId, classId);
+        if (groupId == null) {
+            logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
         if (groupRepository.isGroupDisable(groupId) == 1) {
             logger.warn("{}{}", CHANGE_GROUP_LEADER_MESSAGE, GROUP_DISABLE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
@@ -390,6 +398,10 @@ public class GroupService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
         Integer groupId = groupRepository.findGroupByStudentIdAndClassId(studentId, classId);
+        if (groupId == null) {
+            logger.warn("{}{}", CHOOSE_PROJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
         if (groupRepository.isGroupDisable(groupId) == 1) {
             logger.warn("{}{}", CHOOSE_PROJECT, GROUP_DISABLE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
