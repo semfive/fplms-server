@@ -63,8 +63,13 @@ namespace DiscussionService.Controllers
             try
             {
                 Lecturer lecturer = _mapper.Map<Lecturer>(createLecturerDto);
-                lecturer.Id = Guid.NewGuid();
+                var lecturerExists = await _repositoryWrapper.LecturerRepository.GetLecturerByEmailAsync(lecturer.Email);
+                if (lecturerExists != null)
+                {
+                    return Ok();
+                }
 
+                lecturer.Id = Guid.NewGuid();
                 _repositoryWrapper.LecturerRepository.Create(lecturer);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();

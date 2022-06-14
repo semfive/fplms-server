@@ -33,6 +33,10 @@ namespace DiscussionService.Repositories
             return await FindByCondition(lecturer => lecturer.Id.Equals(lecturerId)).FirstOrDefaultAsync();
         }
 
+        public async Task<Lecturer> GetLecturerByEmailAsync(string lecturerEmail)
+        {
+            return await FindByCondition(lecturer => lecturer.Email.Equals(lecturerEmail)).FirstOrDefaultAsync();
+        }
         public void UpdateLecturer(Lecturer lecturer)
         {
             Update(lecturer);
