@@ -34,7 +34,7 @@ public class ProgressReport {
 	private String title;
 	@Column
 	private String content;
-	@Column(name = "report_time")
+	@Column(name = "report_time",insertable = false,updatable = false)
 	private Timestamp reportTime;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "STUDENT_id")

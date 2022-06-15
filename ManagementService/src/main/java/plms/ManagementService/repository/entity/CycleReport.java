@@ -33,7 +33,7 @@ public class CycleReport {
 	private String title;
 	@Column
 	private String content;
-	@Column(name = "report_time")
+	@Column(name = "report_time",insertable = false)
 	private Timestamp reportTime;
 	@Column
 	private String feedback;
