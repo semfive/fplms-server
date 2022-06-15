@@ -22,6 +22,8 @@ import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
 import plms.ManagementService.model.request.CreateCycleReportRequest;
 import plms.ManagementService.model.request.CreateProgressReportRequest;
+import plms.ManagementService.model.request.UpdateCycleReportRequest;
+import plms.ManagementService.model.request.UpdateProgressReportRequest;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.service.ReportService;
 import plms.ManagementService.service.StudentService;
@@ -54,10 +56,15 @@ public class ReportController {
 	
 	@PostMapping("/cycle-reports")
 	public Response<Void> addCycleReport(@RequestAttribute(required = false) String userEmail,
-			@RequestParam Integer groupId,
 			@RequestBody CreateCycleReportRequest createCycleReportRequest) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
-		return reportService.addCycleReport(createCycleReportRequest, groupId, studentId);
+		return reportService.addCycleReport(createCycleReportRequest, studentId);
+	}
+	@PutMapping("/cycle-reports")
+	public Response<Void> updateCycleReport(@RequestAttribute(required = false) String userEmail,
+										 @RequestBody UpdateCycleReportRequest updateCycleReportRequest) {
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
+		return reportService.updateCycleReport(updateCycleReportRequest, studentId);
 	}
 	
 	@DeleteMapping("/cycle-reports/{reportId}")
@@ -93,10 +100,15 @@ public class ReportController {
 	
 	@PostMapping("/progress-reports")
 	public Response<Void> addProgressReport(@RequestAttribute(required = false) String userEmail,
-			@RequestParam Integer groupId,
 			@RequestBody CreateProgressReportRequest createProgressReportRequest) {
 		Integer studentId = studentService.getStudentIdByEmail(userEmail);
-		return reportService.addProgressReport(createProgressReportRequest, groupId, studentId);
+		return reportService.addProgressReport(createProgressReportRequest, studentId);
+	}
+	@PutMapping("/progress-reports")
+	public Response<Void> updateProgressReport(@RequestAttribute(required = false) String userEmail,
+											@RequestBody UpdateProgressReportRequest updateProgressReportRequest) {
+		Integer studentId = studentService.getStudentIdByEmail(userEmail);
+		return reportService.updateProgressReport(updateProgressReportRequest, studentId);
 	}
 	
 	@DeleteMapping("/progress-reports/{reportId}")
