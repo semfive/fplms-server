@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
-import plms.ManagementService.model.request.CreateCycleReportRequest;
-import plms.ManagementService.model.request.CreateProgressReportRequest;
-import plms.ManagementService.model.request.UpdateCycleReportRequest;
-import plms.ManagementService.model.request.UpdateProgressReportRequest;
+import plms.ManagementService.model.request.*;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.CycleReportRepository;
@@ -162,8 +159,8 @@ public class ReportService {
             logger.warn("{}{}", UPDATE_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        if(cycleReport.getFeedback() != null){
-            logger.warn("{}{}",UPDATE_CYCLE_REPORT,"Feedback is not null");
+        if (cycleReport.getFeedback() != null) {
+            logger.warn("{}{}", UPDATE_CYCLE_REPORT, "Feedback is not null");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Can not update report having feedback");
         }
         if (groupRepository.isGroupDisable(groupId) == 1) {
@@ -209,27 +206,27 @@ public class ReportService {
     }
 
 
-    public Response<Void> feedbackCycleReport(Integer groupId, Integer reportId, String userEmail, String feedback) {
-        logger.info("feedbackCycleReport(groupId: {}, reportId: {}, userEmail: {})", groupId, reportId, userEmail);
+    public Response<Void> feedbackCycleReport(FeedbackCycleReportRequest feedbackCycleReportRequest, String userEmail) {
+        logger.info("{}{}", FEEDBACK_CYCLE_REPORT, feedbackCycleReportRequest);
         Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
-        if (lecturerId == null || groupId == null || reportId == null ||
-                !groupRepository.existsById(groupId) || !cycleReportRepository.existsById(reportId)) {
+        if (lecturerId == null || feedbackCycleReportRequest.getGroupId() == null || feedbackCycleReportRequest.getReportId() == null ||
+                !groupRepository.existsById(feedbackCycleReportRequest.getGroupId()) || !cycleReportRepository.existsById(feedbackCycleReportRequest.getReportId())) {
             logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        if (groupRepository.isGroupDisable(groupId) == 1) {
+        if (groupRepository.isGroupDisable(feedbackCycleReportRequest.getGroupId()) == 1) {
             logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, GROUP_DISABLE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, GROUP_DISABLE);
         }
-        if (!lecturerId.equals(groupRepository.findOneById(groupId).getClassEntity().getLecturer().getId())) {
+        if (!lecturerId.equals(groupRepository.findOneById(feedbackCycleReportRequest.getGroupId()).getClassEntity().getLecturer().getId())) {
             logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, LECTURER_NOT_MANAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
         }
-        if (cycleReportRepository.existsByIdAndGroupId(groupId, reportId) == null) {
+        if (cycleReportRepository.existsByIdAndGroupId(feedbackCycleReportRequest.getGroupId(), feedbackCycleReportRequest.getReportId()) == null) {
             logger.warn("{}{}", FEEDBACK_CYCLE_REPORT, REPORT_NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, REPORT_NOT_IN_GROUP);
         }
-        cycleReportRepository.addFeedback(reportId, feedback);
+        cycleReportRepository.addFeedback(feedbackCycleReportRequest.getReportId(), feedbackCycleReportRequest.getFeedback(), feedbackCycleReportRequest.getMark());
         logger.info("Feedback cycle report successful.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }

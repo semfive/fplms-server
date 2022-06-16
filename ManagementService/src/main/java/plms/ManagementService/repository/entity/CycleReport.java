@@ -37,6 +37,8 @@ public class CycleReport {
 	private Timestamp reportTime;
 	@Column
 	private String feedback;
+	@Column
+	private Float mark;
 	@Column(name = "resource_link")
 	private String resourceLink;
 	@ManyToOne(fetch = FetchType.LAZY)

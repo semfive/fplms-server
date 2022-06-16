@@ -41,7 +41,7 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("updateProjectByLecturer", "/api/management/projects", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("deleteProjectByLecturer", "/api/management/projects/{projectId:\\d+}", DELETE_METHOD, ROLE_LECTURER));
 
-        apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/cycle-reports/{reportId:\\d+}/feedback", PUT_METHOD, ROLE_LECTURER));
+        apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/cycle-reports/feedback", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("scheduleMeeting", "/api/management/meetings", POST_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("updateMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("deleteMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURER));
