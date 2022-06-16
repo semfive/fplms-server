@@ -11,7 +11,7 @@ import plms.ManagementService.model.dto.LecturerDTO;
 public class ClassByStudentResponse {
     private Integer id;
     private String name;
-    private String semester;
+    private String semesterCode;
     private String enrollKey;
     private Integer subjectId;
     private LecturerDTO lecturerDto;

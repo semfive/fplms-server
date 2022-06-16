@@ -16,11 +16,13 @@ import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.GroupRepository;
 import plms.ManagementService.repository.LecturerRepository;
+import plms.ManagementService.repository.SemesterRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.SubjectRepository;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Lecturer;
+import plms.ManagementService.repository.entity.Semester;
 import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
@@ -46,6 +48,8 @@ public class ClassService {
     @Autowired
     GroupService groupService;
     @Autowired
+    SemesterRepository semesterRepository;
+    @Autowired
     ModelMapper modelMapper;
 
     private static final Logger logger = LogManager.getLogger(ClassService.class);
@@ -67,12 +71,13 @@ public class ClassService {
         	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Subject not exist.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
-        if (!classDTO.getSemester().matches("SU\\d{2}|SP\\d{2}|FA\\d{2}")) {
-        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Invalid semester name.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Invalid semester name.");
+        if (!semesterRepository.existsById(classDTO.getSemesterCode())) {
+        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Semester not exist.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Semester not exist.");
         }
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
+        classEntity.setSemester(new Semester(classDTO.getSemesterCode()));;
         classEntity.setSubject(new Subject(classDTO.getSubjectId()));
         classEntity.setLecturer(new Lecturer(lecturerRepository.findLecturerIdByEmail(lecturerEmail)));
         classRepository.save(classEntity);
@@ -91,8 +96,12 @@ public class ClassService {
             logger.warn("{}{}", UPDATE_CLASS_MESSAGE,ServiceMessage.ID_NOT_EXIST_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
         }
+        if (!semesterRepository.existsById(classDTO.getSemesterCode())) {
+        	logger.warn("{}{}", UPDATE_CLASS_MESSAGE, "Semester not exist.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Semester not exist.");
+        }
         if (!subjectRepository.existsById(classDTO.getSubjectId())) {
-        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Subject not exist.");
+        	logger.warn("{}{}", UPDATE_CLASS_MESSAGE, "Subject not exist.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject not exist.");
         }
         Class classEntity = modelMapper.map(classDTO, Class.class);
@@ -223,22 +232,16 @@ public class ClassService {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } 
-        String season = classRepository.getClassSemester(classId).substring(0, 2);
-        String year = "20" + classRepository.getClassSemester(classId).substring(2);
-        Timestamp dealine = new Timestamp(System.currentTimeMillis());
-        if (season.equals("SP")) {  
-        	dealine = Timestamp.valueOf(year + "-04-30 00:00:00.0");
-        }
-        if (season.equals("SU")) {
-        	dealine = Timestamp.valueOf(year + "-08-31 00:00:00.0");
-        }
-        if (season.equals("FA")) {
-        	dealine = Timestamp.valueOf(year + "-12-31 00:00:00.0");
-        }
-        if (new Timestamp(System.currentTimeMillis()).after(dealine)) {
+        Timestamp startDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
+        Timestamp endDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
+        if (new Timestamp(System.currentTimeMillis()).before(startDate)) {
+        	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Class not open yet");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Class not open yet");
+        } 
+        if (new Timestamp(System.currentTimeMillis()).after(endDate)) {
         	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Enroll time is over");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Enroll time is over");
-        }
+        }        
         if (!classRepository.getClassEnrollKey(classId).equals(enrollKey)) {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, INVALID_ENROLL_KEY_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, INVALID_ENROLL_KEY_MESSAGE);

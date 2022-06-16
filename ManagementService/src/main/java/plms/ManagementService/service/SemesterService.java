@@ -91,8 +91,8 @@ public class SemesterService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
     	}
     	if (classRepository.findClassBySemester(code) != null) {
-            logger.warn("{}{}", DELETE_SEMESTER, "Some classes registered in this semester.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Some classes registered in this semester.");
+            logger.warn("{}{}", DELETE_SEMESTER, "Some classes created in this semester.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Some classes created in this semester.");
     	}
     	semesterRepository.delete(new Semester(code));
         logger.info("Delete semester success");
