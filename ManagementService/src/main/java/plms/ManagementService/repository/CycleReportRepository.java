@@ -23,7 +23,7 @@ public interface CycleReportRepository extends JpaRepository<CycleReport, Intege
 	
 	@Modifying
     @Transactional
-    @Query(nativeQuery = true, value = "update CYCLE_REPORT set feedback = ?2 where id = ?1")
-    void addFeedback(Integer reportId, String feedback);
+    @Query(nativeQuery = true, value = "update CYCLE_REPORT set feedback = ?2 and mark = ?3 where id = ?1")
+    void addFeedback(Integer reportId, String feedback,Float mark);
     
 }

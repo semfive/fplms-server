@@ -28,7 +28,7 @@ public class Group {
     @Column(name = "enroll_time")
     private Timestamp enrollTime;
     @Column(name = "is_disable", insertable = false)
-    private boolean isDisable;
+    private Boolean isDisable;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
     @JsonManagedReference
     private Set<StudentGroup> studentGroupSet;

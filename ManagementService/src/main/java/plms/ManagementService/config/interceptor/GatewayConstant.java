@@ -41,7 +41,7 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("updateProjectByLecturer", "/api/management/projects", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("deleteProjectByLecturer", "/api/management/projects/{projectId:\\d+}", DELETE_METHOD, ROLE_LECTURER));
 
-        apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/cycle-reports/{reportId:\\d+}/feedback", PUT_METHOD, ROLE_LECTURER));
+        apiEntities.add(new ApiEntity("feedbackReportByLecturer", "/api/management/cycle-reports/feedback", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("scheduleMeeting", "/api/management/meetings", POST_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("updateMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("deleteMeeting", "/api/management/meetings", PUT_METHOD, ROLE_LECTURER));
@@ -65,9 +65,11 @@ public class GatewayConstant {
 
         apiEntities.add(new ApiEntity("getCycleReport", "/api/management/cycle-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("addCycleReport", "/api/management/cycle-reports", POST_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("updateCycleReport", "/api/management/cycle-reports", PUT_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("deleteCycleReport", "/api/management/cycle-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));        
         apiEntities.add(new ApiEntity("getProgressReport", "/api/management/progress-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("addProgressReport", "/api/management/progress-reports", POST_METHOD, ROLE_STUDENT));
+        apiEntities.add(new ApiEntity("updateProgressReport", "/api/management/progress-reports", PUT_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("deleteProgressReport", "/api/management/progress-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("getMeeting", "/api/management/meetings", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
 

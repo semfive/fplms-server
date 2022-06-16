@@ -1,15 +1,13 @@
 package plms.ManagementService.model.request;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class CreateUserRequest {
     private Boolean isLecturer;
     private String name;
