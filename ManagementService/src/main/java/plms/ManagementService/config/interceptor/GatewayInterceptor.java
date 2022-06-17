@@ -85,14 +85,13 @@ public class GatewayInterceptor implements HandlerInterceptor {
 //            verifyRole(apiEntity.getRole(), emailVerifyDTO.getRole());
 //            logger.info("Request validated. Start forward request to controller");
 //            return emailVerifyDTO;
-        } else {
-            emailVerifyDTO = getEmailVerifiedEntity(accessToken);
-            if (emailVerifyDTO.getEmail() == null)
-                throw new WrongTokenException();
         }
+        emailVerifyDTO = getEmailVerifiedEntity(accessToken);
+        if (emailVerifyDTO.getEmail() == null)
+            throw new WrongTokenException();
         if (adminEmail.equals(emailVerifyDTO.getEmail())) {
-        	emailVerifyDTO.setRole("ADMIN");
-        }  
+            emailVerifyDTO.setRole("ADMIN");
+        }
         emailVerifyDTO.setRole(emailVerifyDTO.getRole().trim().toUpperCase());
         logger.info("Path:{} VerifyDTO:{}", servletPath, emailVerifyDTO);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
@@ -124,7 +123,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
         throw new NoAccessRoleException();
     }
 
-    public EmailVerifyDTO getEmailVerifiedEntity(String token) {
+    private EmailVerifyDTO getEmailVerifiedEntity(String token) {
         return getWebClientBuilder().build().get().uri(VERIFY_URL).header(GatewayConstant.AUTHORIZATION_HEADER, token)
                 .retrieve().bodyToMono(EmailVerifyDTO.class).block();
     }
