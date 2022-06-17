@@ -11,13 +11,13 @@ import lombok.*;
 public class ClassDTO {
     private Integer id;
     private String name;
-    private String semester;
+    private String semesterCode;
     private String enrollKey;
     private Integer subjectId;
 
-    public ClassDTO(String name, String semester, String enrollKey, Integer subjectId) {
+    public ClassDTO(String name, String semesterCode, String enrollKey, Integer subjectId) {
         this.name = name;
-        this.semester = semester;
+        this.semesterCode = semesterCode;
         this.enrollKey = enrollKey;
         this.subjectId = subjectId;
     }

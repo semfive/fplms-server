@@ -21,12 +21,13 @@ public class Class {
     private Integer id;
     @Column
     private String name;
-    @Column
-    private String semester;
     @Column(name = "enroll_key")
     private String enrollKey;
     @Column(name = "is_disable", insertable = false)
     private Boolean isDisable;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "SEMESTER_code")
+    private Semester semester;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "SUBJECT_id")
     private Subject subject;
@@ -44,9 +45,8 @@ public class Class {
         this.id = id;
     }
 
-    public Class(String name, String semester, String enrollKey, Subject subject, Lecturer lecturer) {
+    public Class(String name, String enrollKey, Subject subject, Lecturer lecturer) {
         this.name = name;
-        this.semester = semester;
         this.enrollKey = enrollKey;
         this.subject = subject;
         this.lecturer = lecturer;

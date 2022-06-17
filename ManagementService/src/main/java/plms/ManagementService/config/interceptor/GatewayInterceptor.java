@@ -3,6 +3,7 @@ package plms.ManagementService.config.interceptor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
@@ -21,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class GatewayInterceptor implements HandlerInterceptor {
     private static Logger logger = LogManager.getLogger(GatewayInterceptor.class);
+    @Value("${application.admin.email}")
+    private String adminEmail;
 
     @Bean
     public WebClient.Builder getWebClientBuilder() {
@@ -87,6 +90,9 @@ public class GatewayInterceptor implements HandlerInterceptor {
             if (emailVerifyDTO.getEmail() == null)
                 throw new WrongTokenException();
         }
+        if (adminEmail.equals(emailVerifyDTO.getEmail())) {
+        	emailVerifyDTO.setRole("ADMIN");
+        }  
         emailVerifyDTO.setRole(emailVerifyDTO.getRole().trim().toUpperCase());
         logger.info("Path:{} VerifyDTO:{}", servletPath, emailVerifyDTO);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);

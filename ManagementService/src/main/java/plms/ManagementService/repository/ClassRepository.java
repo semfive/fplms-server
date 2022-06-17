@@ -38,8 +38,12 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Query(nativeQuery = true, value = "SELECT email FROM LECTURER WHERE id = (SELECT LECTURER_id FROM CLASS WHERE id = ?1 and is_disable = 0)")
     public String findLecturerEmailOfClass(Integer classId);
     
-    @Query(nativeQuery = true, value = "select semester from CLASS where id = ?1 and is_disable = 0")
+    @Query(nativeQuery = true, value = "select SEMESTER_code from CLASS where id = ?1 and is_disable = 0")
     public String getClassSemester(Integer classId);
 
-
+    @Query(nativeQuery = true, value = "select id from CLASS where SEMESTER_code = ?1 limit 1")
+    public Integer findClassBySemester(String code);
+    
+    @Query(nativeQuery = true, value = "select id from CLASS where SUBJECT_id = ?1 limit 1")
+    public Integer findClassBySubject(Integer subjectId);
 }
