@@ -1,6 +1,6 @@
 package plms.ManagementService.repository.entity;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,9 +21,9 @@ public class Semester {
 	@Column
 	private String code;
 	@Column(name = "start_date")
-	private Timestamp startDate;
+	private Date startDate;
 	@Column(name = "end_date")
-	private Timestamp endDate;
+	private Date endDate;
 	
 	public Semester(String code) {
 		super();

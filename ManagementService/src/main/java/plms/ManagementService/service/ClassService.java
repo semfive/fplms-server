@@ -27,7 +27,7 @@ import plms.ManagementService.repository.entity.Student;
 import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,6 +74,10 @@ public class ClassService {
         if (!semesterRepository.existsById(classDTO.getSemesterCode())) {
         	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Semester not exist.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Semester not exist.");
+        }
+        if (semesterRepository.getSemesterEndDate(classDTO.getSemesterCode()).before(new Date(System.currentTimeMillis()))) {
+        	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Semester already end.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Semester already end.");
         }
         classDTO.setId(null);//jpa create class without id only
         Class classEntity = modelMapper.map(classDTO, Class.class);
@@ -232,13 +236,13 @@ public class ClassService {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } 
-        Timestamp startDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
-        Timestamp endDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
-        if (new Timestamp(System.currentTimeMillis()).before(startDate)) {
+        Date startDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
+        Date endDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
+        if (new Date(System.currentTimeMillis()).before(startDate)) {
         	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Class not open yet");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Class not open yet");
         } 
-        if (new Timestamp(System.currentTimeMillis()).after(endDate)) {
+        if (new Date(System.currentTimeMillis()).after(endDate)) {
         	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Enroll time is over");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Enroll time is over");
         }        

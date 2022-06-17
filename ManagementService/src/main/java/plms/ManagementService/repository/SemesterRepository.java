@@ -1,6 +1,6 @@
 package plms.ManagementService.repository;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,9 +15,9 @@ public interface SemesterRepository extends JpaRepository<Semester, String>{
 	public Set<Semester> getSemester(String code);
 	
 	@Query(nativeQuery = true, value = "select end_date from SEMESTER where code = ?1")
-	public Timestamp getSemesterEndDate(String code);
+	public Date getSemesterEndDate(String code);
 	
 	@Query(nativeQuery = true, value = "select start_date from SEMESTER where code = ?1")
-	public Timestamp getSemesterStartDate(String code);
+	public Date getSemesterStartDate(String code);
 
 }
