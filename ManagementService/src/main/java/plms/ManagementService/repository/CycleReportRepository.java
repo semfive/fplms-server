@@ -17,6 +17,8 @@ public interface CycleReportRepository extends JpaRepository<CycleReport, Intege
 	
 	@Query(nativeQuery = true, value = "select id from CYCLE_REPORT where id = ?2 and GROUP_id = ?1")
 	Integer existsByIdAndGroupId(Integer groupId, Integer reportId);
+
+	Boolean existsByGroupAndCycleNumber(Group group,Integer cycleNumber);
 	
 	@Query(nativeQuery = true, value = "select * from CYCLE_REPORT where GROUP_id = ?1 and report_time >= ?2 and report_time <= ?3")
 	Set<CycleReport> findByGroupIdAndTimeFilter(Integer groupId, Timestamp startDate, Timestamp endDate);

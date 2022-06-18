@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import plms.ManagementService.repository.entity.Class;
+import plms.ManagementService.repository.entity.Group;
 
 @Repository
 public interface ClassRepository extends JpaRepository<Class, Integer> {
@@ -30,20 +31,21 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     void insertStudentInClass(Integer studentId, Integer classId);
 
     @Query(nativeQuery = true, value = "select enroll_key from CLASS where id = ?1 and is_disable = 0")
-    public String getClassEnrollKey(Integer classId);
+    String getClassEnrollKey(Integer classId);
 
     @Query(nativeQuery = true, value = "select * from CLASS where name like ?1 and is_disable = 0")
-    public Set<Class> getClassBySearchStr(String search);
+    Set<Class> getClassBySearchStr(String search);
 
     @Query(nativeQuery = true, value = "SELECT email FROM LECTURER WHERE id = (SELECT LECTURER_id FROM CLASS WHERE id = ?1 and is_disable = 0)")
-    public String findLecturerEmailOfClass(Integer classId);
-    
+    String findLecturerEmailOfClass(Integer classId);
+
     @Query(nativeQuery = true, value = "select SEMESTER_code from CLASS where id = ?1 and is_disable = 0")
-    public String getClassSemester(Integer classId);
+    String getClassSemester(Integer classId);
 
     @Query(nativeQuery = true, value = "select id from CLASS where SEMESTER_code = ?1 limit 1")
-    public Integer findClassBySemester(String code);
-    
+    Integer findClassBySemester(String code);
+
     @Query(nativeQuery = true, value = "select id from CLASS where SUBJECT_id = ?1 limit 1")
-    public Integer findClassBySubject(Integer subjectId);
+    Integer findClassBySubject(Integer subjectId);
+    
 }

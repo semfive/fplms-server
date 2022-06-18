@@ -1,11 +1,9 @@
 package plms.ManagementService.repository.entity;
 
 import java.sql.Date;
+import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +27,7 @@ public class Semester {
 		super();
 		this.code = code;
 	}
-	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "semester")
+	private Set<Class> classSet;
 	
 }

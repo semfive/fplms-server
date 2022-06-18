@@ -23,6 +23,8 @@ public class Class {
     private String name;
     @Column(name = "enroll_key")
     private String enrollKey;
+    @Column(name = "cycle_duration")
+    private Integer cycleDuration;
     @Column(name = "is_disable", insertable = false)
     private Boolean isDisable;
     @ManyToOne(fetch = FetchType.EAGER)
