@@ -1,5 +1,6 @@
 package plms.ManagementService.service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,18 +16,12 @@ import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
 import plms.ManagementService.model.request.*;
 import plms.ManagementService.model.response.Response;
-import plms.ManagementService.repository.ClassRepository;
-import plms.ManagementService.repository.CycleReportRepository;
-import plms.ManagementService.repository.GroupRepository;
-import plms.ManagementService.repository.LecturerRepository;
-import plms.ManagementService.repository.ProgressReportRepository;
-import plms.ManagementService.repository.StudentGroupRepository;
-import plms.ManagementService.repository.StudentRepository;
-import plms.ManagementService.repository.entity.CycleReport;
-import plms.ManagementService.repository.entity.Group;
-import plms.ManagementService.repository.entity.ProgressReport;
+import plms.ManagementService.repository.*;
+import plms.ManagementService.repository.entity.*;
+import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
+import plms.ManagementService.service.exception.ServiceException;
 
 @Service
 public class ReportService {
@@ -51,6 +46,8 @@ public class ReportService {
     private static final String REPORT_NOT_IN_GROUP = "Report is not belong to this group.";
     private static final String NOT_IN_GROUP = "Student not in group.";
     private static final String NOT_A_LEADER = "Not a leader.";
+    private static final String NOT_IN_CYCLE = "Not in cycle";
+    private static final String CYCLE_REPORT_EXISTS = "This cycle has report already";
     private static final String LECTURER_NOT_MANAGE = "Lecturer not manage this class.";
     private static final String GROUP_DISABLE = "Group is disable.";
     private static final String CREATE_CYCLE_REPORT = "Create cycle report: ";
@@ -128,7 +125,7 @@ public class ReportService {
 
     public Response<Void> addCycleReport(CreateCycleReportRequest reportRequest, Integer leaderId) {
         Integer groupId = reportRequest.getGroupId();
-        logger.info("addCycleReport(reportRequest: {}, groupId: {}, leaderId: {})", reportRequest, groupId, leaderId);
+        logger.info("addCycleReport(reportRequest: {}, leaderId: {})", reportRequest, leaderId);
 
         if (reportRequest == null || groupId == null || leaderId == null ||
                 !groupRepository.existsById(groupId) || !studentRepository.existsById(leaderId)) {
@@ -143,8 +140,18 @@ public class ReportService {
             logger.warn("{}{}", CREATE_CYCLE_REPORT, NOT_A_LEADER);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_A_LEADER);
         }
+        Integer currentCycle = getCurrentCycle(groupId);
+        if (currentCycle == null) {
+            logger.warn("{}{}", CREATE_CYCLE_REPORT, NOT_IN_CYCLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_CYCLE);
+        }
+        if (cycleReportRepository.existsByGroupAndCycleNumber(new Group(groupId), currentCycle)) {
+            logger.warn("{}{}", CREATE_CYCLE_REPORT, CYCLE_REPORT_EXISTS);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, CYCLE_REPORT_EXISTS);
+        }
         CycleReport cycleReport = modelMapper.map(reportRequest, CycleReport.class);
-        cycleReport.setGroup(groupRepository.findOneById(groupId));
+        cycleReport.setGroup(new Group(groupId));
+        cycleReport.setCycleNumber(currentCycle);
         cycleReportRepository.save(cycleReport);
         logger.info("Add cycle report success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -171,9 +178,14 @@ public class ReportService {
             logger.warn("{}{}", UPDATE_CYCLE_REPORT, NOT_A_LEADER);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_A_LEADER);
         }
-        cycleReport = modelMapper.map(reportRequest, CycleReport.class);
-        cycleReport.setGroup(groupRepository.findOneById(groupId));
-        cycleReport.setReportTime(new Timestamp(System.currentTimeMillis()));
+        Integer currentCycle = getCurrentCycle(groupId);
+        if (currentCycle == null || !cycleReport.getCycleNumber().equals(currentCycle)) {
+            logger.warn("{}{}", UPDATE_CYCLE_REPORT, NOT_IN_CYCLE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_CYCLE);
+        }
+        cycleReport.setContent(reportRequest.getContent());
+        cycleReport.setTitle(reportRequest.getTitle());
+        cycleReport.setResourceLink(reportRequest.getResourceLink());
         cycleReportRepository.save(cycleReport);
         logger.info("Update cycle report success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -199,6 +211,10 @@ public class ReportService {
         if (cycleReportRepository.existsByIdAndGroupId(groupId, reportId) == null) {
             logger.warn("{}{}", DELETE_CYCLE_REPORT, REPORT_NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, REPORT_NOT_IN_GROUP);
+        }
+        if (cycleReportRepository.getById(reportId).getFeedback() != null) {
+            logger.warn("{}{}", DELETE_CYCLE_REPORT, "Feedback is not null");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Can not delete report having feedback");
         }
         cycleReportRepository.delete(new CycleReport(reportId));
         logger.info("Delete cycle report success.");
@@ -335,8 +351,8 @@ public class ReportService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
         }
         ProgressReport progressReport = modelMapper.map(reportRequest, ProgressReport.class);
-        progressReport.setGroup(groupRepository.findOneById(groupId));
-        progressReport.setStudent(studentRepository.findOneById(studentId));
+        progressReport.setGroup(new Group(groupId));
+        progressReport.setStudent(new Student(studentId));
         progressReportRepository.save(progressReport);
         logger.info("Update progress report success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -367,5 +383,19 @@ public class ReportService {
         progressReportRepository.delete(new ProgressReport(reportId));
         logger.info("Delete progress report success.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+
+    @Transactional
+    public Integer getCurrentCycle(int groupId) {
+        Class classEntity = groupRepository.findOneById(groupId).getClassEntity();
+        Integer cycleDuration = classEntity.getCycleDuration();
+        Semester semester = classEntity.getSemester();
+        Date currentDate = new Date(System.currentTimeMillis());
+        if (currentDate.before(semester.getStartDate()) || currentDate.after(semester.getEndDate())) {
+            // not in semester
+            return null;
+        }
+        Integer currentCycle = Integer.valueOf((int) ((currentDate.getTime() - semester.getStartDate().getTime()) / ((long) 1000 * 60 * 60 * 24 * cycleDuration) + 1));
+        return currentCycle;
     }
 }
