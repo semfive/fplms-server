@@ -15,7 +15,7 @@ namespace DiscussionService.Dtos
         [Required]
         public string? SubjectName { get; set; }
 
-        [Required]
-        public Guid StudentId { get; set; }
+        //[Required]
+        //public Guid StudentId { get; set; }
     }
 }

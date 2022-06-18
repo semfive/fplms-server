@@ -30,6 +30,9 @@ namespace DiscussionService.Controllers
         {
             try
             {
+                //var userEmail = HttpContext.Items["userEmail"] as string;
+                //var userRole = HttpContext.Items["userRole"] as string;
+                
                 var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
                 var metadata = new
                 {
@@ -50,7 +53,7 @@ namespace DiscussionService.Controllers
             }
         }
 
-        [HttpGet("{questionId}/answers")]
+        [HttpGet("{questionId}")]
         [TypeFilter(typeof(AuthorizationFilterAttribute))]
         public async Task<IActionResult> GetQuestionAnswers(Guid questionId)
         {
@@ -74,18 +77,19 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                // var userEmail = HttpContext.Items["userEmail"];
-                // var userRole = HttpContext.Items["userRole"];
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
 
-                // if (!userRole.Equals("Student"))
-                // {
-                //     return Unauthorized("Only student can create questions.");
-                // }
-
+                if (!userRole.Equals("Student"))
+                {
+                    return Unauthorized("Only student can create questions.");
+                }
                 Question question = _mapper.Map<Question>(createQuestionDto);
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var subject = await _repositoryWrapper.SubjectRepository.GetSubjectByNameAsync(createQuestionDto.SubjectName);
                 question.Id = Guid.NewGuid();
                 question.SubjectId = subject.Id;
+                question.StudentId = student.Id;
 
                 _repositoryWrapper.QuestionRepository.CreateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
@@ -106,21 +110,21 @@ namespace DiscussionService.Controllers
             try
             {
 
-                // var userEmail = HttpContext.Items["userEmail"] as string;
-                // var userRole = HttpContext.Items["userRole"] as string;
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
 
-                // if (!userRole.Equals("Student"))
-                // {
-                //     return Unauthorized("Only student can create questions.");
-                // }
+                if (!userRole.Equals("Student"))
+                {
+                    return Unauthorized("Only student can update questions.");
+                }
 
-                // var student = await _repositoryWrapper.StudentRepository.GetStudentIdByEmail(userEmail);
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var newQuestion = _mapper.Map<Question>(updateQuestionDto);
 
-                // if (!student.Id.Equals(newQuestion.StudentId))
-                // {
-                //     return Unauthorized("Only the author of the question can update the question");
-                // }
+                if (!student.Id.Equals(newQuestion.StudentId))
+                {
+                    return Unauthorized("Only the author of the question can update the question");
+                }
 
                 var subject = await _repositoryWrapper.SubjectRepository.GetSubjectByNameAsync(updateQuestionDto.SubjectName);
                 var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
@@ -151,16 +155,16 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                // var userEmail = HttpContext.Items["userEmail"] as string;
-                // var userRole = HttpContext.Items["userRole"] as string;
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
 
                 var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
 
-                // var student = await _repositoryWrapper.StudentRepository.GetStudentIdByEmail(userEmail);
-                // if (!question.StudentId.Equals(student.Id))
-                // {
-                //     return Unauthorized("Only the author of the question can delete the question");
-                // }
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                if (!question.StudentId.Equals(student.Id))
+                {
+                    return Unauthorized("Only the author of the question can delete the question");
+                }
 
                 if (question == null)
                 {

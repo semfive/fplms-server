@@ -14,7 +14,8 @@ builder.Services.AddCors(options =>
         options.AddDefaultPolicy(
             builder =>
             {
-                builder.WithOrigins("http://localhost:3000")
+                builder.AllowAnyOrigin()
+                        .WithExposedHeaders("X-Pagination")
                        .AllowAnyHeader()
                        .AllowAnyMethod();
             });
@@ -46,14 +47,14 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
-
+app.UseMiddleware<JwtMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors(options => options.AllowAnyOrigin().WithExposedHeaders("X-Pagination").AllowAnyMethod().AllowAnyHeader());
 app.UseAuthorization();
-app.UseMiddleware<JwtMiddleware>();
+
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())

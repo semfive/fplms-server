@@ -65,15 +65,32 @@ public class AuthorizationFilterAttribute : Attribute, IAuthorizationFilter
 
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        string userEmail = context.HttpContext.Items["userEmail"] as string;
-        string userRole = context.HttpContext.Items["userRole"] as string;
+        //Console.WriteLine(context.HttpContext.Items["UserEmail"]);
+        //using var httpClient = new HttpClient();
+        ////{
+        //httpClient.DefaultRequestHeaders.Clear();
+        //httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
+        //httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", (string?)context.HttpContext.Items["token"]);
+
+        //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+        //httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml+json");
+        //httpClient.DefaultRequestHeaders.Add("Authorization", token);
+        //var response = httpClient.GetAsync("https://silent-hairs-cover-14-169-34-149.loca.lt/api/auth/accounts/verify").Result;
+        //response.EnsureSuccessStatusCode(); // throws if not 200-299
+        //var userEmail = context.HttpContext.Items["userEmail"];
+        //var userRole = context.HttpContext.Items["userRole"];
+        //Console.WriteLine(context.HttpContext.Items["userEmail"]);
 
         // var userRole = user.GetType().GetProperty("role").GetValue(user, null) as string;
         // string userRole = context.HttpContext.Items["user"].GetType().GetProperty("role").GetValue(context.HttpContext.Items["user"], null) as string;
+        var userEmail = context.HttpContext.Items["UserEmail"];
+        var userRole = context.HttpContext.Items["UserRole"];
         if (userEmail == null || userRole == null)
         {
             // not logged in
             context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+            return;
         }
     }
 }
