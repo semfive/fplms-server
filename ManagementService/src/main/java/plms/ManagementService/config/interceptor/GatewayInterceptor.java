@@ -101,7 +101,6 @@ public class GatewayInterceptor implements HandlerInterceptor {
         return emailVerifyDTO;
     }
 
-
     private ApiEntity getMatchingAPI(String httpMethod, String path) {
         AntPathMatcher matcher = new AntPathMatcher();
         for (ApiEntity apiEntity : GatewayConstant.apiEntities) {
