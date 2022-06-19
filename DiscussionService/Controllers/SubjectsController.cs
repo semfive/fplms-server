@@ -52,17 +52,17 @@ namespace DiscussionService.Controllers
                 subject.Id = Guid.NewGuid();
                 _repositoryWrapper.SubjectRepository.Create(subject);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return Created("~api/discussion/subjects/" + subject.Id, createSubjectDto);
             }
-            catch (DataException)
+            catch (DataException ex)
             {
-                Console.WriteLine("Unable to save data");
+                return StatusCode(500, "Unable to save data");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error");
             }
-            return StatusCode(500);
+
         }
     }
 }

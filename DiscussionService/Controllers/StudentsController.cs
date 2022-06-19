@@ -71,29 +71,41 @@ namespace DiscussionService.Controllers
                 student.Id = Guid.NewGuid();
                 _repositoryWrapper.StudentRepository.Create(student);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return Created("~api/discussion/students/" + student.Id, createStudentDto);
             }
-            catch (DataException)
+            catch (DataException ex)
             {
-                Console.WriteLine("Unable to save data");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Unable to save data");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 return StatusCode(500, "Internal server error");
             }
 
         }
 
-        [HttpGet("{studentId}/questions")]
+        [HttpGet("questions")]
         [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> GetStudentQuestions([FromRoute] Guid studentId)
+        public async Task<IActionResult> GetStudentQuestions()
         {
             try
             {
-                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsByStudentId(studentId);
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Unauthorized("Only students can get questions.");
+                }
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsByStudentId(student.Id);
+                if (!student.Id.Equals(questions.First().StudentId))
+                {
+                    return Forbid("Only the author of the questions can get their questions");
+                }
+
                 var result = _mapper.Map<List<GetQuestionDto>>(questions);
                 return Ok(result);
             }
@@ -103,14 +115,26 @@ namespace DiscussionService.Controllers
             }
         }
 
-        [HttpGet("{studentId}/answers")]
+        [HttpGet("answers")]
         [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> GetStudentAnswers([FromRoute] Guid studentId)
+        public async Task<IActionResult> GetStudentAnswers()
         {
             try
             {
-                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByStudentId(studentId);
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Forbid("Only students can get answers.");
+                }
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByStudentId(student.Id);
+                if (!student.Id.Equals(answers.First().StudentId))
+                {
+                    return Forbid("Only the author of the answers can get their answers");
+                }
                 var result = _mapper.Map<List<GetAnswerDto>>(answers);
                 return Ok(result);
             }

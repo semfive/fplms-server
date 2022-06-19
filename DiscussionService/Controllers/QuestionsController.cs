@@ -93,11 +93,10 @@ namespace DiscussionService.Controllers
 
                 _repositoryWrapper.QuestionRepository.CreateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return Created("~api/discussion/questions/" + question.Id, createQuestionDto);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -144,7 +143,7 @@ namespace DiscussionService.Controllers
                 question.SubjectId = subject.Id;
                 _repositoryWrapper.QuestionRepository.UpdateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -180,7 +179,7 @@ namespace DiscussionService.Controllers
                 question.RemovedBy = userEmail;
                 _repositoryWrapper.QuestionRepository.UpdateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return NoContent();
             }
             catch (Exception ex)
             {

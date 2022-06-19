@@ -72,34 +72,38 @@ namespace DiscussionService.Controllers
                 lecturer.Id = Guid.NewGuid();
                 _repositoryWrapper.LecturerRepository.Create(lecturer);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return Created("~api/discussion/lecturers/" + lecturer.Id, createLecturerDto);
             }
-            catch (DataException)
+            catch (DataException ex)
             {
-                Console.WriteLine("Unable to save data");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Unable to save data");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 return StatusCode(500, "Internal server error");
             }
 
         }
 
-        [HttpGet("{lecturerId}/questions")]
+        [HttpGet("questions")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetQuestionsRemovedByLecturer([FromRoute] Guid lecturerId)
         {
             try
             {
-                var lecturerEmail = HttpContext.Items["userEmail"].ToString();
-                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsRemovedByLecturer(lecturerEmail);
-                // var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByIdAsync(lecturerId);
-                // foreach (var question in questions)
-                // {
-                //     question.RemovedBy = lecturer.Name;
-                // }
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Lecturer"))
+                {
+                    return Forbid("Only lecturers can get questions.");
+                }
+                var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByEmailAsync(userEmail);
+                var questions = await _repositoryWrapper.QuestionRepository.GetQuestionsRemovedByLecturer(lecturer.Email);
+                if (!lecturer.Email.Equals(questions.First().RemovedBy))
+                {
+                    return Forbid("Only the lecturer who removed the questions can get their questions");
+                }
 
                 var result = _mapper.Map<List<GetQuestionDto>>(questions);
                 return Ok(result);
@@ -110,20 +114,25 @@ namespace DiscussionService.Controllers
             }
         }
 
-        [HttpGet("{lecturerId}/answers")]
+        [HttpGet("answers")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetAnswersRemovedByLecturer([FromRoute] Guid lecturerId)
         {
             try
             {
-                var lecturerEmail = HttpContext.Items["userEmail"].ToString();
-                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersRemovedByLecturer(lecturerEmail);
-                // var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByIdAsync(lecturerId);
-                // foreach (var answer in answers)
-                // {
-                //     answer.RemovedBy = lecturer.Name;
-                // }
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
 
+                if (!userRole.Equals("Lecturer"))
+                {
+                    return Forbid("Only lecturers can get questions.");
+                }
+                var lecturer = await _repositoryWrapper.LecturerRepository.GetLecturerByEmailAsync(userEmail);
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersRemovedByLecturer(lecturer.Email);
+                if (!lecturer.Email.Equals(answers.First().RemovedBy))
+                {
+                    return Forbid("Only the lecturer who removed the answers can get their answers");
+                }
                 var result = _mapper.Map<List<GetAnswerDto>>(answers);
                 return Ok(result);
             }
