@@ -32,7 +32,7 @@ namespace DiscussionService.Controllers
             {
                 //var userEmail = HttpContext.Items["userEmail"] as string;
                 //var userRole = HttpContext.Items["userRole"] as string;
-                
+
                 var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
                 var metadata = new
                 {
@@ -120,18 +120,22 @@ namespace DiscussionService.Controllers
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var newQuestion = _mapper.Map<Question>(updateQuestionDto);
-
-                if (!student.Id.Equals(newQuestion.StudentId))
-                {
-                    return Unauthorized("Only the author of the question can update the question");
-                }
-
                 var subject = await _repositoryWrapper.SubjectRepository.GetSubjectByNameAsync(updateQuestionDto.SubjectName);
                 var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
 
                 if (question == null)
                 {
                     return NotFound();
+                }
+
+                if (!student.Id.Equals(question.StudentId))
+                {
+                    return Unauthorized("Only the author of the question can update the question");
+                }
+
+                if (subject == null)
+                {
+                    return NotFound("Subject doesn't exists");
                 }
 
                 question.Title = newQuestion.Title;
@@ -161,9 +165,9 @@ namespace DiscussionService.Controllers
                 var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
-                if (!question.StudentId.Equals(student.Id))
+                if (!question.StudentId.Equals(student.Id) && !userRole.Equals("Lecturer"))
                 {
-                    return Unauthorized("Only the author of the question can delete the question");
+                    return Unauthorized("Only the author of the question or a lecturer can delete the question");
                 }
 
                 if (question == null)
@@ -173,7 +177,7 @@ namespace DiscussionService.Controllers
 
                 // _repositoryWrapper.QuestionRepository.DeleteQuestion(question);
                 question.Removed = true;
-                question.RemovedBy = "N/a";
+                question.RemovedBy = userEmail;
                 _repositoryWrapper.QuestionRepository.UpdateQuestion(question);
                 await _repositoryWrapper.SaveAsync();
                 return Ok();

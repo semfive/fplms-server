@@ -75,13 +75,21 @@ namespace DiscussionService.Controllers
         {
             try
             {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+                if (!userRole.Equals("Student"))
+                {
+                    return Unauthorized("Only student can create answers.");
+                }
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = _mapper.Map<Answer>(createAnswerDto);
                 answer.Id = Guid.NewGuid();
+                answer.StudentId = student.Id;
 
                 _repositoryWrapper.AnswerRepository.CreateAnswer(answer);
                 await _repositoryWrapper.SaveAsync();
 
-                return Ok();
+                return Created("~api/discussion/answers/" + answer.Id, createAnswerDto);
             }
             catch (Exception ex)
             {
@@ -96,16 +104,31 @@ namespace DiscussionService.Controllers
         {
             try
             {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Unauthorized("Only student can accept answers.");
+                }
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+
                 if (answer == null)
                 {
                     return NotFound();
                 }
 
+                if (!student.Id.Equals(answer.StudentId))
+                {
+                    return Forbid("Only the author of the question can update the question");
+                }
+
                 answer.Accepted = true;
                 _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -120,6 +143,15 @@ namespace DiscussionService.Controllers
         {
             try
             {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Unauthorized("Only student can accept answers.");
+                }
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var newAnswer = _mapper.Map<Answer>(updateAnswerDto);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
 
@@ -128,11 +160,16 @@ namespace DiscussionService.Controllers
                     return NotFound();
                 }
 
+                if (!student.Id.Equals(answer.StudentId))
+                {
+                    return Forbid("Only the author of the question can update the question");
+                }
+
                 answer.Content = newAnswer.Content;
                 answer.ModifiedDate = DateTime.Now;
                 _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -147,6 +184,10 @@ namespace DiscussionService.Controllers
         {
             try
             {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
 
                 if (answer == null)
@@ -154,12 +195,17 @@ namespace DiscussionService.Controllers
                     return NotFound();
                 }
 
+                if (!student.Id.Equals(answer.StudentId) && !userRole.Equals("Lecturer"))
+                {
+                    return Forbid("Only the author of the answer or a lecturer can delete the question");
+                }
+
                 // _repositoryWrapper.AnswerRepository.DeleteAnswer(answer);
                 answer.Removed = true;
-                answer.RemovedBy = "N/a";
+                answer.RemovedBy = userEmail;
                 _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
                 await _repositoryWrapper.SaveAsync();
-                return Ok();
+                return NoContent();
             }
             catch (Exception ex)
             {
