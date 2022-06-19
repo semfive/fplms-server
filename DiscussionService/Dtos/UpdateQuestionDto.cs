@@ -4,14 +4,15 @@ namespace DiscussionService.Dtos
 {
     public record UpdateQuestionDto
     {
-        [Required]
         [StringLength(250)]
+        [Required]
         public string? Title { get; set; }
 
-        [Required]
         [StringLength(1000)]
+        [Required]
         public string? Content { get; set; }
 
+        [StringLength(10)]
         [Required]
         public string? SubjectName { get; set; }
     }

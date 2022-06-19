@@ -13,6 +13,7 @@ namespace DiscussionService.Dtos
         public string? Content { get; set; }
 
         [Required]
+        [StringLength(10)]
         public string? SubjectName { get; set; }
 
         //[Required]
