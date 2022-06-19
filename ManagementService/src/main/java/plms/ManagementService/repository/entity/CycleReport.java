@@ -24,37 +24,37 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CycleReport {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	@Access(AccessType.PROPERTY)
-	private Integer id;
-	@Column
-	private String title;
-	@Column
-	private String content;
-	@Column(name = "report_time",insertable = false)
-	private Timestamp reportTime;
-	@Column
-	private String feedback;
-	@Column
-	private Float mark;
-	@Column(name = "resource_link")
-	private String resourceLink;
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "GROUP_id")
-	private Group group;
-	
-	public CycleReport(Integer id) {
-		this.id = id;
-	}
-	
-	public CycleReport(String content, Timestamp reportTime, String resourceLink, Group group) {
-		this.content = content;
-		this.reportTime = reportTime;
-		this.resourceLink = resourceLink;
-		this.group = group;
-	}
-	
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    @Access(AccessType.PROPERTY)
+    private Integer id;
+    @Column
+    private String title;
+    @Column
+    private String content;
+    @Column(name = "cycle_number")
+    private Integer cycleNumber;
+    @Column
+    private String feedback;
+    @Column
+    private Float mark;
+    @Column(name = "resource_link")
+    private String resourceLink;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "GROUP_id")
+    private Group group;
+
+    public CycleReport(Integer id) {
+        this.id = id;
+    }
+
+    public CycleReport(String content, Integer cycleNumber, String resourceLink, Group group) {
+        this.content = content;
+        this.cycleNumber = cycleNumber;
+        this.resourceLink = resourceLink;
+        this.group = group;
+    }
+
+
 }

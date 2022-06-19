@@ -21,6 +21,8 @@ public class CycleReportDTO {
 	private Timestamp reportTime;
 	private String feedback;
 	private String resourceLink;
+	private Float mark;
+	private Integer cycleNumber;
 	private Integer groupId;
 	
 	@Override
