@@ -96,7 +96,7 @@ namespace DiscussionService.Controllers
 
                 if (!userRole.Equals("Student"))
                 {
-                    return Unauthorized("Only student can get questions.");
+                    return Unauthorized("Only students can get questions.");
                 }
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
@@ -127,13 +127,13 @@ namespace DiscussionService.Controllers
 
                 if (!userRole.Equals("Student"))
                 {
-                    return Forbid("Only student can get questions.");
+                    return Forbid("Only students can get answers.");
                 }
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByStudentId(student.Id);
                 if (!student.Id.Equals(answers.First().StudentId))
                 {
-                    return Forbid("Only the author of the questions can get their questions");
+                    return Forbid("Only the author of the answers can get their answers");
                 }
                 var result = _mapper.Map<List<GetAnswerDto>>(answers);
                 return Ok(result);
