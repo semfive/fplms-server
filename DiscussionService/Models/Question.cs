@@ -16,8 +16,8 @@ namespace DiscussionService.Models
         public string? Content { get; set; }
 
         [Required]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime? ModifiedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ModifiedDate { get; set; } = DateTime.UtcNow;
 
         public bool Removed { get; set; } = false;
         public string? RemovedBy { get; set; }
