@@ -23,7 +23,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Juno-clone API")
+                .title("Management API")
                 .version("0.1")
                 .build();
     }
