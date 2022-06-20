@@ -58,7 +58,7 @@ namespace DiscussionService.Repositories
             return await FindByCondition(question => question.Id.Equals(questionId))
                             .Include(question => question.Student)
                             .Include(question => question.Subject)
-                            .Include(_ => _.Answers.Where(answer => answer.Removed == false))
+                            .Include(question => question.Answers.Where(answer => answer.Removed == false)).ThenInclude(answer => answer.Student)
                             .FirstOrDefaultAsync();
         }
 
