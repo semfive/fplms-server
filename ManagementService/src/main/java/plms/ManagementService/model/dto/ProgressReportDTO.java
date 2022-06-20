@@ -1,6 +1,6 @@
 package plms.ManagementService.model.dto;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,8 +15,8 @@ public class ProgressReportDTO {
 	private Integer id;
 	private String title;
 	private String content;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-	private Timestamp reportTime;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Ho_Chi_Minh")
+	private Date reportTime;
 	private Integer studentId;
 	private Integer groupId;
 	

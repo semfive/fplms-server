@@ -2,8 +2,12 @@ package plms.ManagementService.service;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +25,6 @@ import plms.ManagementService.repository.entity.*;
 import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
-import plms.ManagementService.service.exception.ServiceException;
 
 @Service
 public class ReportService {
@@ -59,12 +62,23 @@ public class ReportService {
     private static final String GET_CYCLE_REPORT = "Get cycle report in group: ";
     private static final String GET_PROGRESS_REPORT = "Get progress report in group: ";
     private static final String FEEDBACK_CYCLE_REPORT = "Feedback cycle report: ";
+    
+    public Response<Set<CycleReportDTO>> getCycleReportByLecturer(Integer classId, Integer groupId, String userEmail) {
+    	logger.info("getCycleReportByLecturer(classId: {}, groupId: {}, userEmail: {})", classId, groupId, userEmail);
+    	if (classId == null && groupId != null) {
+    		return getCycleReportInGroupByLecturer(groupId, userEmail);
+    	} 
+    	if (classId != null && groupId == null) {
+    		return getCycleReportInClassByLecturer(classId, userEmail);
+    	}
+        logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    }
 
-    public Response<Set<CycleReportDTO>> getCycleReportInGroupByStudent(Integer classId, Integer groupId,
-                                                                        Timestamp startDate, Timestamp endDate, String userEmail) {
-        logger.info("getCycleReportInGroupByStudent(classId: {}, groupId: {}, startDate: {}, endDate: {}, userEmail: {})", classId, groupId, startDate, endDate, userEmail);
+    public Response<Set<CycleReportDTO>> getCycleReportInGroupByStudent(Integer groupId, String userEmail) {
+        logger.info("getCycleReportInGroupByStudent(groupId: {}, userEmail: {})", groupId, userEmail);
         Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
-        if (studentId == null) {
+        if (studentId == null || groupId == null) {
             logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
@@ -72,45 +86,60 @@ public class ReportService {
             logger.warn("{}{}", GET_CYCLE_REPORT, NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
         }
-        return getCycleReportInGroup(classId, groupId, startDate, endDate);
+        return getCycleReportInGroup(groupId);
     }
 
-    public Response<Set<CycleReportDTO>> getCycleReportInGroupByLecturer(Integer classId, Integer groupId,
-                                                                         Timestamp startDate, Timestamp endDate, String userEmail) {
-        logger.info("getCycleReportInGroupByLecturer(classId: {}, groupId: {}, startDate: {}, endDate: {}, userEmail: {})", classId, groupId, startDate, endDate, userEmail);
+    public Response<Set<CycleReportDTO>> getCycleReportInGroupByLecturer(Integer groupId, String userEmail) {
+        logger.info("getCycleReportInGroupByLecturer(groupId: {}, userEmail: {})", groupId, userEmail);
         Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
-        if (lecturerId == null) {
+        if (lecturerId == null || groupId == null) {
             logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
-        }
-
-        if (!lecturerId.equals(classRepository.findOneById(classId).getLecturer().getId())) {
+        } 
+        if (!lecturerId.equals(groupRepository.findOneById(groupId).getClassEntity().getLecturer().getId())) {
             logger.warn("{}{}", GET_CYCLE_REPORT, LECTURER_NOT_MANAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
         }
-        return getCycleReportInGroup(classId, groupId, startDate, endDate);
+        return getCycleReportInGroup(groupId);
     }
-
-
-    public Response<Set<CycleReportDTO>> getCycleReportInGroup(Integer classId, Integer groupId,
-                                                               Timestamp startDate, Timestamp endDate) {
-        logger.info("getCycleReportInGroup(classId: {}, groupId: {}, startDate: {}, endDate: {})", classId, groupId, startDate, endDate);
-
-        if (classId == null || groupId == null || !classRepository.existsById(classId) ||
-                !groupRepository.existsById(groupId)) {
+    
+    public Response<Set<CycleReportDTO>> getCycleReportInClassByLecturer(Integer classId, String userEmail) {
+        logger.info("getCycleReportInClassByLecturer(classId: {}, userEmail: {})", classId, userEmail);
+        Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+        if (lecturerId == null || classId == null || !classRepository.existsById(classId)) {
             logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        if (groupRepository.isGroupExistsInClass(groupId, classId) == null) {
-            logger.warn("{}{}", GET_CYCLE_REPORT, "Group is not exist in class.");
-            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        if (!lecturerId.equals(classRepository.getById(classId).getLecturer().getId())) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, LECTURER_NOT_MANAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
         }
-        Set<CycleReport> cycleReportSet;
-        if (startDate == null || endDate == null) {
-            cycleReportSet = cycleReportRepository.findByGroup(new Group(groupId));
-        } else {
-            cycleReportSet = cycleReportRepository.findByGroupIdAndTimeFilter(groupId, startDate, endDate);
+        
+        Set<CycleReport> cycleReportSet = new HashSet<>();
+        
+        for (Group group : classRepository.getById(classId).getGroupSet()) {
+        	cycleReportSet = Stream.concat(cycleReportSet.stream(), group.getCycleReportSet().stream()).collect(Collectors.toSet());
+		}
+        
+        Set<CycleReportDTO> cycleReportDtoSet = cycleReportSet.stream().map(cycleReportEntity -> {
+            CycleReportDTO dto = modelMapper.map(cycleReportEntity, CycleReportDTO.class);
+            dto.setGroupId(cycleReportEntity.getGroup().getId());
+            return dto;
+        }).collect(Collectors.toSet());
+        
+        logger.info("Get cycle report from class success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, cycleReportDtoSet);
+    }
+
+
+    public Response<Set<CycleReportDTO>> getCycleReportInGroup(Integer groupId) {
+        logger.info("getCycleReportInGroup(groupId: {})", groupId);
+
+        if (groupId == null || !groupRepository.existsById(groupId)) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
+        Set<CycleReport> cycleReportSet = cycleReportRepository.findByGroup(new Group(groupId));
 
         Set<CycleReportDTO> cycleReportDtoSet = cycleReportSet.stream().map(cycleReportEntity -> {
             CycleReportDTO dto = modelMapper.map(cycleReportEntity, CycleReportDTO.class);
@@ -248,7 +277,7 @@ public class ReportService {
     }
 
     public Response<Set<ProgressReportDTO>> getProgressReportInGroupByStudent(Integer classId, Integer groupId,
-                                                                              Timestamp startDate, Timestamp endDate, String userEmail) {
+                      Date startDate, Date endDate, String userEmail) {
         logger.info("getProgressReportInGroupByStudent(classId: {}, groupId: {}, startDate: {}, endDate: {}, userEmail: {})", classId, groupId, startDate, endDate, userEmail);
         Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
         if (studentId == null) {
@@ -263,7 +292,7 @@ public class ReportService {
     }
 
     public Response<Set<ProgressReportDTO>> getProgressReportInGroupByLecturer(Integer classId, Integer groupId,
-                                                                               Timestamp startDate, Timestamp endDate, String userEmail) {
+                     Date startDate, Date endDate, String userEmail) {
         logger.info("getCycleReportInGroupByLecturer(classId: {}, groupId: {}, startDate: {}, endDate: {}, userEmail: {})", classId, groupId, startDate, endDate, userEmail);
         Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
         if (lecturerId == null) {
@@ -280,7 +309,7 @@ public class ReportService {
 
 
     public Response<Set<ProgressReportDTO>> getProgressReportInGroup(Integer classId, Integer groupId,
-                                                                     Timestamp startDate, Timestamp endDate) {
+                     Date startDate, Date endDate) {
         logger.info("getProgressReportInGroup(classId: {}, groupId: {}, startDate: {}, endDate: {})", classId, groupId, startDate, endDate);
 
         if (classId == null || groupId == null || !classRepository.existsById(classId) ||
@@ -326,7 +355,12 @@ public class ReportService {
             logger.warn("{}{}", CREATE_PROGRESS_REPORT, NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
         }
+        if (progressReportRepository.existsByStudentIdAndGroupIdAndCurDate(studentId, groupId, new Date(System.currentTimeMillis())) != null) {
+            logger.warn("{}{}", CREATE_PROGRESS_REPORT, "Student only allow to send progress report once a day.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Student only allow to send progress report once a day.");
+        }
         ProgressReport progressReport = modelMapper.map(reportRequest, ProgressReport.class);
+        progressReport.setReportTime(new Date(System.currentTimeMillis()));
         progressReport.setGroup(groupRepository.findOneById(groupId));
         progressReport.setStudent(studentRepository.findOneById(studentId));
         progressReportRepository.save(progressReport);
@@ -338,7 +372,8 @@ public class ReportService {
         Integer groupId = reportRequest.getGroupId();
         logger.info("updateProgressReport(reportRequest: {}, groupId: {}, studentId: {})", reportRequest, groupId, studentId);
         if (reportRequest == null || groupId == null || studentId == null ||
-                !groupRepository.existsById(groupId) || !studentRepository.existsById(studentId) || !cycleReportRepository.existsById(reportRequest.getId())) {
+                !groupRepository.existsById(groupId) || !studentRepository.existsById(studentId) || 
+                !progressReportRepository.existsById(reportRequest.getId())) {
             logger.warn("{}{}", UPDATE_PROGRESS_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
@@ -349,6 +384,10 @@ public class ReportService {
         if (studentGroupRepository.isStudentExistInGroup(groupId, studentId) == null) {
             logger.warn("{}{}", UPDATE_PROGRESS_REPORT, NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
+        }        
+        if (!compareDate(new Date(System.currentTimeMillis()), progressReportRepository.getDateOfProgressReport(reportRequest.getId()))) {
+            logger.warn("{}{}", UPDATE_PROGRESS_REPORT, "Student not allow to update submitted report.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Student not allow to update submitted report.");
         }
         ProgressReport progressReport = modelMapper.map(reportRequest, ProgressReport.class);
         progressReport.setGroup(new Group(groupId));
@@ -368,7 +407,7 @@ public class ReportService {
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
 
-        if (studentId.equals(studentGroupRepository.isStudentExistInGroup(groupId, studentId))) {
+        if (!studentId.equals(studentGroupRepository.isStudentExistInGroup(groupId, studentId))) {
             logger.warn("{}{}", DELETE_PROGRESS_REPORT, NOT_IN_GROUP);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
         }
@@ -379,6 +418,10 @@ public class ReportService {
         if (progressReportRepository.existsByIdAndGroupIdAndStudentId(groupId, reportId, studentId) == null) {
             logger.warn("{}{}", DELETE_PROGRESS_REPORT, "Report is not belong to this student.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Report is not belong to this student.");
+        }
+        if (!compareDate(new Date(System.currentTimeMillis()), progressReportRepository.getDateOfProgressReport(reportId))) {
+            logger.warn("{}{}", UPDATE_PROGRESS_REPORT, "Student not allow to delete submitted report.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Student not allow to delete submitted report.");
         }
         progressReportRepository.delete(new ProgressReport(reportId));
         logger.info("Delete progress report success.");
@@ -397,5 +440,10 @@ public class ReportService {
         }
         Integer currentCycle = Integer.valueOf((int) ((currentDate.getTime() - semester.getStartDate().getTime()) / ((long) 1000 * 60 * 60 * 24 * cycleDuration) + 1));
         return currentCycle;
+    }
+    
+    public boolean compareDate(Date date1, Date date2) {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd"); 
+    	return sdf.format(date2).equals(sdf.format(date1));
     }
 }

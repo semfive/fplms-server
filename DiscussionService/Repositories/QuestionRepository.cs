@@ -28,12 +28,12 @@ namespace DiscussionService.Repositories
         {
 
             var items = await FindAll()
-                                   .Include(question => question.Student)
-                                   .Include(question => question.Subject)
-                                   .OrderByDescending(question => question.CreatedDate)
-                                   .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
-                                   .Take(queryStringParameters.PageSize)
-                                   .ToListAsync();
+                                .OrderByDescending(question => question.CreatedDate)
+                                // .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
+                                // .Take(queryStringParameters.PageSize)
+                                .Include(question => question.Student)
+                                .Include(question => question.Subject)
+                                .ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(queryStringParameters.Question))
             {

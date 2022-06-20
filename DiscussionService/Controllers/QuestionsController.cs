@@ -34,8 +34,10 @@ namespace DiscussionService.Controllers
                 //var userRole = HttpContext.Items["userRole"] as string;
 
                 var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
+
                 var metadata = new
                 {
+                    questions.TotalPages,
                     questions.TotalCount,
                     questions.PageSize,
                     questions.CurrentPage,
