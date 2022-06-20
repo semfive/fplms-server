@@ -1,7 +1,7 @@
 package plms.ManagementService.repository.entity;
 
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -34,8 +34,8 @@ public class ProgressReport {
 	private String title;
 	@Column
 	private String content;
-	@Column(name = "report_time",insertable = false,updatable = false)
-	private Timestamp reportTime;
+	@Column(name = "report_time",updatable = false)
+	private Date reportTime;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "STUDENT_id")
 	Student student;

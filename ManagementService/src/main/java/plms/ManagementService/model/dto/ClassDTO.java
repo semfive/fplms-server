@@ -11,6 +11,7 @@ import lombok.*;
 public class ClassDTO {
     private Integer id;
     private String name;
+    private Integer cycleDuration;
     private String semesterCode;
     private String enrollKey;
     private Integer subjectId;

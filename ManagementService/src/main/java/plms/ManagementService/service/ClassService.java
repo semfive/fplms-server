@@ -236,7 +236,11 @@ public class ClassService {
             logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         } 
-        Date startDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
+        if (Boolean.TRUE.equals(classRepository.getById(classId).getIsDisable())) {
+        	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Class is disable");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Class is disable");
+        }
+        Date startDate = semesterRepository.getSemesterStartDate(classRepository.getClassSemester(classId));
         Date endDate = semesterRepository.getSemesterEndDate(classRepository.getClassSemester(classId));
         if (new Date(System.currentTimeMillis()).before(startDate)) {
         	logger.warn("{}{}", ENROLL_STUDENT_TO_CLASS_MESSAGE, "Class not open yet");
