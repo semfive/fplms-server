@@ -37,6 +37,7 @@ namespace DiscussionService.Controllers
 
                 var metadata = new
                 {
+                    questions.TotalPages,
                     questions.TotalCount,
                     questions.PageSize,
                     questions.CurrentPage,
