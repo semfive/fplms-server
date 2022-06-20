@@ -1,5 +1,6 @@
 package plms.ManagementService.controller;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Set;
 
@@ -34,21 +35,17 @@ public class ReportController {
     StudentService studentService;
 
     @GetMapping("/cycle-reports")
-    public Response<Set<CycleReportDTO>> getCycleReportFromGroup(@RequestParam Integer classId,
-                                                                 @RequestParam Integer groupId, @RequestAttribute(required = false) String userRole,
-                                                                 @RequestAttribute(required = false) String userEmail,
-                                                                 @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-                                                                 @RequestParam(required = false, name = "startDate") Timestamp startDate,
-                                                                 @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-                                                                 @RequestParam(required = false, name = "endDate") Timestamp endDate) {
+    public Response<Set<CycleReportDTO>> getCycleReport(@RequestAttribute(required = false) String userEmail,
+    		 						@RequestParam(required = false) Integer classId,
+                                    @RequestParam(required = false) Integer groupId, 
+                                    @RequestAttribute(required = false) String userRole) {
         if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
-            return reportService.getCycleReportInGroupByLecturer(classId, groupId, startDate, endDate, userEmail);
+            return reportService.getCycleReportByLecturer(classId, groupId, userEmail);
         }
         if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
-            return reportService.getCycleReportInGroupByStudent(classId, groupId, startDate, endDate, userEmail);
+            return reportService.getCycleReportInGroupByStudent(groupId, userEmail);
         }
         return new Response<>(403, "Not have role access");
-
     }
 
     @PostMapping("/cycle-reports")
@@ -81,10 +78,10 @@ public class ReportController {
     public Response<Set<ProgressReportDTO>> getProgressReportFromGroup(@RequestParam Integer classId,
                                                                        @RequestParam Integer groupId, @RequestAttribute(required = false) String userRole,
                                                                        @RequestAttribute(required = false) String userEmail,
-                                                                       @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-                                                                       @RequestParam(required = false, name = "startDate") Timestamp startDate,
-                                                                       @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-                                                                       @RequestParam(required = false, name = "endDate") Timestamp endDate) {
+                                                                       @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Ho_Chi_Minh")
+                                                                       @RequestParam(required = false, name = "startDate") Date startDate,
+                                                                       @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Ho_Chi_Minh")
+                                                                       @RequestParam(required = false, name = "endDate") Date endDate) {
         if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
             return reportService.getProgressReportInGroupByLecturer(classId, groupId, startDate, endDate, userEmail);
         }
