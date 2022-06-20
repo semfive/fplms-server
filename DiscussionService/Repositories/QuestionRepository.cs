@@ -29,8 +29,8 @@ namespace DiscussionService.Repositories
 
             var items = await FindAll()
                                 .OrderByDescending(question => question.CreatedDate)
-                                .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
-                                .Take(queryStringParameters.PageSize)
+                                // .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
+                                // .Take(queryStringParameters.PageSize)
                                 .Include(question => question.Student)
                                 .Include(question => question.Subject)
                                 .ToListAsync();
