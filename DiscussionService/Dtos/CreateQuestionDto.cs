@@ -9,7 +9,7 @@ namespace DiscussionService.Dtos
         public string? Title { get; set; }
 
         [Required]
-        [StringLength(1000)]
+        // [StringLength(1000)]
         public string? Content { get; set; }
 
         [Required]
