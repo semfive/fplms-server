@@ -12,9 +12,9 @@ namespace DiscussionService.Models
         public string? Content { get; set; }
 
         [Required]
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.UtcNow;
 
-        public DateTime? ModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset? ModifiedDate { get; set; } = DateTimeOffset.UtcNow;
 
         [Required]
         public bool Accepted { get; set; }

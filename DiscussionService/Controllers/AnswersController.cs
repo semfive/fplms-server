@@ -187,7 +187,6 @@ namespace DiscussionService.Controllers
                 var userEmail = HttpContext.Items["UserEmail"] as string;
                 var userRole = HttpContext.Items["UserRole"] as string;
 
-                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
 
                 if (answer == null)
@@ -195,12 +194,21 @@ namespace DiscussionService.Controllers
                     return NotFound();
                 }
 
-                if (!student.Id.Equals(answer.StudentId) && !userRole.Equals("Lecturer"))
+                if (userRole == "Lecturer")
                 {
-                    return Forbid("Only the author of the answer or a lecturer can delete the question");
+                    answer.Removed = true;
+                    answer.RemovedBy = userEmail;
+                    _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
+                    await _repositoryWrapper.SaveAsync();
+                    return NoContent();
                 }
 
-                // _repositoryWrapper.AnswerRepository.DeleteAnswer(answer);
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                if (!student.Id.Equals(answer.StudentId))
+                {
+                    return Forbid("Only the author of the answer or a lecturer can delete the answer");
+                }
+
                 answer.Removed = true;
                 answer.RemovedBy = userEmail;
                 _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
