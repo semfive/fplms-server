@@ -28,6 +28,7 @@ namespace DiscussionService.Repositories
         {
 
             var items = await FindAll()
+                                .Where(question => question.Removed == false)
                                 .OrderByDescending(question => question.CreatedDate)
                                 // .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
                                 // .Take(queryStringParameters.PageSize)
