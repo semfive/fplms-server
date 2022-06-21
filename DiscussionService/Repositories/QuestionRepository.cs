@@ -82,8 +82,24 @@ namespace DiscussionService.Repositories
 
         public async Task<IEnumerable<Question>> GetQuestionsRemovedByLecturer(string lecturerEmail)
         {
-            return await FindByCondition(question => question.RemovedBy.Equals(lecturerEmail))
+            // return await FindByCondition(question => question.RemovedBy.Equals(lecturerEmail))
+            //                 .ToListAsync();
+            return await FindAll()
+                            .Where(question => question.RemovedBy.Equals(lecturerEmail))
+                            .Include(question => question.Subject)
+                            .Include(question => question.Student)
+                            .Include(question => question.Answers)
+                            .ThenInclude(answer => answer.Student)
                             .ToListAsync();
+        }
+
+        public async Task<Question> GetQuestionByAnswerId(Guid studentId, Guid answerId)
+        {
+            var question = await FindAll()
+                                .Where(question => question.StudentId == studentId && question.Removed == false)
+                                .Include(question => question.Answers.Where(a => a.Id == answerId))
+                                .FirstOrDefaultAsync();
+            return question;
         }
 
         public void UpdateQuestion(Question question)

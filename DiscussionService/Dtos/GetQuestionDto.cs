@@ -14,6 +14,6 @@ namespace DiscussionService.Dtos
         // public Guid StudentId { get; set; }
         public GetStudentDto Student { get; set; }
         public GetSubjectDto Subject { get; set; }
-        public List<GetAnswerDto>? Answers { get; set; }
+        public List<GetAnswerDto> Answers { get; set; }
     }
 }

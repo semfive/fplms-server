@@ -112,17 +112,24 @@ namespace DiscussionService.Controllers
                     return Forbid("Only student can accept answers.");
                 }
 
-                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
 
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 if (answer == null)
                 {
                     return NotFound();
                 }
 
-                if (!student.Id.Equals(answer.StudentId))
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByAnswerId(student.Id, answerId);
+
+                if (question == null)
                 {
-                    return Forbid("Only the author of the question can update the question");
+                    return NotFound();
+                }
+                Console.WriteLine($"\nQUESTION: {question.Title}");
+                if (student.Id != question.StudentId)
+                {
+                    return Forbid("Only the author of the question can accept the answer");
                 }
 
                 answer.Accepted = true;

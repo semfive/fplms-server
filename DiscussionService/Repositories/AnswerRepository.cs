@@ -49,8 +49,12 @@ namespace DiscussionService.Repositories
 
         public async Task<IEnumerable<Answer>> GetAnswersRemovedByLecturer(string lecturerEmail)
         {
-            return await FindByCondition(answer => answer.RemovedBy.Equals(lecturerEmail))
-                           .ToListAsync();
+            // return await FindByCondition(answer => answer.RemovedBy.Equals(lecturerEmail)).Include()
+            //                .ToListAsync();
+            return await FindAll().Where(answer => answer.RemovedBy.Equals(lecturerEmail))
+                            .Include(answer => answer.Student)
+                            .Include(answer => answer.Question)
+                            .ToListAsync();
         }
 
         public void UpdateAnswer(Answer answer)
