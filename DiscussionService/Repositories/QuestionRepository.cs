@@ -53,13 +53,21 @@ namespace DiscussionService.Repositories
             return PagedList<Question>.ToPagedList(items, queryStringParameters.PageNumber, queryStringParameters.PageSize);
         }
 
-        public async Task<Question> GetQuestionByIdAsync(Guid questionId)
+        public async Task<Question> GetQuestionByIdAsync(Guid questionId, string mode = "")
         {
+            if (mode == "eager")
+            {
+                return await FindAll()
+                                .Where(question => question.Id.Equals(questionId))
+                                .Include(question => question.Student)
+                                .Include(question => question.Subject)
+                                .Include(question => question.Answers.Where(answer => answer.Removed == false))
+                                .ThenInclude(answer => answer.Student)
+                                .FirstOrDefaultAsync();
+            }
             return await FindByCondition(question => question.Id.Equals(questionId))
-                            .Include(question => question.Student)
-                            .Include(question => question.Subject)
-                            .Include(question => question.Answers.Where(answer => answer.Removed == false)).ThenInclude(answer => answer.Student)
-                            .FirstOrDefaultAsync();
+                        .Include(question => question.Subject)
+                        .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Question>> GetQuestionsByStudentId(Guid studentId)

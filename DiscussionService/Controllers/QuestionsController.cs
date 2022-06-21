@@ -61,7 +61,7 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId, "eager");
                 var result = _mapper.Map<GetQuestionDto>(question);
 
                 return Ok(result);
@@ -84,7 +84,7 @@ namespace DiscussionService.Controllers
 
                 if (!userRole.Equals("Student"))
                 {
-                    return Unauthorized("Only student can create questions.");
+                    return Forbid("Only student can create questions.");
                 }
                 Question question = _mapper.Map<Question>(createQuestionDto);
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
@@ -116,7 +116,7 @@ namespace DiscussionService.Controllers
 
                 if (!userRole.Equals("Student"))
                 {
-                    return Unauthorized("Only student can update questions.");
+                    return Forbid("Only student can update questions.");
                 }
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
@@ -131,7 +131,7 @@ namespace DiscussionService.Controllers
 
                 if (!student.Id.Equals(question.StudentId))
                 {
-                    return Unauthorized("Only the author of the question can update the question");
+                    return Forbid("Only the author of the question can update the question");
                 }
 
                 if (subject == null)
@@ -162,21 +162,19 @@ namespace DiscussionService.Controllers
             {
                 var userEmail = HttpContext.Items["UserEmail"] as string;
                 var userRole = HttpContext.Items["UserRole"] as string;
-
-                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
-
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
-                if (!question.StudentId.Equals(student.Id) && !userRole.Equals("Lecturer"))
-                {
-                    return Unauthorized("Only the author of the question or a lecturer can delete the question");
-                }
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
 
                 if (question == null)
                 {
                     return NotFound();
                 }
 
-                // _repositoryWrapper.QuestionRepository.DeleteQuestion(question);
+                if (!student.Id.Equals(question.StudentId) && !userRole.Equals("Lecturer"))
+                {
+                    return Forbid("Only the author of the question or a lecturer can delete the question");
+                }
+
                 question.Removed = true;
                 question.RemovedBy = userEmail;
                 _repositoryWrapper.QuestionRepository.UpdateQuestion(question);

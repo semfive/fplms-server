@@ -79,7 +79,7 @@ namespace DiscussionService.Controllers
                 var userRole = HttpContext.Items["UserRole"] as string;
                 if (!userRole.Equals("Student"))
                 {
-                    return Unauthorized("Only student can create answers.");
+                    return Forbid("Only student can create answers.");
                 }
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = _mapper.Map<Answer>(createAnswerDto);
@@ -109,7 +109,7 @@ namespace DiscussionService.Controllers
 
                 if (!userRole.Equals("Student"))
                 {
-                    return Unauthorized("Only student can accept answers.");
+                    return Forbid("Only student can accept answers.");
                 }
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
@@ -148,7 +148,7 @@ namespace DiscussionService.Controllers
 
                 if (!userRole.Equals("Student"))
                 {
-                    return Unauthorized("Only student can accept answers.");
+                    return Forbid("Only student can accept answers.");
                 }
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
