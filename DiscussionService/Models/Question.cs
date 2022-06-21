@@ -12,12 +12,12 @@ namespace DiscussionService.Models
         public string? Title { get; set; }
 
         [Required]
-        [StringLength(1000)]
+        [StringLength(20000)]
         public string? Content { get; set; }
 
         [Required]
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public DateTime? ModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? ModifiedDate { get; set; } = DateTimeOffset.UtcNow;
 
         public bool Removed { get; set; } = false;
         public string? RemovedBy { get; set; }
