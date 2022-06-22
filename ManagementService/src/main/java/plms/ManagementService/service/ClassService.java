@@ -65,7 +65,7 @@ public class ClassService {
     private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: ";
     private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
 
-    public Response<Void> createClassByLecturer(ClassDTO classDTO, String lecturerEmail) {
+    public Response<Integer> createClassByLecturer(ClassDTO classDTO, String lecturerEmail) {
         logger.info("{}{}", CREATE_CLASS_MESSAGE, classDTO);
         if (!subjectRepository.existsById(classDTO.getSubjectId())) {
         	logger.warn("{}{}", CREATE_CLASS_MESSAGE, "Subject not exist.");
@@ -86,7 +86,7 @@ public class ClassService {
         classEntity.setLecturer(new Lecturer(lecturerRepository.findLecturerIdByEmail(lecturerEmail)));
         classRepository.save(classEntity);
         logger.info("Create class success");
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classEntity.getId());
     }
 
     public Response<Void> updateClassByLecturer(ClassDTO classDTO, String lecturerEmail) {

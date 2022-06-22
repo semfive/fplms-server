@@ -21,7 +21,7 @@ public class ClassController {
     StudentService studentService;
 
     @PostMapping
-    public Response<Void> createClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
+    public Response<Integer> createClassByLecturer(@RequestBody ClassDTO classDTO, @RequestAttribute(required = false) String userEmail) {
 
         return classService.createClassByLecturer(classDTO, userEmail);
     }
