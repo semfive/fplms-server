@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleCreateNotification = void 0;
 const notifications_service_1 = require("./notifications.service");
-function handleCreateNotification(req, res) {
+function handleCreateNotification(req, res, io, users) {
     return __awaiter(this, void 0, void 0, function* () {
         let data = "";
         let dto = {};
@@ -37,6 +37,17 @@ function handleCreateNotification(req, res) {
             dto.userEmail = req.headers["user"]["email"];
             const notification = yield (0, notifications_service_1.createNotification)(dto);
             if (notification) {
+                for (const e of users) {
+                    if (e["email"] === notification.userEmail) {
+                        var socketId = e["id"];
+                        break;
+                    }
+                }
+                let dto = notification;
+                delete dto["updatedAt"];
+                delete dto["id"];
+                delete dto["userEmail"];
+                io.to(socketId).emit("notifications", JSON.stringify(dto));
                 res.writeHead(201);
                 res.write(JSON.stringify(notification));
                 return res.end();
