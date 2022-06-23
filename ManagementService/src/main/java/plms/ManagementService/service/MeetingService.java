@@ -82,7 +82,7 @@ public class MeetingService {
                     logger.warn("{}{}", GET_MEETING, "Student is not exist in group.");
                     return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
                 }
-                meetingSet = meetingRepository.findbyGroupId(groupId, startDate, endDate);
+                meetingSet = meetingRepository.findByGroupId(groupId, startDate, endDate);
             }
         } else {                                 //classId==null && groupId!=null -> invalid case
             logger.warn("{}{}", GET_MEETING, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
@@ -131,7 +131,7 @@ public class MeetingService {
                     logger.warn("{}{}", GET_MEETING, "Group is not exist in class.");
                     return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
                 }
-                meetingSet = meetingRepository.findbyGroupId(groupId, startDate, endDate);
+                meetingSet = meetingRepository.findByGroupId(groupId, startDate, endDate);
             }
         } else {                                 //case classId==null && groupId!=null
             logger.warn("{}{}", GET_MEETING, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
