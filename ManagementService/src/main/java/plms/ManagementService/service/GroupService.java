@@ -134,6 +134,7 @@ public class GroupService {
             logger.warn("{}{}", DELETE_GROUP_MESSAGE, "Group is not empty");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Group is not empty");
         } else {
+            studentGroupRepository.deleteAllStudentInGroup(groupId);
         	groupRepository.delete(new Group(groupId));
         	logger.info("Delete group success");
         	return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);

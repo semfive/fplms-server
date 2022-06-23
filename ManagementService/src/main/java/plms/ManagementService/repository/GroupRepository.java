@@ -32,12 +32,10 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Query(nativeQuery = true, value = "select max(`number`) FROM `GROUP` where `CLASS_id` = ?1")
     Integer getMaxGroupNumber(Integer classId);
 
-
-
     @Modifying
-	@Transactional
-	@Query(nativeQuery = true, value = "update `GROUP` set PROJECT_id = ?2 where id = ?1")
-	void updateProjectInGroup(Integer groupId, Integer projectId);
+    @Transactional
+    @Query(nativeQuery = true, value = "update `GROUP` set PROJECT_id = ?2 where id = ?1")
+    void updateProjectInGroup(Integer groupId, Integer projectId);
 
     @Query(nativeQuery = true, value = "select id from `GROUP` where id = ?1 and enroll_time > ?2")
     Integer isEnrollTimeOver(Integer groupId, Timestamp currentTime);
@@ -49,14 +47,14 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     Integer isGroupDisable(Integer groupId);
 
     @Modifying
-	@Transactional
-	@Query(nativeQuery = true, value = "update `GROUP` set is_disable = 1 where id = ?1")
-	void setGroupDisable(Integer groupId);
+    @Transactional
+    @Query(nativeQuery = true, value = "update `GROUP` set is_disable = 1 where id = ?1")
+    void setGroupDisable(Integer groupId);
 
     @Modifying
-   	@Transactional
-   	@Query(nativeQuery = true, value = "update `GROUP` set is_disable = 0 where id = ?1")
-   	void setGroupEnable(Integer groupId);
+    @Transactional
+    @Query(nativeQuery = true, value = "update `GROUP` set is_disable = 0 where id = ?1")
+    void setGroupEnable(Integer groupId);
 
 
 }

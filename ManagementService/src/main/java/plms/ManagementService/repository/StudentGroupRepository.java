@@ -37,8 +37,6 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Inte
     @Query(nativeQuery = true, value = "SELECT is_leader FROM STUDENT_GROUP WHERE STUDENT_id = ?1 AND CLASS_id = ?2")
     Integer findStudentLeaderRoleInClass(Integer studentId, Integer classId);//boolean
 
-    Boolean existsByStudentAndGroupAndIsLeader(Student student, Group group, Boolean isLeader);
-    
     @Query(nativeQuery = true, value = "select STUDENT_id from STUDENT_GROUP where GROUP_id = ?1 and is_leader = 1")
     Integer findLeaderInGroup(Integer groupId);
     

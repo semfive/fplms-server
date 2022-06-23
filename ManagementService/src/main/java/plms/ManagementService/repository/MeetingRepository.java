@@ -12,10 +12,9 @@ import plms.ManagementService.repository.entity.Meeting;
 
 @Repository
 public interface MeetingRepository extends JpaRepository<Meeting, Integer> {
-	Set<Meeting> findByGroup(Group group);
 	
 	@Query(nativeQuery = true, value = "select * from MEETING where GROUP_id = ?1 and schedule_time >= ?2 and schedule_time <= ?3")
-	Set<Meeting> findbyGroupId(Integer groupId, Timestamp startDate, Timestamp endDate);
+	Set<Meeting> findByGroupId(Integer groupId, Timestamp startDate, Timestamp endDate);
 	
 	@Query(nativeQuery = true, value = "select * from MEETING where GROUP_id in (select id from `GROUP` where CLASS_id = ?1) and schedule_time >= ?2 and schedule_time <= ?3")
 	Set<Meeting> findByClassId(Integer classId, Timestamp startDate, Timestamp endDate);
