@@ -8,7 +8,7 @@ FPLMS bridges the gap between students and lecturers in academic’s software pr
 
 ## Technologies
 
-- Frameworks: [Spring Boot](https://spring.io/projects/spring-boot), [.NET](https://dotnet.microsoft.com/en-us/), [Nest.js](https://nestjs.com/).
+- Frameworks: [Spring Boot](https://spring.io/projects/spring-boot), [.NET](https://dotnet.microsoft.com/en-us/), [Node.js](https://nodejs.org/en/about/).
 - Libraries: [Spring Data JPA](https://spring.io/projects/spring-data-jpa), [Entity Framework](https://docs.microsoft.com/en-us/ef/), [Prisma](https://www.prisma.io/).
 - Authentication/authorization: [OAuth 2.0](https://developers.google.com/identity/protocols/oauth2), [JWT](https://jwt.io/introduction).
 - Database: [MySQL](https://www.mysql.com/).
