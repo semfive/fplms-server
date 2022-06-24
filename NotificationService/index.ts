@@ -5,7 +5,10 @@ import { Server } from "socket.io";
 const jwt = require("jsonwebtoken");
 
 const { validateToken } = require("./middlewares/auth.middleware");
-const { handleCreateNotification } = require("./notifications.controller");
+const {
+  handleCreateNotification,
+  handleGetNotifications,
+} = require("./notifications.controller");
 
 dotenv.config({
   path: path.join(__dirname, `../.env.${process.env.NODE_ENV}`),
@@ -21,7 +24,7 @@ const server = http.createServer(async (req, res) => {
 
 const io = new Server(server, {});
 const users = new Set();
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("Made socket connection: " + socket.id);
 
   try {
@@ -38,7 +41,10 @@ io.on("connection", (socket) => {
     socket.disconnect();
   }
 
-  socket.on("notifications", (data) => {});
+  socket.on("notifications", async (data) => {
+    const notifications = await handleGetNotifications(newUser["email"]);
+    io.emit("notifications", notifications);
+  });
 
   socket.on("disconnect", () => {
     users.delete(newUser);

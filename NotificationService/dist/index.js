@@ -15,7 +15,7 @@ const dotenv = require("dotenv");
 const socket_io_1 = require("socket.io");
 const jwt = require("jsonwebtoken");
 const { validateToken } = require("./middlewares/auth.middleware");
-const { handleCreateNotification } = require("./notifications.controller");
+const { handleCreateNotification, handleGetNotifications, } = require("./notifications.controller");
 dotenv.config({
     path: path.join(__dirname, `../.env.${process.env.NODE_ENV}`),
 });
@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => __awaiter(void 0, void 0, void 0,
 }));
 const io = new socket_io_1.Server(server, {});
 const users = new Set();
-io.on("connection", (socket) => {
+io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Made socket connection: " + socket.id);
     try {
         const token = socket.handshake.headers["authorization"];
@@ -40,11 +40,14 @@ io.on("connection", (socket) => {
     catch (err) {
         socket.disconnect();
     }
-    socket.on("notifications", (data) => { });
+    socket.on("notifications", (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const notifications = yield handleGetNotifications(newUser["email"]);
+        io.emit("notifications", notifications);
+    }));
     socket.on("disconnect", () => {
         users.delete(newUser);
     });
-});
+}));
 server.listen(process.env.SERVER_PORT || 8080, () => {
     console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${process.env.SERVER_PORT}.`);
 });

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleCreateNotification = void 0;
+exports.handleGetNotifications = exports.handleCreateNotification = void 0;
 const notifications_service_1 = require("./notifications.service");
 function handleCreateNotification(req, res, io, users) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -59,3 +59,9 @@ function handleCreateNotification(req, res, io, users) {
     });
 }
 exports.handleCreateNotification = handleCreateNotification;
+function handleGetNotifications(userEmail) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield (0, notifications_service_1.getNotifications)(userEmail);
+    });
+}
+exports.handleGetNotifications = handleGetNotifications;

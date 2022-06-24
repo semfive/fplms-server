@@ -1,5 +1,5 @@
 import { CreateNotificationDto, GetNotificationDto } from "./dto";
-import { createNotification } from "./notifications.service";
+import { createNotification, getNotifications } from "./notifications.service";
 
 async function handleCreateNotification(req, res, io, users) {
   let data = "";
@@ -56,4 +56,8 @@ async function handleCreateNotification(req, res, io, users) {
   });
 }
 
-export { handleCreateNotification };
+async function handleGetNotifications(userEmail: string) {
+  return await getNotifications(userEmail);
+}
+
+export { handleCreateNotification, handleGetNotifications };
