@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateToken = void 0;
+exports.validateOrigin = exports.validateToken = void 0;
 const jwt = require("jsonwebtoken");
 function validateToken(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -32,3 +32,15 @@ function validateToken(req, res, next) {
     });
 }
 exports.validateToken = validateToken;
+function validateOrigin(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const origin = req.headers["host"];
+        if ([process.env.DISCUSSION_SERVICE].indexOf(origin) === -1) {
+            res.writeHead(403);
+            res.write("Access to resource denied.");
+            return res.end();
+        }
+        return next();
+    });
+}
+exports.validateOrigin = validateOrigin;
