@@ -36,6 +36,8 @@ public class Project {
     private Subject subject;
     @ManyToOne(fetch = FetchType.LAZY)
     private Lecturer lecturer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Semester semester;
     @Column(name = "is_disable", insertable = false)
     private boolean isDisable;
     public Project(Integer id) {
