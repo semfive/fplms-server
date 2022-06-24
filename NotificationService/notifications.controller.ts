@@ -1,7 +1,7 @@
-import { CreateNotificationDto } from "./dto";
-import { createNotification } from "./notifications.service";
+import { CreateNotificationDto, GetNotificationDto } from "./dto";
+import { createNotification, getNotifications } from "./notifications.service";
 
-async function handleCreateNotification(req, res) {
+async function handleCreateNotification(req, res, io, users) {
   let data = "";
   let dto: CreateNotificationDto = {};
   req.on("data", (chunk) => {
@@ -33,6 +33,19 @@ async function handleCreateNotification(req, res) {
 
     const notification = await createNotification(dto);
     if (notification) {
+      for (const e of users) {
+        if (e["email"] === notification.userEmail) {
+          var socketId = e["id"];
+          break;
+        }
+      }
+
+      let dto: GetNotificationDto = notification;
+      delete dto["updatedAt"];
+      delete dto["id"];
+      delete dto["userEmail"];
+
+      io.to(socketId).emit("notifications", JSON.stringify(dto));
       res.writeHead(201);
       res.write(JSON.stringify(notification));
       return res.end();
@@ -43,4 +56,8 @@ async function handleCreateNotification(req, res) {
   });
 }
 
-export { handleCreateNotification };
+async function handleGetNotifications(userEmail: string) {
+  return await getNotifications(userEmail);
+}
+
+export { handleCreateNotification, handleGetNotifications };

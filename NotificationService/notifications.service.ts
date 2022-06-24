@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { CreateNotificationDto } from "./dto";
 
+const prisma = new PrismaClient();
 async function createNotification(dto: CreateNotificationDto) {
-  const prisma = new PrismaClient();
   return prisma.notification.create({
     data: {
       title: dto.title,
@@ -12,4 +12,13 @@ async function createNotification(dto: CreateNotificationDto) {
   });
 }
 
-export { createNotification };
+async function getNotifications(userEmail: string) {
+  return prisma.notification.findMany({
+    where: {
+      userEmail: userEmail,
+    },
+    take: 10,
+  });
+}
+
+export { createNotification, getNotifications };

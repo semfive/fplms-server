@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createNotification = void 0;
+exports.getNotifications = exports.createNotification = void 0;
 const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 function createNotification(dto) {
     return __awaiter(this, void 0, void 0, function* () {
-        const prisma = new client_1.PrismaClient();
         return prisma.notification.create({
             data: {
                 title: dto.title,
@@ -24,3 +24,14 @@ function createNotification(dto) {
     });
 }
 exports.createNotification = createNotification;
+function getNotifications(userEmail) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return prisma.notification.findMany({
+            where: {
+                userEmail: userEmail,
+            },
+            take: 10,
+        });
+    });
+}
+exports.getNotifications = getNotifications;

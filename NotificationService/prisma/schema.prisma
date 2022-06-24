@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Notification {
-  Id        String   @id @default(uuid())
+  id        String   @id @default(uuid())
   title     String
   url       String?
   userEmail String
