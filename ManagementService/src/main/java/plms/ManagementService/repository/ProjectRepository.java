@@ -17,8 +17,11 @@ public interface ProjectRepository extends JpaRepository<Project,Integer> {
 	@Query(nativeQuery = true, value = "select * from PROJECT where id = ?2 and LECTURER_id = ?1 and is_disable = 0")
 	Integer existsByLecturerId(Integer lecturerId, Integer projectId);
 	
-	@Query(nativeQuery = true, value = "select * from PROJECT where SUBJECT_id = ?1 and LECTURER_id = ?2 and is_disable = 0")
-	Set<Project> findBySubjectIdAndLecturerId(Integer subjectId, Integer lecturerId); 
+	@Query(nativeQuery = true, value = "select * from PROJECT where SUBJECT_id = ?1 and LECTURER_id = ?2 and SEMESTER_code = ?3 and is_disable = 0")
+	Set<Project> findBySubjectIdAndLecturerIdAndSemester(Integer subjectId, Integer lecturerId, String semesterCode); 
+	
+	@Query(nativeQuery = true, value = "select * from PROJECT where LECTURER_id = ?1 and SEMESTER_code = ?2 and is_disable = 0")
+	Set<Project> findByLecturerIdAndSemester(Integer lecturerId, String semesterCode);
 	
 	@Query(nativeQuery = true, value = "select * from PROJECT where LECTURER_id = ?1 and is_disable = 0")
 	Set<Project> findByLecturerId(Integer lecturerId); 

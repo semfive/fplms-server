@@ -22,12 +22,15 @@ public class Semester {
 	private Date startDate;
 	@Column(name = "end_date")
 	private Date endDate;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "semester")
+	private Set<Class> classSet;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "semester")
+	private Set<Project> projectSet;
 	
 	public Semester(String code) {
 		super();
 		this.code = code;
 	}
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "semester")
-	private Set<Class> classSet;
+	
 	
 }

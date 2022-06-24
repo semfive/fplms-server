@@ -33,10 +33,11 @@ public class ProjectController {
 	
 	@GetMapping
 	public Response<Set<ProjectDTO>> getAllProjects(@RequestParam(required = false) Integer classId,
+			@RequestParam(required = false) String semesterCode,
 			@RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail) {
 		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
-			return projectService.getProjectFromClassByLecturer(classId, userEmail);
+			return projectService.getProjectByLecturer(semesterCode, classId, userEmail);
 		} 
 		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
 			return projectService.getProjectFromClassByStudent(classId, userEmail);
