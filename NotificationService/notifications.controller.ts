@@ -28,8 +28,17 @@ async function handleCreateNotification(req, res, io, users) {
       res.write("URL is missing.");
       return res.end();
     }
+    if (
+      dto.userEmail.length == 0 ||
+      dto.userEmail === undefined ||
+      typeof dto.userEmail != "string"
+    ) {
+      res.writeHead(400);
+      res.write("User email is missing.");
+      return res.end();
+    }
 
-    dto.userEmail = req.headers["user"]["email"];
+    // dto.userEmail = req.headers["user"]["email"];
 
     const notification = await createNotification(dto);
     if (notification) {

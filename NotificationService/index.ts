@@ -2,6 +2,7 @@ const http = require("http");
 const path = require("path");
 const dotenv = require("dotenv");
 import { Server } from "socket.io";
+import { validateOrigin } from "./auth.middleware";
 const jwt = require("jsonwebtoken");
 
 const { validateToken } = require("./middlewares/auth.middleware");
@@ -15,8 +16,20 @@ dotenv.config({
 });
 
 const server = http.createServer(async (req, res) => {
+  const headers = {
+    "Access-Control-Allow-Origin": process.env.DISCUSSION_SERVICE,
+    "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+    "Access-Control-Max-Age": 2592000,
+  };
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, headers);
+    res.end();
+    return;
+  }
+
   if (req.url === "/api/notification" && req.method === "POST") {
-    await validateToken(req, res, () =>
+    await validateOrigin(req, res, () =>
       handleCreateNotification(req, res, io, users)
     );
   }

@@ -18,4 +18,14 @@ async function validateToken(req, res, next) {
   return next();
 }
 
-export { validateToken };
+async function validateOrigin(req, res, next) {
+  const origin = req.headers["host"];
+  if ([process.env.DISCUSSION_SERVICE].indexOf(origin) === -1) {
+    res.writeHead(403);
+    res.write("Access to resource denied.");
+    return res.end();
+  }
+  return next();
+}
+
+export { validateToken, validateOrigin };

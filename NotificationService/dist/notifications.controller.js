@@ -34,7 +34,14 @@ function handleCreateNotification(req, res, io, users) {
                 res.write("URL is missing.");
                 return res.end();
             }
-            dto.userEmail = req.headers["user"]["email"];
+            if (dto.userEmail.length == 0 ||
+                dto.userEmail === undefined ||
+                typeof dto.userEmail != "string") {
+                res.writeHead(400);
+                res.write("User email is missing.");
+                return res.end();
+            }
+            // dto.userEmail = req.headers["user"]["email"];
             const notification = yield (0, notifications_service_1.createNotification)(dto);
             if (notification) {
                 for (const e of users) {
