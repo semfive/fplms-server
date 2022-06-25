@@ -100,6 +100,46 @@ namespace DiscussionService.Controllers
             }
         }
 
+        [HttpPatch("{answerId}/upvote")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
+        public async Task<IActionResult> UpvoteAnswer([FromRoute] Guid answerId)
+        {
+            try
+            {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Forbid("Only student can upvote questions.");
+                }
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+                var dto = new StudentAnswerUpvote()
+                {
+                    AnswerId = answer.Id,
+                    StudentId = student.Id
+                };
+                var studentUpvote = await _repositoryWrapper.StudentAnswerUpvoteRepository.GetStudentAnswerUpvote(dto);
+
+                if (studentUpvote != null)
+                {
+                    _repositoryWrapper.StudentAnswerUpvoteRepository.DeleteStudentAnswerUpvote(dto);
+                    await _repositoryWrapper.SaveAsync();
+                    return NoContent();
+                }
+
+                _repositoryWrapper.StudentAnswerUpvoteRepository.CreateStudentAnswerUpvote(dto);
+                await _repositoryWrapper.SaveAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPut("{answerId}/accept")]
         [TypeFilter(typeof(AuthorizationFilterAttribute))]
         [ServiceFilter(typeof(ValidationFilterAttribute))]

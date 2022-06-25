@@ -13,5 +13,6 @@ namespace DiscussionService.Dtos
         public string? RemovedBy { get; set; }
         public GetStudentDto Student { get; set; }
         public Guid QuestionId { get; set; }
+        public int Upvotes { get; set; }
     }
 }

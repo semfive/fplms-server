@@ -36,7 +36,7 @@ namespace DiscussionService.Repositories
 
         public async Task<Answer> GetAnswerByIdAsync(Guid answerId)
         {
-            return await FindByCondition(answer => answer.Id.Equals(answerId)).FirstOrDefaultAsync();
+            return await FindByCondition(answer => answer.Id.Equals(answerId)).Include(answer => answer.Upvoters).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Answer>> GetAnswersByStudentId(Guid studentId)
@@ -49,8 +49,6 @@ namespace DiscussionService.Repositories
 
         public async Task<IEnumerable<Answer>> GetAnswersRemovedByLecturer(string lecturerEmail)
         {
-            // return await FindByCondition(answer => answer.RemovedBy.Equals(lecturerEmail)).Include()
-            //                .ToListAsync();
             return await FindAll().Where(answer => answer.RemovedBy.Equals(lecturerEmail))
                             .Include(answer => answer.Student)
                             .Include(answer => answer.Question)

@@ -8,6 +8,7 @@ namespace DiscussionService.Contracts
         ISubjectRepository SubjectRepository { get; }
         ILecturerRepository LecturerRepository { get; }
         IStudentUpvoteRepository StudentUpvoteRepository { get; }
+        IStudentAnswerUpvoteRepository StudentAnswerUpvoteRepository { get; }
         Task SaveAsync();
     }
 }

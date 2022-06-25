@@ -12,6 +12,7 @@ namespace DiscussionService.Repositories
         private IStudentRepository _studentRepository;
         private ILecturerRepository _lecturerRepository;
         private IStudentUpvoteRepository _studentUpvoteRepository;
+        private IStudentAnswerUpvoteRepository _studentAnswerUpvoteRepository;
 
         public RepositoryWrapper(RepositoryContext repositoryContext)
         {
@@ -93,6 +94,19 @@ namespace DiscussionService.Repositories
                 }
 
                 return _studentUpvoteRepository;
+            }
+        }
+
+        public IStudentAnswerUpvoteRepository StudentAnswerUpvoteRepository
+        {
+            get
+            {
+                if (_studentAnswerUpvoteRepository == null)
+                {
+                    _studentAnswerUpvoteRepository = new StudentAnswerUpvoteRepository(_repositoryContext);
+                }
+
+                return _studentAnswerUpvoteRepository;
             }
         }
 
