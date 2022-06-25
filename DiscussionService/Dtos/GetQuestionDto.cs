@@ -14,6 +14,7 @@ namespace DiscussionService.Dtos
         public GetStudentDto Student { get; set; }
         public GetSubjectDto Subject { get; set; }
         public int Upvotes { get; set; }
+        public bool Upvoted { get; set; }
         public List<GetAnswerDto> Answers { get; set; }
     }
 }
