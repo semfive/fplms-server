@@ -66,6 +66,8 @@ namespace DiscussionService.Repositories
                                 .Include(question => question.Subject)
                                 .Include(question => question.Upvoters)
                                 .Include(question => question.Answers.Where(answer => answer.Removed == false))
+                                .ThenInclude(answer => answer.Upvoters)
+                                .Include(question => question.Answers.Where(answer => answer.Removed == false))
                                 .ThenInclude(answer => answer.Student)
                                 .FirstOrDefaultAsync();
             }

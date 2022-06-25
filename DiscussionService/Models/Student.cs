@@ -23,5 +23,6 @@ namespace DiscussionService.Models
         public ICollection<Answer>? Answers { get; set; }
 
         public ICollection<StudentUpvote> UpvotedQuestions { get; set; }
+        public ICollection<StudentAnswerUpvote> UpvotedAnswers { get; set; }
     }
 }
