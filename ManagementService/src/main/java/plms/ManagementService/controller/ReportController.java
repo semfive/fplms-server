@@ -1,7 +1,6 @@
 package plms.ManagementService.controller;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +46,19 @@ public class ReportController {
         }
         return new Response<>(403, "Not have role access");
     }
+    
+    @GetMapping("/cycle-reports/{reportId}")
+    public Response<CycleReportDTO> getCycleReportById(@PathVariable Integer reportId,
+    								@RequestAttribute(required = false) String userEmail,
+                                    @RequestAttribute(required = false) String userRole) {
+        if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+            return reportService.getCycleReportDetailByLecturer(userEmail, reportId);
+        }
+        if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+            return reportService.getCycleReportDetailByStudent(userEmail, reportId);
+        }
+        return new Response<>(403, "Not have role access");
+    }
 
     @PostMapping("/cycle-reports")
     public Response<Void> addCycleReport(@RequestAttribute(required = false) String userEmail,
@@ -87,6 +99,19 @@ public class ReportController {
         }
         if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
             return reportService.getProgressReportInGroupByStudent(classId, groupId, startDate, endDate, userEmail);
+        }
+        return new Response<>(403, "Not have role access");
+    }
+    
+    @GetMapping("/progress-reports/{reportId}")
+    public Response<ProgressReportDTO> getProgressReportById(@PathVariable Integer reportId,
+                                            @RequestAttribute(required = false) String userRole,
+                                            @RequestAttribute(required = false) String userEmail) {
+        if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+            return reportService.getProgressReportDetailByLecturer(userEmail, reportId);
+        }
+        if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+            return reportService.getProgressReportDetailByStudent(userEmail, reportId);
         }
         return new Response<>(403, "Not have role access");
     }
