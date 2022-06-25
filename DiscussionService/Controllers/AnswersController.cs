@@ -77,12 +77,15 @@ namespace DiscussionService.Controllers
             {
                 var userEmail = HttpContext.Items["UserEmail"] as string;
                 var userRole = HttpContext.Items["UserRole"] as string;
+
                 if (!userRole.Equals("Student"))
                 {
                     return Forbid("Only student can create answers.");
                 }
-                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+
                 var answer = _mapper.Map<Answer>(createAnswerDto);
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+
                 answer.Id = Guid.NewGuid();
                 answer.StudentId = student.Id;
 
@@ -93,7 +96,7 @@ namespace DiscussionService.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Internal server error:" + ex);
             }
         }
 

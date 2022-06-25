@@ -34,6 +34,8 @@ namespace DiscussionService.Repositories
                                 // .Take(queryStringParameters.PageSize)
                                 .Include(question => question.Student)
                                 .Include(question => question.Subject)
+                                .Include(question => question.Upvoters)
+                                .Include(question => question.Answers)
                                 .ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(queryStringParameters.Question))
@@ -62,6 +64,7 @@ namespace DiscussionService.Repositories
                                 .Where(question => question.Id.Equals(questionId))
                                 .Include(question => question.Student)
                                 .Include(question => question.Subject)
+                                .Include(question => question.Upvoters)
                                 .Include(question => question.Answers.Where(answer => answer.Removed == false))
                                 .ThenInclude(answer => answer.Student)
                                 .FirstOrDefaultAsync();
