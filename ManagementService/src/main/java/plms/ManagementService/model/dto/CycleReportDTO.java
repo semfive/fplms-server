@@ -17,12 +17,10 @@ public class CycleReportDTO {
 	private Integer id;
 	private String title;
 	private String content;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
-	private Timestamp reportTime;
+	private Integer cycleNumber;
 	private String feedback;
 	private String resourceLink;
 	private Float mark;
-	private Integer cycleNumber;
 	private Integer groupId;
 	
 	@Override

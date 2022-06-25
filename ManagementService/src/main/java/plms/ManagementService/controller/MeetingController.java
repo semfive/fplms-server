@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -22,6 +21,7 @@ public class MeetingController {
 	MeetingService meetingService;
 	@Autowired
 	AuthenticationService authenticationService;
+	
 	@GetMapping
 	public Response<Set<MeetingDTO>> getMeetingInGroup(@RequestParam(required = false) Integer classId, 
 			@RequestParam(required = false) Integer groupId, @RequestAttribute(required = false) String userRole,
@@ -38,6 +38,21 @@ public class MeetingController {
 		}
 		return new Response<>(403, "Not have role access");
 	}
+	
+	@GetMapping("/{meetingId}")
+	public Response<MeetingDTO> getMeetingById(@PathVariable Integer meetingId,
+			@RequestAttribute(required = false) String userRole,
+			@RequestAttribute(required = false) String userEmail) {
+		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+			return meetingService.getMeetingDetailByLecturer(userEmail, meetingId);
+		} 
+		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+			return meetingService.getMeetingDetailByStudent(userEmail, meetingId);
+		}
+		return new Response<>(403, "Not have role access");
+	}
+	
+	
 	@PostMapping
 	public Response<Void> scheduleMeetingByLecturer(@RequestBody MeetingDTO meetingDTO,@RequestAttribute(required = false) String userEmail){
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));

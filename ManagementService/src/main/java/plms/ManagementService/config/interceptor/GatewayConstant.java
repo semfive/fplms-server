@@ -13,8 +13,8 @@ public class GatewayConstant {
     public static final String ROLE_LECTURER = "LECTURER";
     public static final String ROLE_ADMIN = "ADMIN";
      static final String ROLE_SPLIT_STRING = "&";
-    public static final String EMAIL_TEST = "lec1@gmail.com";
-    public static final String ROLE_TEST = ROLE_LECTURER;
+    public static final String EMAIL_TEST = "stu3@gmail.com";
+    public static final String ROLE_TEST = ROLE_STUDENT;
     
     private static final String GET_METHOD = "GET";
     private static final String POST_METHOD = "POST";
@@ -62,15 +62,19 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("getProjects", "/api/management/projects", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("chooseProject", "/api/management/projects/{projectId:\\d+}", PUT_METHOD, ROLE_STUDENT));
 
-        apiEntities.add(new ApiEntity("getCycleReport", "/api/management/cycle-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("getCycleReportDetail", "/api/management/cycle-reports/{reportId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("getCycleReportList", "/api/management/cycle-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("addCycleReport", "/api/management/cycle-reports", POST_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("updateCycleReport", "/api/management/cycle-reports", PUT_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("deleteCycleReport", "/api/management/cycle-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));        
-        apiEntities.add(new ApiEntity("getProgressReport", "/api/management/progress-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("getProgressReportList", "/api/management/progress-reports", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("getProgressReportDetail", "/api/management/progress-reports/{reportId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("addProgressReport", "/api/management/progress-reports", POST_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("updateProgressReport", "/api/management/progress-reports", PUT_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("deleteProgressReport", "/api/management/progress-reports/{reportId:\\d+}", DELETE_METHOD, ROLE_STUDENT));
-        apiEntities.add(new ApiEntity("getMeeting", "/api/management/meetings", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+       
+        apiEntities.add(new ApiEntity("getMeetingList", "/api/management/meetings", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("getMeetingDetail", "/api/management/meetings/{meetingId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
 
         apiEntities.add(new ApiEntity("getSemester", "/api/management/semesters", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER,ROLE_ADMIN)));
         apiEntities.add(new ApiEntity("addSemester", "/api/management/semesters", POST_METHOD, ROLE_ADMIN));
