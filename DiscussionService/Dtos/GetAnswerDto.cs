@@ -14,5 +14,6 @@ namespace DiscussionService.Dtos
         public GetStudentDto Student { get; set; }
         public Guid QuestionId { get; set; }
         public int Upvotes { get; set; }
+        public bool Upvoted { get; set; }
     }
 }
