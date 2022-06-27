@@ -156,29 +156,37 @@ namespace DiscussionService.Controllers
                 }
 
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
-
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(answer.QuestionId, "eager");
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByQuestionId(answer.QuestionId);
+
                 if (answer == null)
                 {
                     return NotFound();
                 }
 
-                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByAnswerId(student.Id, answerId);
-
-                if (question == null)
-                {
-                    return NotFound();
-                }
-                Console.WriteLine($"\nQUESTION: {question.Title}");
                 if (student.Id != question.StudentId)
                 {
                     return Forbid("Only the author of the question can accept the answer");
                 }
 
-                answer.Accepted = true;
-                _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
+                foreach (var a in answers.ToList())
+                {
+                    if (a.Id == answerId)
+                    {
+                        a.Accepted = !a.Accepted;
+                        question.Solved = !a.Accepted;
+                    }
+                    else
+                    {
+                        a.Accepted = false;
+                    }
+                    _repositoryWrapper.AnswerRepository.UpdateAnswer(_mapper.Map<Answer>(a));
+                }
+                // _repositoryWrapper.QuestionRepository.UpdateQuestion(_mapper.Map<Question>(_mapper.Map<UpdateQuestionSolveStatusDto>(question)));
                 await _repositoryWrapper.SaveAsync();
                 return NoContent();
+
             }
             catch (Exception ex)
             {

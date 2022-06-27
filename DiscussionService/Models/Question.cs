@@ -15,6 +15,8 @@ namespace DiscussionService.Models
         [StringLength(20000)]
         public string? Content { get; set; }
 
+        public bool Solved { get; set; } = false;
+
         [Required]
         public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? ModifiedDate { get; set; } = DateTimeOffset.UtcNow;
