@@ -1,5 +1,6 @@
 package plms.ManagementService.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -7,12 +8,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import plms.ManagementService.model.dto.SubjectDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
+import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.SubjectRepository;
+import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
 import plms.ManagementService.service.constant.ServiceStatusCode;
@@ -24,12 +29,15 @@ public class SubjectService {
 	@Autowired
 	ClassRepository classRepository;
 	@Autowired
+	StudentRepository studentRepository;
+	@Autowired
 	ModelMapper modelMapper;
 	
 	private static final Logger logger = LogManager.getLogger(SubjectService.class);
-	private static final String CREATE_SUBJECT = "Create subject";
-	private static final String UPDATE_SUBJECT = "Update subject";
-	private static final String DELETE_SUBJECT = "Delete subject";
+	private static final String CREATE_SUBJECT = "Create subject: ";
+	private static final String UPDATE_SUBJECT = "Update subject: ";
+	private static final String DELETE_SUBJECT = "Delete subject: ";
+	private static final String IS_STUDIED = "Is studentstudy subject: ";
 	
 	public Response<Set<SubjectDTO>> getSubjects() {
 		logger.info("getSubjects()");
@@ -91,5 +99,26 @@ public class SubjectService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
 	
+	public ResponseEntity<Void> isStudentStudiedSubject(String userEmail, String subjectName) {
+    	logger.info("isStudentStudiedSubject(subjectName: {}, userEmail: {})", subjectName, userEmail);
+    	Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
+        if (studentId == null || subjectName == null) {
+        	logger.warn("{}{}", IS_STUDIED, ServiceStatusCode.BAD_REQUEST_STATUS);
+        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (!subjectRepository.existsByName(subjectName)) {
+        	logger.warn("{}{}", IS_STUDIED, "Subject name not exist.");
+        	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        List<Class> classList = subjectRepository.findByName(subjectName).getClassList();
+        for (Class classEntity : classList) {
+        	if (classRepository.existsInClass(studentId, classEntity.getId()) != null) {
+        		logger.info("{}{}", IS_STUDIED, "Student study this subject.");
+        		return new ResponseEntity<>(HttpStatus.OK);
+        	}
+        }
+		logger.info("{}{}", IS_STUDIED, "Student not study this subject.");
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
 	
 }
