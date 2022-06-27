@@ -11,6 +11,8 @@ namespace DiscussionService.Dtos
         public string? Question { get; set; }
         public string? Subject { get; set; }
 
+        public SortType Sort { get; set; } = SortType.NEW;
+
         [BindRequired]
         public int PageNumber { get; set; } = 1;
 
