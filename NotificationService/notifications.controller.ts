@@ -1,14 +1,47 @@
+import { IncomingMessage, ServerResponse } from "http";
+import { Server } from "socket.io";
+import {
+  CREATE_NOTIFICATION_FAILED,
+  TITLE_IS_MISSING,
+  URL_IS_MISSING,
+  USER_EMAIL_IS_MISSING,
+} from "./constants";
 import { CreateNotificationDto, GetNotificationDto } from "./dto";
 import { createNotification, getNotifications } from "./notifications.service";
 
-async function handleCreateNotification(req, res, io, users) {
-  let data = "";
+type Dependencies = {
+  req: IncomingMessage;
+  res: ServerResponse;
+  io: Server;
+  users: Set<{
+    email: string;
+    id: string;
+  }>;
+  requestErrorMessage: string | null;
+};
+
+async function handleCreateNotification({
+  req,
+  res,
+  io,
+  users,
+  requestErrorMessage,
+}: Dependencies) {
+  // const requestStart = Date.now();
+  let data = [];
   let dto: CreateNotificationDto = {};
-  req.on("data", (chunk) => {
-    data += chunk;
-  });
+
+  const getChunk = (chunk) => data.push(chunk);
+  const getError = (error) => {
+    requestErrorMessage = error.message;
+  };
+
+  req.on("data", getChunk);
+
+  req.on("error", getError);
 
   req.on("end", async () => {
+    data = Buffer.concat(data).toString();
     dto = JSON.parse(data);
     if (
       dto.title.length == 0 ||
@@ -16,7 +49,7 @@ async function handleCreateNotification(req, res, io, users) {
       typeof dto.title != "string"
     ) {
       res.writeHead(400);
-      res.write("Title is missing.");
+      res.write(TITLE_IS_MISSING);
       return res.end();
     }
     if (
@@ -25,7 +58,7 @@ async function handleCreateNotification(req, res, io, users) {
       typeof dto.url != "string"
     ) {
       res.writeHead(400);
-      res.write("URL is missing.");
+      res.write(URL_IS_MISSING);
       return res.end();
     }
     if (
@@ -34,7 +67,7 @@ async function handleCreateNotification(req, res, io, users) {
       typeof dto.userEmail != "string"
     ) {
       res.writeHead(400);
-      res.write("User email is missing.");
+      res.write(USER_EMAIL_IS_MISSING);
       return res.end();
     }
 
@@ -60,7 +93,7 @@ async function handleCreateNotification(req, res, io, users) {
       return res.end();
     }
     res.writeHead(500);
-    res.write("Create notification failed.");
+    res.write(CREATE_NOTIFICATION_FAILED);
     return res.end();
   });
 }

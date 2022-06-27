@@ -47,6 +47,12 @@ namespace DiscussionService.Repositories
                             .ToListAsync();
         }
 
+        public async Task<IEnumerable<Answer>> GetAnswersByQuestionId(Guid questionId)
+        {
+            return await FindByCondition(answer => answer.QuestionId.Equals(questionId))
+                            .ToListAsync();
+        }
+
         public async Task<IEnumerable<Answer>> GetAnswersRemovedByLecturer(string lecturerEmail)
         {
             return await FindAll().Where(answer => answer.RemovedBy.Equals(lecturerEmail))

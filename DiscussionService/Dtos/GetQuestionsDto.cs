@@ -16,5 +16,6 @@ namespace DiscussionService.Dtos
         public int Upvotes { get; set; }
         public int Answers { get; set; }
         public bool Upvoted { get; set; }
+        public bool Solved { get; set; }
     }
 }

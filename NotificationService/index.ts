@@ -1,8 +1,11 @@
 const http = require("http");
 const path = require("path");
 const dotenv = require("dotenv");
+import { IncomingMessage, ServerResponse } from "http";
 import { Server } from "socket.io";
 import { validateOrigin } from "./auth.middleware";
+import { CLIENT_ABORTED } from "./constants";
+import { logger } from "./notifications.logger";
 const jwt = require("jsonwebtoken");
 
 const { validateToken } = require("./middlewares/auth.middleware");
@@ -15,25 +18,44 @@ dotenv.config({
   path: path.join(__dirname, `../.env.${process.env.NODE_ENV}`),
 });
 
-const server = http.createServer(async (req, res) => {
-  const headers = {
-    "Access-Control-Allow-Origin": process.env.DISCUSSION_SERVICE,
-    "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
-    "Access-Control-Max-Age": 2592000,
-  };
+const server = http.createServer(
+  async (req: IncomingMessage, res: ServerResponse) => {
+    let requestErrorMessage: string | null = null;
+    const headers = {
+      "Access-Control-Allow-Origin": [
+        process.env.DISCUSSION_SERVICE,
+        process.env.MANAGEMENT_SERVICE,
+      ],
+      "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+      "Access-Control-Max-Age": 2592000,
+    };
 
-  if (req.method === "OPTIONS") {
-    res.writeHead(204, headers);
-    res.end();
-    return;
-  }
+    if (req.method === "OPTIONS") {
+      res.writeHead(204, headers);
+      res.end();
+      return;
+    }
 
-  if (req.url === "/api/notification" && req.method === "POST") {
-    await validateOrigin(req, res, () =>
-      handleCreateNotification(req, res, io, users)
-    );
+    if (req.url === "/api/notification" && req.method === "POST") {
+      await validateOrigin(
+        req,
+        res,
+        async () =>
+          await handleCreateNotification({
+            req,
+            res,
+            io,
+            users,
+            requestErrorMessage,
+          })
+      );
+    }
+
+    res.on("finish", () => logger({ req, res, requestErrorMessage }));
+    res.on("close", () => logger({ req, res, CLIENT_ABORTED }));
+    res.on("error", ({ message }: err) => logger({ req, res, message }));
   }
-});
+);
 
 const io = new Server(server, {});
 const users = new Set();

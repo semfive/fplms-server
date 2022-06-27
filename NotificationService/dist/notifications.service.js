@@ -30,6 +30,9 @@ function getNotifications(userEmail) {
             where: {
                 userEmail: userEmail,
             },
+            orderBy: {
+                createdAt: "desc",
+            },
             take: 10,
         });
     });

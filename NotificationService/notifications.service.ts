@@ -17,6 +17,9 @@ async function getNotifications(userEmail: string) {
     where: {
       userEmail: userEmail,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
     take: 10,
   });
 }
