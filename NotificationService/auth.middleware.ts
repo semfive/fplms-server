@@ -1,6 +1,14 @@
+import { IncomingMessage, ServerResponse } from "http";
+
 const jwt = require("jsonwebtoken");
 
-async function validateToken(req, res, next) {
+type Dependencies = {
+  req: IncomingMessage;
+  res: ServerResponse;
+  next: any;
+};
+
+async function validateToken({ req, res, next }: Dependencies) {
   const token = req.headers["authorization"];
   if (!token) {
     res.writeHead(401);
@@ -18,9 +26,13 @@ async function validateToken(req, res, next) {
   return next();
 }
 
-async function validateOrigin(req, res, next) {
+async function validateOrigin(req: IncomingMessage, res: ServerResponse, next) {
   const origin = req.headers["host"];
-  if ([process.env.DISCUSSION_SERVICE].indexOf(origin) === -1) {
+  if (
+    [process.env.DISCUSSION_SERVICE, process.env.MANAGEMENT_SERVICE].indexOf(
+      origin
+    ) === -1
+  ) {
     res.writeHead(403);
     res.write("Access to resource denied.");
     return res.end();
