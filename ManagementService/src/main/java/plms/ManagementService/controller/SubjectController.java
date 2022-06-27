@@ -3,13 +3,16 @@ package plms.ManagementService.controller;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import plms.ManagementService.model.dto.SubjectDTO;
@@ -41,5 +44,11 @@ public class SubjectController {
 	@DeleteMapping("/{subjectId}")
 	public Response<Void> deleteSubject(@PathVariable Integer subjectId) {
 		return subjectService.deleteSubject(subjectId);
+	}
+	
+	@GetMapping("/isStudied")
+	public ResponseEntity<Void> isStudentStudySubject(@RequestParam String subjectName,
+			@RequestAttribute(required = false) String userEmail) {
+		return subjectService.isStudentStudiedSubject(userEmail, subjectName);
 	}
 }
