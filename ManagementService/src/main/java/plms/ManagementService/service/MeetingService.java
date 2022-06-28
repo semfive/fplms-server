@@ -145,7 +145,7 @@ public class MeetingService {
 
     }
 
-    public Response<Void> scheduleMeetingByLecturer(MeetingDTO meetingDTO) {
+    public Response<MeetingDTO> scheduleMeetingByLecturer(MeetingDTO meetingDTO) {
         logger.info("{}{}", SCHEDULING_MEETING_MESSAGE, meetingDTO);
         //check whether group is in class of lecturer
         if (meetingDTO.getGroupId() == null || !groupRepository.findLectureIdOfGroup(meetingDTO.getGroupId()).equals(meetingDTO.getLecturerId())) {
@@ -160,9 +160,9 @@ public class MeetingService {
         Meeting meeting = modelMapper.map(meetingDTO, Meeting.class);
         meeting.setLecturer(new Lecturer(meetingDTO.getLecturerId()));
         meeting.setGroup(new Group(meetingDTO.getGroupId()));
-        meetingRepository.save(meeting);
+        meetingDTO.setId(meetingRepository.save(meeting).getId());
         logger.info("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE,meetingDTO);
     }
 
     public Response<Void> updateMeetingByLecturer(MeetingDTO meetingDTO) {

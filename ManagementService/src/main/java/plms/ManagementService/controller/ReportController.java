@@ -1,7 +1,6 @@
 package plms.ManagementService.controller;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.ProgressReportDTO;
 import plms.ManagementService.model.request.*;
 import plms.ManagementService.model.response.Response;
+import plms.ManagementService.service.NotificationService;
 import plms.ManagementService.service.ReportService;
 import plms.ManagementService.service.StudentService;
 
@@ -33,6 +33,8 @@ public class ReportController {
     ReportService reportService;
     @Autowired
     StudentService studentService;
+    @Autowired
+    NotificationService notificationService;
 
     @GetMapping("/cycle-reports")
     public Response<Set<CycleReportDTO>> getCycleReport(@RequestAttribute(required = false) String userEmail,
@@ -49,17 +51,21 @@ public class ReportController {
     }
 
     @PostMapping("/cycle-reports")
-    public Response<Void> addCycleReport(@RequestAttribute(required = false) String userEmail,
+    public Response<CycleReportDTO> addCycleReport(@RequestAttribute(required = false) String userEmail,
                                          @RequestBody CreateCycleReportRequest createCycleReportRequest) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
-        return reportService.addCycleReport(createCycleReportRequest, studentId);
+        Response<CycleReportDTO> response = reportService.addCycleReport(createCycleReportRequest, studentId);
+        notificationService.sendReportNotification(response.getData());
+        return response;
     }
 
     @PutMapping("/cycle-reports")
-    public Response<Void> updateCycleReport(@RequestAttribute(required = false) String userEmail,
-                                            @RequestBody UpdateCycleReportRequest updateCycleReportRequest) {
+    public Response<CycleReportDTO> updateCycleReport(@RequestAttribute(required = false) String userEmail,
+                                                   @RequestBody UpdateCycleReportRequest updateCycleReportRequest) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
-        return reportService.updateCycleReport(updateCycleReportRequest, studentId);
+        Response<CycleReportDTO> response = reportService.updateCycleReport(updateCycleReportRequest, studentId);
+        notificationService.sendReportNotification(response.getData());
+        return response;
     }
 
     @DeleteMapping("/cycle-reports/{reportId}")
@@ -70,8 +76,10 @@ public class ReportController {
     }
 
     @PutMapping("/cycle-reports/feedback")
-    public Response<Void> feedbackCycleReport(@RequestAttribute(required = false) String userEmail, @RequestBody FeedbackCycleReportRequest feedbackCycleReportRequest) {
-        return reportService.feedbackCycleReport(feedbackCycleReportRequest,userEmail);
+    public Response<CycleReportDTO> feedbackCycleReport(@RequestAttribute(required = false) String userEmail, @RequestBody FeedbackCycleReportRequest feedbackCycleReportRequest) {
+        Response<CycleReportDTO> response = reportService.feedbackCycleReport(feedbackCycleReportRequest,userEmail);
+        notificationService.sendFeedbackNotification(response.getData());
+        return response;
     }
 
     @GetMapping("/progress-reports")

@@ -26,7 +26,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
     private String adminEmail;
 
     @Bean
-    public WebClient.Builder getWebClientBuilder() {
+    public static WebClient.Builder getWebClientBuilder() {
         return WebClient.builder();
     }
 
