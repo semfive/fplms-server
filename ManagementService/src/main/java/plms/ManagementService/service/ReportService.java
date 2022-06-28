@@ -193,7 +193,7 @@ public class ReportService {
     }
 
 
-    public Response<Void> addCycleReport(CreateCycleReportRequest reportRequest, Integer leaderId) {
+    public Response<CycleReportDTO> addCycleReport(CreateCycleReportRequest reportRequest, Integer leaderId) {
         Integer groupId = reportRequest.getGroupId();
         logger.info("addCycleReport(reportRequest: {}, leaderId: {})", reportRequest, leaderId);
 
@@ -222,12 +222,12 @@ public class ReportService {
         CycleReport cycleReport = modelMapper.map(reportRequest, CycleReport.class);
         cycleReport.setGroup(new Group(groupId));
         cycleReport.setCycleNumber(currentCycle);
-        cycleReportRepository.save(cycleReport);
+        CycleReportDTO responseEntity  = modelMapper.map(cycleReportRepository.save(cycleReport),CycleReportDTO.class);
         logger.info("Add cycle report success");
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE,responseEntity);
     }
 
-    public Response<Void> updateCycleReport(UpdateCycleReportRequest reportRequest, Integer leaderId) {
+    public Response<CycleReportDTO> updateCycleReport(UpdateCycleReportRequest reportRequest, Integer leaderId) {
         CycleReport cycleReport = cycleReportRepository.getById(reportRequest.getId());
         Integer groupId = reportRequest.getGroupId();
         logger.info("UpdateCycleReport(reportRequest: {}, groupId: {}, leaderId: {})", reportRequest, groupId, leaderId);
@@ -256,9 +256,9 @@ public class ReportService {
         cycleReport.setContent(reportRequest.getContent());
         cycleReport.setTitle(reportRequest.getTitle());
         cycleReport.setResourceLink(reportRequest.getResourceLink());
-        cycleReportRepository.save(cycleReport);
+        CycleReportDTO responseEntity  = modelMapper.map(cycleReportRepository.save(cycleReport),CycleReportDTO.class);
         logger.info("Update cycle report success");
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE,responseEntity);
     }
 
 
@@ -292,7 +292,7 @@ public class ReportService {
     }
 
 
-    public Response<Void> feedbackCycleReport(FeedbackCycleReportRequest feedbackCycleReportRequest, String userEmail) {
+    public Response<CycleReportDTO> feedbackCycleReport(FeedbackCycleReportRequest feedbackCycleReportRequest, String userEmail) {
         logger.info("{}{}", FEEDBACK_CYCLE_REPORT, feedbackCycleReportRequest);
         Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
         if (lecturerId == null || feedbackCycleReportRequest.getGroupId() == null || feedbackCycleReportRequest.getReportId() == null ||
@@ -314,7 +314,8 @@ public class ReportService {
         }
         cycleReportRepository.addFeedback(feedbackCycleReportRequest.getReportId(), feedbackCycleReportRequest.getFeedback(), feedbackCycleReportRequest.getMark());
         logger.info("Feedback cycle report successful.");
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE
+                ,modelMapper.map(cycleReportRepository.getById(feedbackCycleReportRequest.getReportId()),CycleReportDTO.class));
     }
     
     public Response<ProgressReportDTO> getProgressReportDetailByLecturer(String userEmail, Integer reportId) {

@@ -33,10 +33,13 @@ public class Project {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
     private Set<Group> groupSet;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "SUBJECT_id")
     private Subject subject;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LECTURER_id")
     private Lecturer lecturer;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SEMESTER_code")
     private Semester semester;
     @Column(name = "is_disable", insertable = false)
     private boolean isDisable;

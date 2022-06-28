@@ -26,11 +26,12 @@ public class GatewayInterceptor implements HandlerInterceptor {
     private String adminEmail;
 
     @Bean
-    public WebClient.Builder getWebClientBuilder() {
+    public static WebClient.Builder getWebClientBuilder() {
         return WebClient.builder();
     }
 
-    private static final String VERIFY_URL = "http://fplms-authservice-clusterip:7209/api/auth/accounts/verify";
+    @Value("${api.verify.url}")
+    private String verifyUrl;
 
 
     @Override
@@ -78,7 +79,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
 //            logger.info("No access token");
 //            logger.warn("Use test user");
 //            throw new NoTokenException();
-            emailVerifyDTO = new EmailVerifyDTO(GatewayConstant.EMAIL_TEST,GatewayConstant.ROLE_TEST);
+            emailVerifyDTO = new EmailVerifyDTO(GatewayConstant.EMAIL_TEST, GatewayConstant.ROLE_TEST);
             logger.info("Path:{} Role:{} Email:{}", servletPath, emailVerifyDTO.getEmail(), emailVerifyDTO.getRole());
             ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
             if (apiEntity == null) throw new NotFoundApiException();
@@ -123,7 +124,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
     }
 
     private EmailVerifyDTO getEmailVerifiedEntity(String token) {
-        return getWebClientBuilder().build().get().uri(VERIFY_URL).header(GatewayConstant.AUTHORIZATION_HEADER, token)
+        return getWebClientBuilder().build().get().uri(verifyUrl).header(GatewayConstant.AUTHORIZATION_HEADER, token)
                 .retrieve().bodyToMono(EmailVerifyDTO.class).block();
     }
 }
