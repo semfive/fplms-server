@@ -10,31 +10,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleGetNotifications = exports.handleCreateNotification = void 0;
+const constants_1 = require("./constants");
 const notifications_service_1 = require("./notifications.service");
-function handleCreateNotification(req, res, io, users) {
+function handleCreateNotification({ req, res, io, users, requestErrorMessage, }) {
     return __awaiter(this, void 0, void 0, function* () {
-        let data = "";
+        // const requestStart = Date.now();
+        let data = [];
         let dto = {};
-        req.on("data", (chunk) => {
-            data += chunk;
-        });
+        const getChunk = (chunk) => data.push(chunk);
+        const getError = (error) => {
+            requestErrorMessage = error.message;
+        };
+        req.on("data", getChunk);
+        req.on("error", getError);
         req.on("end", () => __awaiter(this, void 0, void 0, function* () {
+            data = Buffer.concat(data).toString();
             dto = JSON.parse(data);
             if (dto.title.length == 0 ||
                 dto.title === undefined ||
                 typeof dto.title != "string") {
                 res.writeHead(400);
-                res.write("Title is missing.");
+                res.write(constants_1.TITLE_IS_MISSING);
                 return res.end();
             }
             if (dto.url.length == 0 ||
                 dto.url === undefined ||
                 typeof dto.url != "string") {
                 res.writeHead(400);
-                res.write("URL is missing.");
+                res.write(constants_1.URL_IS_MISSING);
                 return res.end();
             }
-            dto.userEmail = req.headers["user"]["email"];
+            if (dto.userEmail.length == 0 ||
+                dto.userEmail === undefined ||
+                typeof dto.userEmail != "string") {
+                res.writeHead(400);
+                res.write(constants_1.USER_EMAIL_IS_MISSING);
+                return res.end();
+            }
+            // dto.userEmail = req.headers["user"]["email"];
             const notification = yield (0, notifications_service_1.createNotification)(dto);
             if (notification) {
                 for (const e of users) {
@@ -53,7 +66,7 @@ function handleCreateNotification(req, res, io, users) {
                 return res.end();
             }
             res.writeHead(500);
-            res.write("Create notification failed.");
+            res.write(constants_1.CREATE_NOTIFICATION_FAILED);
             return res.end();
         }));
     });

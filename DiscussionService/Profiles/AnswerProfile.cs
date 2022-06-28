@@ -9,7 +9,7 @@ namespace DiscussionService.Profiles
         public AnswerProfile()
         {
             CreateMap<CreateAnswerDto, Answer>();
-            CreateMap<Answer, GetAnswerDto>();
+            CreateMap<Answer, GetAnswerDto>().ForMember((dest) => dest.Upvotes, opt => opt.MapFrom(src => src.Upvoters.Count));
             CreateMap<UpdateAnswerDto, Answer>();
         }
     }

@@ -30,11 +30,10 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                //var userEmail = HttpContext.Items["userEmail"] as string;
-                //var userRole = HttpContext.Items["userRole"] as string;
-
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
                 var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
-
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var metadata = new
                 {
                     questions.TotalPages,
@@ -46,7 +45,14 @@ namespace DiscussionService.Controllers
                 };
 
                 Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
-                var result = _mapper.Map<List<GetQuestionDto>>(questions);
+                var result = _mapper.Map<List<GetQuestionsDto>>(questions);
+                for (int i = 0; i < questions.Count; i++)
+                {
+                    if (questions[i].Upvoters.Any(u => u.StudentId == student.Id))
+                    {
+                        result[i].Upvoted = true;
+                    }
+                }
                 return Ok(result);
             }
             catch (Exception ex)
@@ -61,10 +67,61 @@ namespace DiscussionService.Controllers
         {
             try
             {
-                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId, "eager");
-                var result = _mapper.Map<GetQuestionDto>(question);
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
 
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId, "eager");
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+
+                var result = _mapper.Map<GetQuestionDto>(question);
+                for (int i = 0; i < question.Answers.Count; i++)
+                {
+                    if (question.Answers.Any(a => a.Upvoters.Any(u => u.StudentId == student.Id && u.AnswerId == result.Answers[i].Id)))
+                    {
+                        result.Answers[i].Upvoted = true;
+                    }
+                }
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPatch("{questionId}/upvote")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
+        public async Task<IActionResult> UpvoteQuestion([FromRoute] Guid questionId)
+        {
+            try
+            {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Forbid("Only student can upvote questions.");
+                }
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
+                var dto = new StudentUpvote()
+                {
+                    QuestionId = question.Id,
+                    StudentId = student.Id
+                };
+                var studentUpvote = await _repositoryWrapper.StudentUpvoteRepository.GetStudentUpvote(dto);
+
+                if (studentUpvote != null)
+                {
+                    _repositoryWrapper.StudentUpvoteRepository.DeleteStudentUpvote(dto);
+                    await _repositoryWrapper.SaveAsync();
+                    return NoContent();
+                }
+
+                _repositoryWrapper.StudentUpvoteRepository.CreateStudentUpvote(dto);
+                await _repositoryWrapper.SaveAsync();
+                return NoContent();
             }
             catch (Exception ex)
             {

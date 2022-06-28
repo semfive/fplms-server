@@ -15,6 +15,8 @@ namespace DiscussionService.Models
         [StringLength(20000)]
         public string? Content { get; set; }
 
+        public bool Solved { get; set; } = false;
+
         [Required]
         public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? ModifiedDate { get; set; } = DateTimeOffset.UtcNow;
@@ -31,5 +33,7 @@ namespace DiscussionService.Models
         public Student? Student { get; set; }
 
         public ICollection<Answer>? Answers { get; set; }
+
+        public ICollection<StudentUpvote> Upvoters { get; set; }
     }
 }

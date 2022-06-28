@@ -77,12 +77,15 @@ namespace DiscussionService.Controllers
             {
                 var userEmail = HttpContext.Items["UserEmail"] as string;
                 var userRole = HttpContext.Items["UserRole"] as string;
+
                 if (!userRole.Equals("Student"))
                 {
                     return Forbid("Only student can create answers.");
                 }
-                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+
                 var answer = _mapper.Map<Answer>(createAnswerDto);
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+
                 answer.Id = Guid.NewGuid();
                 answer.StudentId = student.Id;
 
@@ -90,6 +93,46 @@ namespace DiscussionService.Controllers
                 await _repositoryWrapper.SaveAsync();
 
                 return Created("~api/discussion/answers/" + answer.Id, createAnswerDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error:" + ex);
+            }
+        }
+
+        [HttpPatch("{answerId}/upvote")]
+        [TypeFilter(typeof(AuthorizationFilterAttribute))]
+        public async Task<IActionResult> UpvoteAnswer([FromRoute] Guid answerId)
+        {
+            try
+            {
+                var userEmail = HttpContext.Items["UserEmail"] as string;
+                var userRole = HttpContext.Items["UserRole"] as string;
+
+                if (!userRole.Equals("Student"))
+                {
+                    return Forbid("Only student can upvote questions.");
+                }
+
+                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+                var dto = new StudentAnswerUpvote()
+                {
+                    AnswerId = answer.Id,
+                    StudentId = student.Id
+                };
+                var studentUpvote = await _repositoryWrapper.StudentAnswerUpvoteRepository.GetStudentAnswerUpvote(dto);
+
+                if (studentUpvote != null)
+                {
+                    _repositoryWrapper.StudentAnswerUpvoteRepository.DeleteStudentAnswerUpvote(dto);
+                    await _repositoryWrapper.SaveAsync();
+                    return NoContent();
+                }
+
+                _repositoryWrapper.StudentAnswerUpvoteRepository.CreateStudentAnswerUpvote(dto);
+                await _repositoryWrapper.SaveAsync();
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -113,29 +156,37 @@ namespace DiscussionService.Controllers
                 }
 
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
-
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(answer.QuestionId, "eager");
+                var answers = await _repositoryWrapper.AnswerRepository.GetAnswersByQuestionId(answer.QuestionId);
+
                 if (answer == null)
                 {
                     return NotFound();
                 }
 
-                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByAnswerId(student.Id, answerId);
-
-                if (question == null)
-                {
-                    return NotFound();
-                }
-                Console.WriteLine($"\nQUESTION: {question.Title}");
                 if (student.Id != question.StudentId)
                 {
                     return Forbid("Only the author of the question can accept the answer");
                 }
 
-                answer.Accepted = true;
-                _repositoryWrapper.AnswerRepository.UpdateAnswer(answer);
+                foreach (var a in answers.ToList())
+                {
+                    if (a.Id == answerId)
+                    {
+                        a.Accepted = !a.Accepted;
+                        question.Solved = !a.Accepted;
+                    }
+                    else
+                    {
+                        a.Accepted = false;
+                    }
+                    _repositoryWrapper.AnswerRepository.UpdateAnswer(_mapper.Map<Answer>(a));
+                }
+                // _repositoryWrapper.QuestionRepository.UpdateQuestion(_mapper.Map<Question>(_mapper.Map<UpdateQuestionSolveStatusDto>(question)));
                 await _repositoryWrapper.SaveAsync();
                 return NoContent();
+
             }
             catch (Exception ex)
             {

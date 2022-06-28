@@ -3,6 +3,7 @@ using System;
 using DiscussionService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionService.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20220625071011_AddStudentUpvotes")]
+    partial class AddStudentUpvotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,9 +111,6 @@ namespace DiscussionService.Migrations
                     b.Property<string>("RemovedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("Solved")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<Guid>("StudentId")
                         .HasColumnType("char(36)");
 
@@ -153,27 +152,9 @@ namespace DiscussionService.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
 
-                    b.Property<int>("Point")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("DiscussionService.Models.StudentAnswerUpvote", b =>
-                {
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("AnswerId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("StudentId", "AnswerId");
-
-                    b.HasIndex("AnswerId");
-
-                    b.ToTable("StudentAnswerUpvotes");
                 });
 
             modelBuilder.Entity("DiscussionService.Models.StudentUpvote", b =>
@@ -243,25 +224,6 @@ namespace DiscussionService.Migrations
                     b.Navigation("Subject");
                 });
 
-            modelBuilder.Entity("DiscussionService.Models.StudentAnswerUpvote", b =>
-                {
-                    b.HasOne("DiscussionService.Models.Answer", "Answer")
-                        .WithMany("Upvoters")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscussionService.Models.Student", "Student")
-                        .WithMany("UpvotedAnswers")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Answer");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("DiscussionService.Models.StudentUpvote", b =>
                 {
                     b.HasOne("DiscussionService.Models.Question", "Question")
@@ -281,11 +243,6 @@ namespace DiscussionService.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("DiscussionService.Models.Answer", b =>
-                {
-                    b.Navigation("Upvoters");
-                });
-
             modelBuilder.Entity("DiscussionService.Models.Question", b =>
                 {
                     b.Navigation("Answers");
@@ -298,8 +255,6 @@ namespace DiscussionService.Migrations
                     b.Navigation("Answers");
 
                     b.Navigation("Questions");
-
-                    b.Navigation("UpvotedAnswers");
 
                     b.Navigation("UpvotedQuestions");
                 });

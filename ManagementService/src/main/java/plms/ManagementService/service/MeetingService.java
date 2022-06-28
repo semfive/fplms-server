@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import plms.ManagementService.model.dto.CycleReportDTO;
 import plms.ManagementService.model.dto.MeetingDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
@@ -18,6 +19,7 @@ import plms.ManagementService.repository.LecturerRepository;
 import plms.ManagementService.repository.MeetingRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
+import plms.ManagementService.repository.entity.CycleReport;
 import plms.ManagementService.repository.entity.Group;
 import plms.ManagementService.repository.entity.Lecturer;
 import plms.ManagementService.repository.entity.Meeting;
@@ -44,11 +46,58 @@ public class MeetingService {
     private static final Logger logger = LogManager.getLogger(MeetingService.class);
     private static final Timestamp TIMESTAMP_MAX_VALUE = Timestamp.valueOf("9999-12-31 23:59:59.9");
     private static final Timestamp TIMESTAMP_MIN_VALUE = Timestamp.valueOf("0000-01-01 00:00:00.0");
-
+    
+    private static final String NOT_IN_GROUP = "Student is not exist in group.";
+    private static final String LECTURER_NOT_MANAGE = "Lecturer not manage this meeting.";
     private static final String GET_MEETING = "Get meeting: ";
     private static final String SCHEDULING_MEETING_MESSAGE = "Schedule meeting: ";
     private static final String UPDATE_MEETING_MESSAGE = "Update meeting: ";
     private static final String DELETE_MEETING_MESSAGE = "Update meeting: ";
+    
+    public Response<MeetingDTO> getMeetingDetailByLecturer(String userEmail, Integer meetingId) {
+    	logger.info("getMeetingDetailByLecturer(meetingId: {}, userEmail: {})", meetingId, userEmail);
+    	Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+        if (lecturerId == null || meetingId == null) {
+            logger.warn("{}{}", GET_MEETING, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!meetingRepository.existsById(meetingId)) {
+            logger.warn("{}{}", GET_MEETING, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        } 
+        Meeting meeting = meetingRepository.getById(meetingId); 
+        if (!lecturerId.equals(meeting.getGroup().getClassEntity().getLecturer().getId())) {
+            logger.warn("{}{}", GET_MEETING, LECTURER_NOT_MANAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
+
+        }
+        MeetingDTO meetingDTO = modelMapper.map(meeting, MeetingDTO.class);
+        logger.info("Get meeting detail success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, meetingDTO);
+    }
+    
+    public Response<MeetingDTO> getMeetingDetailByStudent(String userEmail, Integer meetingId) {
+    	logger.info("getMeetingDetailByStudent(meetingId: {}, userEmail: {})", meetingId, userEmail);
+    	Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
+        if (studentId == null || meetingId == null) {
+            logger.warn("{}{}", GET_MEETING, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!meetingRepository.existsById(meetingId)) {
+            logger.warn("{}{}", GET_MEETING, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        } 
+        Meeting meeting = meetingRepository.getById(meetingId); 
+        
+        if (studentGroupRepository.isStudentExistInGroup(meeting.getGroup().getId(), studentId) == null) {
+            logger.warn("{}{}", GET_MEETING, NOT_IN_GROUP);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
+        }
+        MeetingDTO meetingDTO = modelMapper.map(meeting, MeetingDTO.class);
+        logger.info("Get meeting detail success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, meetingDTO);
+    }
+    
 
     public Response<Set<MeetingDTO>> getMeetingInGroupByStudent(Integer classId, Integer groupId,
                                                                 Timestamp startDate, Timestamp endDate, String userEmail) {
@@ -79,8 +128,8 @@ public class MeetingService {
                     return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
                 }
                 if (studentGroupRepository.isStudentExistInGroup(groupId, studentId) == null) {
-                    logger.warn("{}{}", GET_MEETING, "Student is not exist in group.");
-                    return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+                    logger.warn("{}{}", GET_MEETING, NOT_IN_GROUP);
+                    return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
                 }
                 meetingSet = meetingRepository.findByGroupId(groupId, startDate, endDate);
             }
@@ -117,8 +166,8 @@ public class MeetingService {
                 return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             }
             if (!lecturerId.equals(classRepository.findOneById(classId).getLecturer().getId())) {
-                logger.warn("{}{}", GET_MEETING, "Lecturer not manage this class.");
-                return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Lecturer not manage this class.");
+                logger.warn("{}{}", GET_MEETING, LECTURER_NOT_MANAGE);
+                return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
             }
             if (groupId == null) {               //find by class
                 meetingSet = meetingRepository.findByClassId(classId, startDate, endDate);

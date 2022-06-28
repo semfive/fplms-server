@@ -3,6 +3,7 @@ using System;
 using DiscussionService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscussionService.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20220625093002_AddStudentAnswerUpvotes")]
+    partial class AddStudentAnswerUpvotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,9 +111,6 @@ namespace DiscussionService.Migrations
                     b.Property<string>("RemovedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("Solved")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<Guid>("StudentId")
                         .HasColumnType("char(36)");
 
@@ -152,9 +151,6 @@ namespace DiscussionService.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
-
-                    b.Property<int>("Point")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -1,9 +1,7 @@
 package plms.ManagementService.service;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,7 +49,7 @@ public class ReportService {
     private static final String NOT_A_LEADER = "Not a leader.";
     private static final String NOT_IN_CYCLE = "Not in cycle";
     private static final String CYCLE_REPORT_EXISTS = "This cycle has report already";
-    private static final String LECTURER_NOT_MANAGE = "Lecturer not manage this class.";
+    private static final String LECTURER_NOT_MANAGE = "Lecturer not manage.";
     private static final String GROUP_DISABLE = "Group is disable.";
     private static final String CREATE_CYCLE_REPORT = "Create cycle report: ";
     private static final String UPDATE_CYCLE_REPORT = "Update cycle report: ";
@@ -59,9 +57,52 @@ public class ReportService {
     private static final String CREATE_PROGRESS_REPORT = "Create progress report: ";
     private static final String UPDATE_PROGRESS_REPORT = "Update progress report: ";
     private static final String DELETE_PROGRESS_REPORT = "Delete progress report: ";
-    private static final String GET_CYCLE_REPORT = "Get cycle report in group: ";
-    private static final String GET_PROGRESS_REPORT = "Get progress report in group: ";
+    private static final String GET_CYCLE_REPORT = "Get cycle report: ";
+    private static final String GET_PROGRESS_REPORT = "Get progress report: ";
     private static final String FEEDBACK_CYCLE_REPORT = "Feedback cycle report: ";
+    
+    public Response<CycleReportDTO> getCycleReportDetailByLecturer(String userEmail, Integer reportId) {
+    	logger.info("getCycleReportDetailByLecturer(reportId: {}, userEmail: {})", reportId, userEmail);
+    	Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+        if (lecturerId == null || reportId == null) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!cycleReportRepository.existsById(reportId)) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        } 
+        CycleReport cycleReport = cycleReportRepository.getById(reportId); 
+        if (!lecturerId.equals(cycleReport.getGroup().getClassEntity().getLecturer().getId())) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, LECTURER_NOT_MANAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
+
+        }
+        CycleReportDTO cycleReportDTO = modelMapper.map(cycleReport, CycleReportDTO.class);
+        logger.info("Get cycle report detail success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, cycleReportDTO);
+    }
+    
+    public Response<CycleReportDTO> getCycleReportDetailByStudent(String userEmail, Integer reportId) {
+    	logger.info("getCycleReportDetailByStudent(reportId: {}, userEmail: {})", reportId, userEmail);
+    	Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
+        if (studentId == null || reportId == null) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!cycleReportRepository.existsById(reportId)) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        } 
+        CycleReport cycleReport = cycleReportRepository.getById(reportId); 
+        if (studentGroupRepository.isStudentExistInGroup(cycleReport.getGroup().getId(), studentId) == null) {
+            logger.warn("{}{}", GET_CYCLE_REPORT, NOT_IN_GROUP);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
+        }
+        CycleReportDTO cycleReportDTO = modelMapper.map(cycleReport, CycleReportDTO.class);
+        logger.info("Get cycle report detail success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, cycleReportDTO);
+    }
     
     public Response<Set<CycleReportDTO>> getCycleReportByLecturer(Integer classId, Integer groupId, String userEmail) {
     	logger.info("getCycleReportByLecturer(classId: {}, groupId: {}, userEmail: {})", classId, groupId, userEmail);
@@ -275,6 +316,48 @@ public class ReportService {
         logger.info("Feedback cycle report successful.");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE
                 ,modelMapper.map(cycleReportRepository.getById(feedbackCycleReportRequest.getReportId()),CycleReportDTO.class));
+    }
+    
+    public Response<ProgressReportDTO> getProgressReportDetailByLecturer(String userEmail, Integer reportId) {
+    	logger.info("getProgressReportDetailByLecturer(reportId: {}, userEmail: {})", reportId, userEmail);
+    	Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
+        if (lecturerId == null || reportId == null) {
+            logger.warn("{}{}", GET_PROGRESS_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!progressReportRepository.existsById(reportId)) {
+            logger.warn("{}{}", GET_PROGRESS_REPORT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        } 
+        ProgressReport progressReport = progressReportRepository.getById(reportId); 
+        if (!lecturerId.equals(progressReport.getGroup().getClassEntity().getLecturer().getId())) {
+            logger.warn("{}{}", GET_PROGRESS_REPORT, LECTURER_NOT_MANAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, LECTURER_NOT_MANAGE);
+        }
+        ProgressReportDTO progressReportDTO = modelMapper.map(progressReport, ProgressReportDTO.class);
+        logger.info("Get progress report detail success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, progressReportDTO);
+    }
+    
+    public Response<ProgressReportDTO> getProgressReportDetailByStudent(String userEmail, Integer reportId) {
+    	logger.info("getProgressReportDetailByStudent(reportId: {}, userEmail: {})", reportId, userEmail);
+    	Integer studentId = studentRepository.findStudentIdByEmail(userEmail);
+        if (studentId == null || reportId == null) {
+            logger.warn("{}{}", GET_PROGRESS_REPORT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!progressReportRepository.existsById(reportId)) {
+            logger.warn("{}{}", GET_PROGRESS_REPORT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        } 
+        ProgressReport progressReport = progressReportRepository.getById(reportId); 
+        if (studentGroupRepository.isStudentExistInGroup(progressReport.getGroup().getId(), studentId) == null) {
+            logger.warn("{}{}", GET_PROGRESS_REPORT, NOT_IN_GROUP);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, NOT_IN_GROUP);
+        }
+        ProgressReportDTO progressReportDTO = modelMapper.map(progressReport, ProgressReportDTO.class);
+        logger.info("Get progress report detail success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, progressReportDTO);
     }
 
     public Response<Set<ProgressReportDTO>> getProgressReportInGroupByStudent(Integer classId, Integer groupId,

@@ -19,7 +19,12 @@ namespace DiscussionService.Models
         [StringLength(1000)]
         public string? Picture { get; set; }
 
+        public int Point { get; set; } = 0;
+
         public ICollection<Question>? Questions { get; set; }
         public ICollection<Answer>? Answers { get; set; }
+
+        public ICollection<StudentUpvote> UpvotedQuestions { get; set; }
+        public ICollection<StudentAnswerUpvote> UpvotedAnswers { get; set; }
     }
 }
