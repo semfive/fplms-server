@@ -33,7 +33,7 @@ namespace DiscussionService.Controllers
                 var userEmail = HttpContext.Items["UserEmail"] as string;
                 var userRole = HttpContext.Items["UserRole"] as string;
                 var questions = await _repositoryWrapper.QuestionRepository.GetAllQuestionsAsync(queryStringParameters);
-                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+
                 var metadata = new
                 {
                     questions.TotalPages,
@@ -46,13 +46,18 @@ namespace DiscussionService.Controllers
 
                 Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
                 var result = _mapper.Map<List<GetQuestionsDto>>(questions);
-                for (int i = 0; i < questions.Count; i++)
+                if (userRole == "Student")
                 {
-                    if (questions[i].Upvoters.Any(u => u.StudentId == student.Id))
+                    var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                    for (int i = 0; i < questions.Count; i++)
                     {
-                        result[i].Upvoted = true;
+                        if (questions[i].Upvoters.Any(u => u.StudentId == student.Id))
+                        {
+                            result[i].Upvoted = true;
+                        }
                     }
                 }
+
                 return Ok(result);
             }
             catch (Exception ex)
