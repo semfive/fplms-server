@@ -57,7 +57,14 @@ const server = http.createServer(
   }
 );
 
-const io = new Server(server, {});
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["authorization"],
+    credentials: true,
+  },
+});
 const users = new Set();
 io.on("connection", async (socket) => {
   console.log("Made socket connection: " + socket.id);
