@@ -75,9 +75,10 @@ async function handleCreateNotification({
 
     const notification = await createNotification(dto);
     if (notification) {
-      for (const e of users) {
-        if (e["email"] === notification.userEmail) {
-          var socketId = e["id"];
+      const usersArray = [...users];
+      for (let user of usersArray) {
+        if (user["email"] === notification.userEmail) {
+          var socketId = user["id"];
           break;
         }
       }

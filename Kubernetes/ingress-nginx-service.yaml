@@ -1,3 +1,40 @@
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ingress-service
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+#     nginx.ingress.kubernetes.io/enable-cors: "true"
+#     # nginx.ingress.kubernetes.io/rewrite-target: /
+#     # nginx.ingress.kubernetes.io/rewrite-target: /
+# spec:
+#   rules:
+#     - host: acme.com
+#       http:
+#         paths:
+#           - pathType: Prefix
+#             path: /api/discussion
+#             backend:
+#               service:
+#                 name: fplms-discussionservice-clusterip
+#                 port:
+#                   number: 7218
+#           - pathType: Prefix
+#             path: /api/auth
+#             backend:
+#               service:
+#                 name: fplms-authservice-clusterip
+#                 port:
+#                   number: 7209
+#           - pathType: Prefix
+#             path: /api/management
+#             backend:
+#               service:
+#                 name: fplms-managementservice-clusterip
+#                 port:
+#                   number: 8083
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -7,30 +44,43 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/enable-cors: "true"
     # nginx.ingress.kubernetes.io/rewrite-target: /
-    # nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: acme.com
-      http:
+    # - host: acme.com
+    - http:
         paths:
-          - pathType: Prefix
-            path: /api/discussion
+          - path: "/api/discussion"
+            pathType: Prefix
             backend:
               service:
                 name: fplms-discussionservice-clusterip
                 port:
                   number: 7218
-          - pathType: Prefix
-            path: /api/auth
-            backend:
-              service:
-                name: fplms-authservice-clusterip
-                port:
-                  number: 7209
-          - pathType: Prefix
-            path: /api/management
+          - path: "/api/management"
+            pathType: Prefix
             backend:
               service:
                 name: fplms-managementservice-clusterip
                 port:
                   number: 8083
+          - path: "/api/auth"
+            pathType: Prefix
+            backend:
+              service:
+                name: fplms-authservice-clusterip
+                port:
+                  number: 7209
+        # - pathType: ImplementationSpecific
+        #   path: /api/auth
+        #   backend:
+        #     service:
+        #       name: fplms-authservice-clusterip
+        #       port:
+        #         number: 7209
+        # - pathType: ImplementationSpecific
+        #   path: /api/management
+        #   backend:
+        #     service:
+        #       name: fplms-managementservice-clusterip
+        #       port:
+        #         number: 8083
