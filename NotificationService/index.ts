@@ -37,10 +37,22 @@ const server = http.createServer(
     }
 
     if (req.url === "/api/notification" && req.method === "POST") {
-      await validateOrigin(
-        req,
-        res,
-        async () =>
+      // await validateOrigin(
+      //   req,
+      //   res,
+      //   async () =>
+      //     await handleCreateNotification({
+      //       req,
+      //       res,
+      //       io,
+      //       users,
+      //       requestErrorMessage,
+      //     })
+      // );
+      // await validateOrigin(
+      //   req,
+      //   res,
+      //   async () =>
           await handleCreateNotification({
             req,
             res,
@@ -48,8 +60,8 @@ const server = http.createServer(
             users,
             requestErrorMessage,
           })
-      );
-    }
+    //   );
+    // }
 
     res.on("finish", () => logger({ req, res, requestErrorMessage }));
     res.on("close", () => logger({ req, res, CLIENT_ABORTED }));
@@ -72,21 +84,21 @@ io.on("connection", async (socket) => {
   try {
     const token = socket.handshake.headers["authorization"];
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    var newUser = {
-      email: decoded["email"],
-      id: socket.id,
-    };
-
-    users.add(newUser);
   } catch (err) {
     socket.disconnect();
   }
+  
+  var newUser = {
+    email: decoded["email"],
+    id: socket.id,
+  };
 
-  socket.on("notifications", async (data) => {
+  users.add(newUser);
+
+  // socket.on("notifications", async (data) => {
     const notifications = await handleGetNotifications(newUser["email"]);
     io.emit("notifications", notifications);
-  });
+  // });
 
   socket.on("disconnect", () => {
     users.delete(newUser);

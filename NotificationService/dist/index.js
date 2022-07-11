@@ -49,17 +49,23 @@ const server = http.createServer((req, res) => __awaiter(void 0, void 0, void 0,
         //       requestErrorMessage,
         //     })
         // );
-        handleCreateNotification({
+        // await validateOrigin(
+        //   req,
+        //   res,
+        //   async () =>
+        yield handleCreateNotification({
             req,
             res,
             io,
             users,
             requestErrorMessage,
         });
+        //   );
+        // }
+        res.on("finish", () => (0, notifications_logger_1.logger)({ req, res, requestErrorMessage }));
+        res.on("close", () => (0, notifications_logger_1.logger)({ req, res, CLIENT_ABORTED: constants_1.CLIENT_ABORTED }));
+        res.on("error", ({ message }) => (0, notifications_logger_1.logger)({ req, res, message }));
     }
-    res.on("finish", () => (0, notifications_logger_1.logger)({ req, res, requestErrorMessage }));
-    res.on("close", () => (0, notifications_logger_1.logger)({ req, res, CLIENT_ABORTED: constants_1.CLIENT_ABORTED }));
-    res.on("error", ({ message }) => (0, notifications_logger_1.logger)({ req, res, message }));
 }));
 const io = new socket_io_1.Server(server, {
     cors: {
