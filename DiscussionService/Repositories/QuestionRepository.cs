@@ -29,7 +29,7 @@ namespace DiscussionService.Repositories
 
             var items = await FindAll()
                                 .Where(question => question.Removed == false)
-                                .OrderByDescending(question => question.CreatedDate)
+                                // .OrderByDescending(question => question.CreatedDate)
                                 // .Skip((queryStringParameters.PageNumber - 1) * queryStringParameters.PageSize)
                                 // .Take(queryStringParameters.PageSize)
                                 .Include(question => question.Student)
@@ -51,6 +51,22 @@ namespace DiscussionService.Repositories
                 items = items.Where(question =>
                                         question.Subject.Name.Equals(queryStringParameters.Subject))
                                         .ToList();
+            }
+
+
+            if (queryStringParameters.Sort == SortType.NEW)
+            {
+                items = items.OrderByDescending(question => question.CreatedDate).ToList();
+            }
+
+            if (queryStringParameters.Sort == SortType.TOP)
+            {
+                items = items.OrderByDescending(question => question.Upvoters.Count).ToList();
+            }
+
+            if (queryStringParameters.Sort == SortType.HOT)
+            {
+                items = items.OrderByDescending(question => question.CreatedDate).OrderByDescending(question => question.Upvoters.Count).ToList();
             }
 
             return PagedList<Question>.ToPagedList(items, queryStringParameters.PageNumber, queryStringParameters.PageSize);
