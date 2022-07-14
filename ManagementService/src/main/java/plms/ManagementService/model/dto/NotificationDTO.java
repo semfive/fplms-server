@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class NotificationDTO {
-    private String tittle;
+    private String title;
     private String url;
     private String userEmail;
 }

@@ -112,6 +112,7 @@ public class GroupService {
         }
         Group group = modelMapper.map(groupDTO, Group.class);
         group.setClassEntity(new Class(classId));
+        group.setIsDisable(Boolean.FALSE);
         if (groupDTO.getProjectDTO() != null)
         	group.setProject(new Project(groupDTO.getProjectDTO().getId()));
         groupRepository.save(group);

@@ -35,7 +35,7 @@ public class NotificationService {
     public void sendNotification(NotificationDTO notification) {
         logger.info("{}{}", SEND_NOTIFICATION_MESSAGE, notification);
         ResponseEntity response = GatewayInterceptor.getWebClientBuilder().build().post().uri(sendNotificationUrl).contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(notification)).retrieve().toEntity(String.class).block();
+                .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(notification)).retrieve().toEntity(String.class).block();
         if (!response.getStatusCode().equals(HttpStatus.CREATED)) {
             logger.warn("{}{}{}", SEND_NOTIFICATION_MESSAGE, "Error when call api: ", response.getStatusCode());
             return;

@@ -25,6 +25,7 @@ import plms.ManagementService.model.response.Response;
 import plms.ManagementService.service.NotificationService;
 import plms.ManagementService.service.ReportService;
 import plms.ManagementService.service.StudentService;
+import plms.ManagementService.service.constant.ServiceStatusCode;
 
 @RestController
 @RequestMapping("/api/management")
@@ -68,6 +69,7 @@ public class ReportController {
                                          @RequestBody CreateCycleReportRequest createCycleReportRequest) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
         Response<CycleReportDTO> response = reportService.addCycleReport(createCycleReportRequest, studentId);
+        if(response.getCode().equals(ServiceStatusCode.OK_STATUS))
         notificationService.sendReportNotification(response.getData());
         return response;
     }
@@ -77,6 +79,7 @@ public class ReportController {
                                                    @RequestBody UpdateCycleReportRequest updateCycleReportRequest) {
         Integer studentId = studentService.getStudentIdByEmail(userEmail);
         Response<CycleReportDTO> response = reportService.updateCycleReport(updateCycleReportRequest, studentId);
+        if(response.getCode().equals(ServiceStatusCode.OK_STATUS))
         notificationService.sendReportNotification(response.getData());
         return response;
     }
@@ -91,6 +94,7 @@ public class ReportController {
     @PutMapping("/cycle-reports/feedback")
     public Response<CycleReportDTO> feedbackCycleReport(@RequestAttribute(required = false) String userEmail, @RequestBody FeedbackCycleReportRequest feedbackCycleReportRequest) {
         Response<CycleReportDTO> response = reportService.feedbackCycleReport(feedbackCycleReportRequest,userEmail);
+        if(response.getCode().equals(ServiceStatusCode.OK_STATUS))
         notificationService.sendFeedbackNotification(response.getData());
         return response;
     }
