@@ -12,6 +12,8 @@ import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
 import plms.ManagementService.model.dto.ClassDTO;
 import plms.ManagementService.model.dto.LecturerDTO;
+import plms.ManagementService.repository.entity.*;
+import plms.ManagementService.repository.entity.Class;
 import plms.ManagementService.service.constant.ServiceStatusCode;
 import plms.ManagementService.repository.ClassRepository;
 import plms.ManagementService.repository.GroupRepository;
@@ -20,11 +22,6 @@ import plms.ManagementService.repository.SemesterRepository;
 import plms.ManagementService.repository.StudentGroupRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.SubjectRepository;
-import plms.ManagementService.repository.entity.Class;
-import plms.ManagementService.repository.entity.Lecturer;
-import plms.ManagementService.repository.entity.Semester;
-import plms.ManagementService.repository.entity.Student;
-import plms.ManagementService.repository.entity.Subject;
 import plms.ManagementService.service.constant.ServiceMessage;
 
 import java.sql.Date;
@@ -174,8 +171,10 @@ public class ClassService {
                     .map(student -> modelMapper.map(student, StudentInClassResponse.class)).collect(Collectors.toSet());
             studentInClassResponseSet.stream()
                     .forEach(studentInClassResponse -> {
+                        Group group= studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId);
+                        studentInClassResponse.setGroupId(group.getId());
                         studentInClassResponse
-                                .setGroupNumber(studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId));
+                                .setGroupNumber(group.getNumber());
                         studentInClassResponse
                                 .setIsLeader(studentGroupRepository.findStudentLeaderRoleInClass(studentInClassResponse.getId(), classId) == 1); // change to boolean type
                     });

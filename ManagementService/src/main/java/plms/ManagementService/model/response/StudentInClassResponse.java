@@ -9,6 +9,7 @@ import plms.ManagementService.model.dto.StudentDTO;
 @Setter
 @NoArgsConstructor
 public class StudentInClassResponse extends StudentDTO {
+    Integer groupId;
     Integer groupNumber;
     Boolean isLeader;
 }
