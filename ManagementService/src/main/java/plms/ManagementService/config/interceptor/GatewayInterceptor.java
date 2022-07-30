@@ -76,24 +76,24 @@ public class GatewayInterceptor implements HandlerInterceptor {
         String accessToken = request.getHeader(GatewayConstant.AUTHORIZATION_HEADER);
         EmailVerifyDTO emailVerifyDTO;
         if (accessToken == null) {
-//            logger.info("No access token");
-//            logger.warn("Use test user");
-//            throw new NoTokenException();
-            emailVerifyDTO = new EmailVerifyDTO(GatewayConstant.EMAIL_TEST, GatewayConstant.ROLE_TEST);
-            logger.info("Path:{} Role:{} Email:{}", servletPath, emailVerifyDTO.getEmail(), emailVerifyDTO.getRole());
-            ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
-            if (apiEntity == null) throw new NotFoundApiException();
-            verifyRole(apiEntity.getRole(), emailVerifyDTO.getRole());
-            logger.info("Request validated. Start forward request to controller");
-            return emailVerifyDTO;
+            logger.info("No access token");
+            logger.warn("Use test user");
+            throw new NoTokenException();
+//            emailVerifyDTO = new EmailVerifyDTO(GatewayConstant.EMAIL_TEST, GatewayConstant.ROLE_TEST);
+//            logger.info("Path:{} Role:{} Email:{}", servletPath, emailVerifyDTO.getEmail(), emailVerifyDTO.getRole());
+//            ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
+//            if (apiEntity == null) throw new NotFoundApiException();
+//            verifyRole(apiEntity.getRole(), emailVerifyDTO.getRole());
+//            logger.info("Request validated. Start forward request to controller");
+//            return emailVerifyDTO;
         }
         emailVerifyDTO = getEmailVerifiedEntity(accessToken);
         if (emailVerifyDTO.getEmail() == null)
             throw new WrongTokenException();
-        if (adminEmail.equals(emailVerifyDTO.getEmail())) {
-            emailVerifyDTO.setRole("ADMIN");
-        }
         emailVerifyDTO.setRole(emailVerifyDTO.getRole().trim().toUpperCase());
+        if (adminEmail.equals(emailVerifyDTO.getEmail())) {
+            emailVerifyDTO.setRole(emailVerifyDTO.getRole() + GatewayConstant.ROLE_SPLIT_STRING + GatewayConstant.ROLE_ADMIN);
+        }
         logger.info("Path:{} VerifyDTO:{}", servletPath, emailVerifyDTO);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
         if (apiEntity == null) throw new NotFoundApiException();
@@ -115,9 +115,11 @@ public class GatewayInterceptor implements HandlerInterceptor {
     }
 
     private void verifyRole(String pathRole, String userRole) {
-        String[] roles = pathRole.split(GatewayConstant.ROLE_SPLIT_STRING);
-        for (String role : roles)
-            if (role.equals(userRole)) {
+        String[] pathRoles = pathRole.split(GatewayConstant.ROLE_SPLIT_STRING);
+        String[] userRoles = userRole.split(GatewayConstant.ROLE_SPLIT_STRING);
+        for (String role : pathRoles)
+            for (String accessRole : userRoles)
+            if (role.equals(accessRole)) {
                 return;
             }
         throw new NoAccessRoleException();

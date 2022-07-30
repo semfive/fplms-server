@@ -274,6 +274,12 @@ public class ClassService {
         Set<Class> classSet = classRepository.getClassBySearchStr("%" + search + "%");
         Set<ClassByStudentResponse> classByStudentResponseSet = classSet.stream().map(classEntity -> {
             ClassByStudentResponse classByStudentResponse = modelMapper.map(classEntity, ClassByStudentResponse.class);
+            if(classEntity.getEnrollKey() == null){
+                classByStudentResponse.setHasEnrollKey(false);
+            }
+            else{
+                classByStudentResponse.setHasEnrollKey(true);
+            }
             classByStudentResponse.setSubjectId(classEntity.getSubject().getId());
             classByStudentResponse.setLecturerDto(modelMapper.map(classEntity.getLecturer(), LecturerDTO.class));
             classByStudentResponse.setJoin(classRepository.existsInClass(studentId, classEntity.getId()) != null);
