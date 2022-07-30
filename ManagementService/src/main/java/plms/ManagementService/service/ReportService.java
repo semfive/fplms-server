@@ -523,7 +523,7 @@ public class ReportService {
             return null;
         }
         Integer currentCycle = Integer.valueOf((int) ((currentDate.getTime() - semester.getStartDate().getTime()) / ((long) 1000 * 60 * 60 * 24 * cycleDuration) + 1));
-        return currentCycle;
+        return (currentCycle + 1);
     }
     
     public boolean compareDate(Date date1, Date date2) {

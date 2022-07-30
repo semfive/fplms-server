@@ -12,7 +12,7 @@ public class GatewayConstant {
     public static final String ROLE_STUDENT = "STUDENT";
     public static final String ROLE_LECTURER = "LECTURER";
     public static final String ROLE_ADMIN = "ADMIN";
-     static final String ROLE_SPLIT_STRING = "&";
+     static final String ROLE_SPLIT_STRING = "-";
     public static final String EMAIL_TEST = "lec1@gmail.com";
     public static final String ROLE_TEST = ROLE_LECTURER;
     

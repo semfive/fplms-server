@@ -12,7 +12,7 @@ public class ClassByStudentResponse {
     private Integer id;
     private String name;
     private String semesterCode;
-    private String enrollKey;
+    private Boolean hasEnrollKey;
     private Integer subjectId;
     private LecturerDTO lecturerDto;
     private boolean isJoin;

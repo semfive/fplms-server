@@ -53,7 +53,7 @@ public class ProjectController {
 	}
 	
 	@PostMapping
-	public Response<Void> addProject(@RequestAttribute(required = false) String userEmail, 
+	public Response<Integer> addProject(@RequestAttribute(required = false) String userEmail,
 			@RequestBody ProjectDTO projectDTO) {
 		return projectService.addProject(projectDTO, userEmail);
 	}

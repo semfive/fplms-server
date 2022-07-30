@@ -135,7 +135,7 @@ public class ProjectService {
 	}
 	
 	@Transactional
-	public Response<Void> addProject(ProjectDTO projectDTO, String userEmail) {
+	public Response<Integer> addProject(ProjectDTO projectDTO, String userEmail) {
     	logger.info("addProject(projectDTO: {}, userEmail: {})", projectDTO, userEmail);
 		Integer lecturerId = lecturerRepository.findLecturerIdByEmail(userEmail);
     	if (lecturerId == null || projectDTO == null || projectDTO.getSubjectId() == null 
@@ -153,9 +153,9 @@ public class ProjectService {
     	}
     	Project project = modelMapper.map(projectDTO, Project.class);
     	project.setLecturer(lecturerRepository.findOneByEmail(userEmail));
-    	projectRepository.save(project);
+    	Integer id = projectRepository.save(project).getId();
 		logger.info("Add project success.");
-        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE,id);
 	}
 	
 	@Transactional
