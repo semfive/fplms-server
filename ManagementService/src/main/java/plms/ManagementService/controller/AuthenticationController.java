@@ -1,10 +1,8 @@
 package plms.ManagementService.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 import plms.ManagementService.model.request.CreateUserRequest;
 import plms.ManagementService.service.AuthenticationService;
 
@@ -13,9 +11,16 @@ import plms.ManagementService.service.AuthenticationService;
 public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;
+    @Value("${application.admin.email}")
+    private String adminEmail;
     @PostMapping
     public void createUser(@RequestBody CreateUserRequest createUserRequest){
         authenticationService.createUser(createUserRequest);
+    }
+    @GetMapping
+    public boolean checkAdminRole(@RequestAttribute(required = false) String userEmail){
+        if(userEmail.equals(adminEmail)) return true;
+        else return false;
     }
 }
 
