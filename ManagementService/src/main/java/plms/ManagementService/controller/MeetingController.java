@@ -62,7 +62,7 @@ public class MeetingController {
 	public Response<MeetingDTO> scheduleMeetingByLecturer(@RequestBody MeetingDTO meetingDTO, @RequestAttribute(required = false) String userEmail) {
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
 		Response<MeetingDTO> response = meetingService.scheduleMeetingByLecturer(meetingDTO);
-		if (response.getMessage().equals(ServiceStatusCode.OK_STATUS)) {
+		if (response.getCode().equals(ServiceStatusCode.OK_STATUS)) {
 			notificationService.sendMeetingNotification(response.getData());
 		}
 		return response;
@@ -72,7 +72,7 @@ public class MeetingController {
 	public Response<Void> updateMeetingByLecturer(@RequestBody MeetingDTO meetingDTO, @RequestAttribute(required = false) String userEmail) {
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
 		Response<Void> response = meetingService.updateMeetingByLecturer(meetingDTO);
-		if (response.getMessage().equals(ServiceStatusCode.OK_STATUS)) {
+		if (response.getCode().equals(ServiceStatusCode.OK_STATUS)) {
 			notificationService.sendMeetingNotification(meetingDTO);
 		}
 		return response;

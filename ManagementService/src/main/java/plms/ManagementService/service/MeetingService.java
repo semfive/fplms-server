@@ -217,7 +217,7 @@ public class MeetingService {
     public Response<Void> updateMeetingByLecturer(MeetingDTO meetingDTO) {
         logger.info("{}{}", UPDATE_MEETING_MESSAGE, meetingDTO);
         Meeting meeting = meetingRepository.findOneById(meetingDTO.getId());
-        if (meetingDTO.getLecturerId().equals(meeting.getLecturer().getId())) {
+        if (!meetingDTO.getLecturerId().equals(meeting.getLecturer().getId())) {
             logger.warn("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
