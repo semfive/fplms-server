@@ -24,9 +24,9 @@ public class GroupController {
     @GetMapping
     public Response<Set<GroupDetailResponse>> getGroupOfClass(@PathVariable int classId
             , @RequestAttribute(required = false) String userEmail, @RequestAttribute(required = false) String userRole) {
-        if (userRole.equals(GatewayConstant.ROLE_LECTURER))
+        if (userRole.contains(GatewayConstant.ROLE_LECTURER))
             return groupService.getGroupOfClassByLecturer(classId, userEmail);
-        if (userRole.equals(GatewayConstant.ROLE_STUDENT))
+        if (userRole.contains(GatewayConstant.ROLE_STUDENT))
             return groupService.getGroupOfClassByStudent(classId, userEmail);
         return new Response<>(403, "Not have role access");
     }

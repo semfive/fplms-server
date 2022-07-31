@@ -41,10 +41,10 @@ public class ReportController {
     		 						@RequestParam(required = false) Integer classId,
                                     @RequestParam(required = false) Integer groupId, 
                                     @RequestAttribute(required = false) String userRole) {
-        if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+        if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
             return reportService.getCycleReportByLecturer(classId, groupId, userEmail);
         }
-        if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+        if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
             return reportService.getCycleReportInGroupByStudent(groupId, userEmail);
         }
         return new Response<>(403, "Not have role access");
@@ -54,10 +54,10 @@ public class ReportController {
     public Response<CycleReportDTO> getCycleReportById(@PathVariable Integer reportId,
     								@RequestAttribute(required = false) String userEmail,
                                     @RequestAttribute(required = false) String userRole) {
-        if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+        if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
             return reportService.getCycleReportDetailByLecturer(userEmail, reportId);
         }
-        if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+        if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
             return reportService.getCycleReportDetailByStudent(userEmail, reportId);
         }
         return new Response<>(403, "Not have role access");
@@ -103,10 +103,10 @@ public class ReportController {
                                                                        @RequestParam(required = false, name = "startDate") Date startDate,
                                                                        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Ho_Chi_Minh")
                                                                        @RequestParam(required = false, name = "endDate") Date endDate) {
-        if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+        if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
             return reportService.getProgressReportInGroupByLecturer(classId, groupId, startDate, endDate, userEmail);
         }
-        if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+        if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
             return reportService.getProgressReportInGroupByStudent(classId, groupId, startDate, endDate, userEmail);
         }
         return new Response<>(403, "Not have role access");
@@ -116,10 +116,10 @@ public class ReportController {
     public Response<ProgressReportDTO> getProgressReportById(@PathVariable Integer reportId,
                                             @RequestAttribute(required = false) String userRole,
                                             @RequestAttribute(required = false) String userEmail) {
-        if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+        if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
             return reportService.getProgressReportDetailByLecturer(userEmail, reportId);
         }
-        if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+        if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
             return reportService.getProgressReportDetailByStudent(userEmail, reportId);
         }
         return new Response<>(403, "Not have role access");
