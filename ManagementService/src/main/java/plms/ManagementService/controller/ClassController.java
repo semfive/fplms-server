@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import plms.ManagementService.model.response.ClassByStudentResponse;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.model.response.StudentInClassResponse;
+import plms.ManagementService.config.interceptor.GatewayConstant;
 import plms.ManagementService.model.dto.ClassDTO;
 import plms.ManagementService.service.ClassService;
 import plms.ManagementService.service.StudentService;
@@ -40,6 +41,19 @@ public class ClassController {
     @GetMapping
     public Response<Set<ClassDTO>> getClassOfLecturer(@RequestAttribute(required = false) String userEmail) {
         return classService.getClassOfLecture(userEmail);
+    }
+    
+    @GetMapping(value = "/{classId}")
+    public Response<ClassDTO> getClassDetail(@PathVariable int classId, 
+    					@RequestAttribute(required = false) String userEmail,
+    					@RequestAttribute(required = false) String userRole) {
+    	if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+			return classService.getClassDetailByLecture(userEmail, classId);
+		}
+		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+			return classService.getClassDetailByStudent(userEmail, classId);
+		}
+		return new Response<>(403, "Not have role access");
     }
 
     @GetMapping(value = "/{id}/students")
