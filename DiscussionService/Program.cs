@@ -5,6 +5,7 @@ using DiscussionService.Repositories;
 using JwtDemoAPI.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using DiscussionService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddDbContext<RepositoryContext>(options => options.UseMySql(bui
 builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// Controllers' services
+builder.Services.AddScoped<IStudentsService, StudentsService>();
 
 // Serilog
 var logger = new LoggerConfiguration()

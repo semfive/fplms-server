@@ -97,7 +97,8 @@ io.on("connection", async (socket) => {
 
   // socket.on("notifications", async (data) => {
     const notifications = await handleGetNotifications(newUser["email"]);
-    io.emit("notifications", notifications);
+    // io.emit("notifications", notifications);
+    socket.emit("notifications", notifications);
   // });
 
   socket.on("disconnect", () => {
