@@ -13,8 +13,8 @@ public class GatewayConstant {
     public static final String ROLE_LECTURER = "LECTURER";
     public static final String ROLE_ADMIN = "ADMIN";
      static final String ROLE_SPLIT_STRING = "-";
-    public static final String EMAIL_TEST = "lec1@gmail.com";
-    public static final String ROLE_TEST = ROLE_LECTURER;
+    public static final String EMAIL_TEST = "stu5@gmail.com";
+    public static final String ROLE_TEST = ROLE_STUDENT;
     
     private static final String GET_METHOD = "GET";
     private static final String POST_METHOD = "POST";
@@ -26,6 +26,7 @@ public class GatewayConstant {
 
     public static void addApiEntities() {
         apiEntities.add(new ApiEntity("getClassByLecturer", "/api/management/classes", GET_METHOD, ROLE_LECTURER));
+        apiEntities.add(new ApiEntity("getClassDetail", "/api/management/classes/{classId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
         apiEntities.add(new ApiEntity("createClassByLecturer", "/api/management/classes", POST_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("updateClassByLecturer", "/api/management/classes", PUT_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("deleteClassByLecturer", "/api/management/classes/{classId:\\d+}", DELETE_METHOD, ROLE_LECTURER));

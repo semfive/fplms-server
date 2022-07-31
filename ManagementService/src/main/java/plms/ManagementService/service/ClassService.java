@@ -61,6 +61,8 @@ public class ClassService {
     private static final String CHANGE_STUDENT_GROUP_MESSAGE = "Change student group: ";
     private static final String ENROLL_STUDENT_TO_CLASS_MESSAGE = "Enroll student to class: ";
     private static final String GET_CLASS_BY_STUDENT_MESSAGE = "Get class by student: ";
+    private static final String GET_CLASS_DETAIL_BY_LECTURER_MESSAGE = "Get class detail by lecturer: ";
+    private static final String GET_CLASS_DETAIL_BY_STUDENT_MESSAGE = "Get class detail by student: ";
 
     public Response<Integer> createClassByLecturer(ClassDTO classDTO, String lecturerEmail) {
         logger.info("{}{}", CREATE_CLASS_MESSAGE, classDTO);
@@ -149,6 +151,48 @@ public class ClassService {
         }).collect(Collectors.toSet());
         logger.info("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classDTOSet);
+    }
+    
+    public Response<ClassDTO> getClassDetailByLecture(String lecturerEmail, Integer classId) {
+        logger.info("getClassDetailByLecture(classId: {}, lecturerEmail: {})", classId, lecturerEmail);
+        
+        if (!classRepository.existsById(classId)) {
+            logger.warn("{}{}", GET_CLASS_DETAIL_BY_LECTURER_MESSAGE,ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        if (!classRepository.findLecturerEmailOfClass(classId).equals(lecturerEmail)) {
+            logger.warn("{}{}", GET_CLASS_DETAIL_BY_LECTURER_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
+        }
+        Class classEntity = classRepository.findOneById(classId);
+        ClassDTO classDTO = modelMapper.map(classEntity, ClassDTO.class);
+        classDTO.setSubjectId(classEntity.getSubject().getId());
+        
+        logger.info("{}{}", GET_CLASS_DETAIL_BY_LECTURER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classDTO);
+    }
+    
+    public Response<ClassDTO> getClassDetailByStudent(String studentEmail, Integer classId) {
+        logger.info("getClassDetailByLecture(classId: {}, studentEmail: {})", classId, studentEmail);
+        Integer studentId = studentRepository.findStudentIdByEmail(studentEmail);
+        if (studentId == null) {
+            logger.warn("{}{}", GET_CLASS_DETAIL_BY_STUDENT_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        } 
+        if (!classRepository.existsById(classId)) {
+            logger.warn("{}{}", GET_CLASS_DETAIL_BY_STUDENT_MESSAGE,ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+        }
+        if (classRepository.existsInClass(studentId, classId) == null) {
+            logger.warn("{}{}", GET_CLASS_DETAIL_BY_STUDENT_MESSAGE, "Student is not in this class");
+            return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, "Student is not in this class");
+        }
+        Class classEntity = classRepository.findOneById(classId);
+        ClassDTO classDTO = modelMapper.map(classEntity, ClassDTO.class);
+        classDTO.setSubjectId(classEntity.getSubject().getId());
+        
+        logger.info("{}{}", GET_CLASS_DETAIL_BY_STUDENT_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classDTO);
     }
 
     public Response<Set<StudentInClassResponse>> getStudentInClassByLecturer(Integer classId,String lecturerEmail) {
