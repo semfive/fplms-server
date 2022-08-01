@@ -116,6 +116,8 @@ namespace DiscussionService.Controllers
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+                var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(answer.StudentId);
+
                 var dto = new StudentAnswerUpvote()
                 {
                     AnswerId = answer.Id,
@@ -126,11 +128,15 @@ namespace DiscussionService.Controllers
                 if (studentUpvote != null)
                 {
                     _repositoryWrapper.StudentAnswerUpvoteRepository.DeleteStudentAnswerUpvote(dto);
+                    author.Point -= 1;
+                    _repositoryWrapper.StudentRepository.Update(author);
                     await _repositoryWrapper.SaveAsync();
                     return NoContent();
                 }
 
                 _repositoryWrapper.StudentAnswerUpvoteRepository.CreateStudentAnswerUpvote(dto);
+                author.Point += 1;
+                _repositoryWrapper.StudentRepository.Update(author);
                 await _repositoryWrapper.SaveAsync();
                 return NoContent();
             }
@@ -176,6 +182,19 @@ namespace DiscussionService.Controllers
                     {
                         a.Accepted = !a.Accepted;
                         question.Solved = !a.Accepted;
+
+                        if (a.Accepted == true)
+                        {
+                            var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(a.StudentId);
+                            author.Point += 10;
+                            _repositoryWrapper.StudentRepository.Update(author);
+                        }
+                        else
+                        {
+                            var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(a.StudentId);
+                            author.Point -= 10;
+                            _repositoryWrapper.StudentRepository.Update(author);
+                        }
                     }
                     else
                     {
