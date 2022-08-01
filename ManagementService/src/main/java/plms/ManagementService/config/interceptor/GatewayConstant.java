@@ -3,7 +3,6 @@ package plms.ManagementService.config.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.PostMapping;
 
 public class GatewayConstant {
 
@@ -25,7 +24,7 @@ public class GatewayConstant {
     }
 
     public static void addApiEntities() {
-        apiEntities.add(new ApiEntity("checkAdminRole", "/api/auth/management", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("checkAdminRole", "/api/management/auth", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
 
         apiEntities.add(new ApiEntity("getClassByLecturer", "/api/management/classes", GET_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("getClassDetail", "/api/management/classes/{classId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
