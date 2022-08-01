@@ -25,9 +25,17 @@ public interface ProjectRepository extends JpaRepository<Project,Integer> {
 	
 	@Query(nativeQuery = true, value = "select * from PROJECT where LECTURER_id = ?1 and is_disable = 0")
 	Set<Project> findByLecturerId(Integer lecturerId); 
+	
+	@Query(nativeQuery = true, value = "select id from PROJECT where SEMESTER_code = ?1 limit 1")
+    Integer findProjectBySemester(String code);
 
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "update PROJECT set is_disable = 1 where id = ?1")
     void deleteProject(Integer projectId);
+    
+    @Modifying
+    @Transactional
+	@Query(nativeQuery = true, value = "update PROJECT set SEMESTER_code = ?2 where SEMESTER_code = ?1 ")
+	public void changeProjectSemester(String oldCode, String newCode);
 }

@@ -22,5 +22,5 @@ public interface SemesterRepository extends JpaRepository<Semester, String>{
 	
 	@Query(nativeQuery = true, value = "select code from SEMESTER where start_date < ?1 and end_date > ?1 limit 1")
 	public String getCurrentSemester(Date currentDate);
-
+	
 }

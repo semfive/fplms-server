@@ -42,4 +42,10 @@ public class SemesterController {
 	public Response<Void> deleteSemester(@PathVariable String code) {
 		return semesterService.deleteSemester(code);
 	}
+	
+	@PutMapping("/changeSemester/{oldSemesterCode}/{newSemesterCode}")
+	public Response<Void> changeSemester(@PathVariable(name = "oldSemesterCode") String oldSemesterCode,
+						@PathVariable(name = "newSemesterCode") String newSemesterCode) {
+		return semesterService.changeSemester(oldSemesterCode, newSemesterCode);
+	}
 }

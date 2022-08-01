@@ -83,7 +83,8 @@ public class GatewayConstant {
         apiEntities.add(new ApiEntity("addSemester", "/api/management/semesters", POST_METHOD, ROLE_ADMIN));
         apiEntities.add(new ApiEntity("updateSemester", "/api/management/semesters", PUT_METHOD, ROLE_ADMIN));
         apiEntities.add(new ApiEntity("deleteSemester", "/api/management/semesters/{code}", DELETE_METHOD, ROLE_ADMIN));
-        
+        apiEntities.add(new ApiEntity("changSemester", "/api/management/semesters/changeSemester/{oldSemesterCode}/{newSemesterCode}", PUT_METHOD, ROLE_ADMIN));
+
         apiEntities.add(new ApiEntity("isStudentStudiedSubject", "/api/management/subjects/isStudied", GET_METHOD, ROLE_STUDENT));
         apiEntities.add(new ApiEntity("getSubject", "/api/management/subjects", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER,ROLE_ADMIN)));
         apiEntities.add(new ApiEntity("addSubject", "/api/management/subjects", POST_METHOD, ROLE_ADMIN));

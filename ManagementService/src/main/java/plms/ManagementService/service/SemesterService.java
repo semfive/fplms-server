@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import plms.ManagementService.model.dto.SemesterDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
+import plms.ManagementService.repository.ProjectRepository;
 import plms.ManagementService.repository.SemesterRepository;
 import plms.ManagementService.repository.entity.Semester;
 import plms.ManagementService.service.constant.ServiceMessage;
@@ -25,11 +26,14 @@ public class SemesterService {
 	SemesterRepository semesterRepository;
 	@Autowired
 	ClassRepository classRepository;
+	@Autowired
+	ProjectRepository projectRepository;
 	
     private static final Logger logger = LogManager.getLogger(SemesterService.class);
     private static final String CREATE_SEMESTER = "Create semester: ";
     private static final String DELETE_SEMESTER = "Delete semester: ";
     private static final String UPDATE_SEMESTER = "Update semester: ";
+    private static final String CHANGE_SEMESTER = "Change semester: ";
     
     public Response<Void> addSemester(SemesterDTO semesterDto) {
     	logger.info("addSemester(semesterDto: {})", semesterDto);
@@ -94,8 +98,28 @@ public class SemesterService {
             logger.warn("{}{}", DELETE_SEMESTER, "Some classes created in this semester.");
             return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Some classes created in this semester.");
     	}
+    	if (projectRepository.findProjectBySemester(code) != null) {
+            logger.warn("{}{}", DELETE_SEMESTER, "Some projects created in this semester.");
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Some projects created in this semester.");
+    	}
     	semesterRepository.delete(new Semester(code));
         logger.info("Delete semester success");
+        return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
+    }
+    
+    public Response<Void> changeSemester(String oldCode, String newCode) {
+    	logger.info("changeSemester(code: {}, code: {})", oldCode, newCode);
+    	if (oldCode == null && newCode == null) {
+            logger.warn("{}{}", CHANGE_SEMESTER, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+    	}
+    	if (!semesterRepository.existsById(oldCode) || !semesterRepository.existsById(newCode)) {
+            logger.warn("{}{}", CHANGE_SEMESTER, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+            return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
+    	}
+    	classRepository.changeClassSemester(oldCode, newCode);
+    	projectRepository.changeProjectSemester(oldCode, newCode);
+        logger.info("Change semester success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 }
