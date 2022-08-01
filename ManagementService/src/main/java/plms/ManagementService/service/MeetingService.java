@@ -217,11 +217,11 @@ public class MeetingService {
     public Response<Void> updateMeetingByLecturer(MeetingDTO meetingDTO) {
         logger.info("{}{}", UPDATE_MEETING_MESSAGE, meetingDTO);
         Meeting meeting = meetingRepository.findOneById(meetingDTO.getId());
-        if (meetingDTO.getLecturerId().equals(meeting.getLecturer().getId())) {
+        if (!meetingDTO.getLecturerId().equals(meeting.getLecturer().getId())) {
             logger.warn("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.FORBIDDEN_MESSAGE);
             return new Response<>(ServiceStatusCode.FORBIDDEN_STATUS, ServiceMessage.FORBIDDEN_MESSAGE);
         }
-        if (meetingDTO.getTitle() == null || meetingDTO.getScheduleTime() == null || meetingDTO.getLink() == null || meetingDTO.getGroupId().equals(meeting.getGroup().getId())) {
+        if (meetingDTO.getTitle() == null || meetingDTO.getScheduleTime() == null || meetingDTO.getLink() == null || !meetingDTO.getGroupId().equals(meeting.getGroup().getId())) {
             logger.warn("{}{}", SCHEDULING_MEETING_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.UNAUTHENTICATED_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }

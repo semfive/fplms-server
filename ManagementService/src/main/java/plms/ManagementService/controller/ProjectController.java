@@ -36,10 +36,10 @@ public class ProjectController {
 			@RequestParam(required = false) String semesterCode,
 			@RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail) {
-		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+		if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
 			return projectService.getProjectByLecturer(semesterCode, classId, userEmail);
 		} 
-		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+		if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
 			return projectService.getProjectFromClassByStudent(classId, userEmail);
 		}
 		return new Response<>(403, "Not have role access");

@@ -35,10 +35,10 @@ public class MeetingController {
 			@RequestParam(required = false, name = "startDate") Timestamp startDate,
 			@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "Asia/Ho_Chi_Minh")
 			@RequestParam(required = false, name = "endDate") Timestamp endDate) {
-		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+		if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
 			return meetingService.getMeetingInGroupByLecturer(classId, groupId, startDate, endDate, userEmail);
 		}
-		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+		if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
 			return meetingService.getMeetingInGroupByStudent(classId, groupId, startDate, endDate, userEmail);
 		}
 		return new Response<>(403, "Not have role access");
@@ -48,10 +48,10 @@ public class MeetingController {
 	public Response<MeetingDTO> getMeetingById(@PathVariable Integer meetingId,
 			@RequestAttribute(required = false) String userRole,
 			@RequestAttribute(required = false) String userEmail) {
-		if (userRole.equals(GatewayConstant.ROLE_LECTURER)) {
+		if (userRole.contains(GatewayConstant.ROLE_LECTURER)) {
 			return meetingService.getMeetingDetailByLecturer(userEmail, meetingId);
 		}
-		if (userRole.equals(GatewayConstant.ROLE_STUDENT)) {
+		if (userRole.contains(GatewayConstant.ROLE_STUDENT)) {
 			return meetingService.getMeetingDetailByStudent(userEmail, meetingId);
 		}
 		return new Response<>(403, "Not have role access");
@@ -62,7 +62,7 @@ public class MeetingController {
 	public Response<MeetingDTO> scheduleMeetingByLecturer(@RequestBody MeetingDTO meetingDTO, @RequestAttribute(required = false) String userEmail) {
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
 		Response<MeetingDTO> response = meetingService.scheduleMeetingByLecturer(meetingDTO);
-		if (response.getMessage().equals(ServiceStatusCode.OK_STATUS)) {
+		if (response.getCode().equals(ServiceStatusCode.OK_STATUS)) {
 			notificationService.sendMeetingNotification(response.getData());
 		}
 		return response;
@@ -72,7 +72,7 @@ public class MeetingController {
 	public Response<Void> updateMeetingByLecturer(@RequestBody MeetingDTO meetingDTO, @RequestAttribute(required = false) String userEmail) {
 		meetingDTO.setLecturerId(authenticationService.getLectureIdByEmail(userEmail));
 		Response<Void> response = meetingService.updateMeetingByLecturer(meetingDTO);
-		if (response.getMessage().equals(ServiceStatusCode.OK_STATUS)) {
+		if (response.getCode().equals(ServiceStatusCode.OK_STATUS)) {
 			notificationService.sendMeetingNotification(meetingDTO);
 		}
 		return response;
