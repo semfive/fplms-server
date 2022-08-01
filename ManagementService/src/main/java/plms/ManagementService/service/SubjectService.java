@@ -1,5 +1,6 @@
 package plms.ManagementService.service;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import plms.ManagementService.model.dto.SubjectDTO;
 import plms.ManagementService.model.response.Response;
 import plms.ManagementService.repository.ClassRepository;
+import plms.ManagementService.repository.SemesterRepository;
 import plms.ManagementService.repository.StudentRepository;
 import plms.ManagementService.repository.SubjectRepository;
 import plms.ManagementService.repository.entity.Class;
@@ -31,6 +33,8 @@ public class SubjectService {
 	@Autowired
 	StudentRepository studentRepository;
 	@Autowired
+	SemesterRepository semesterRepository;
+	@Autowired
 	ModelMapper modelMapper;
 	
 	private static final Logger logger = LogManager.getLogger(SubjectService.class);
@@ -42,7 +46,7 @@ public class SubjectService {
 	public Response<Set<SubjectDTO>> getSubjects() {
 		logger.info("getSubjects()");
 		
-		Set<SubjectDTO> subjectDtoSet = subjectRepository.findAll().stream()
+		Set<SubjectDTO> subjectDtoSet = subjectRepository.getAllSubject().stream()
 				.map(subjectEntity -> modelMapper.map(subjectEntity, SubjectDTO.class)).collect(Collectors.toSet());
 		
 		logger.info("Get subject success");
@@ -56,11 +60,12 @@ public class SubjectService {
 			logger.warn("{}{}", CREATE_SUBJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
-		if (subjectRepository.existsByName(subjectDto.getName())) {
+		if (subjectRepository.findByName(subjectDto.getName()) != null) {
 			logger.warn("{}{}", CREATE_SUBJECT, "Subject already exist.");
 	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject already exist.");
 		}
 		Subject subject = modelMapper.map(subjectDto, Subject.class);
+		subject.setIsDisable(false);
 		subjectRepository.save(subject);
 		logger.info("Create subject success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -73,11 +78,16 @@ public class SubjectService {
 			logger.warn("{}{}", UPDATE_SUBJECT, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
 		}
-		if (!subjectRepository.existsById(subjectDto.getId())) {
+		if (!subjectRepository.existsById(subjectDto.getId()) || subjectRepository.isSubjectDisable(subjectDto.getId()) == 1) {
 			logger.warn("{}{}", UPDATE_SUBJECT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
 	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
 		}
+		if (subjectRepository.findByName(subjectDto.getName()) != null) {
+			logger.warn("{}{}", UPDATE_SUBJECT, "Subject already exist.");
+	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Subject already exist.");
+		}
 		Subject subject = modelMapper.map(subjectDto, Subject.class);
+		subject.setIsDisable(false);
 		subjectRepository.save(subject);
 		logger.info("Update subject success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
@@ -90,11 +100,14 @@ public class SubjectService {
 			logger.warn("{}{}", DELETE_SUBJECT, ServiceMessage.ID_NOT_EXIST_MESSAGE);
 	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, ServiceMessage.ID_NOT_EXIST_MESSAGE);
 		}
-		if (classRepository.findClassBySubject(id) != null) {
-			logger.warn("{}{}", DELETE_SUBJECT, "Some classes use this subject");
-	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Some classes use this subject");
+		String currentSemester = semesterRepository.getCurrentSemester(new Date(System.currentTimeMillis()));
+		if (classRepository.findClassBySubjectAndSemester(id, currentSemester) != null) {
+			logger.warn("{}{}", DELETE_SUBJECT, "Some classes use this subject in this semester");
+	        return new Response<>(ServiceStatusCode.BAD_REQUEST_STATUS, "Some classes use this subject in this semester");
 		}
-		subjectRepository.delete(new Subject(id));
+		Subject subject = subjectRepository.findOneById(id);
+		subject.setIsDisable(true);
+		subjectRepository.save(subject);
 		logger.info("Delete subject success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
 	}
@@ -106,7 +119,7 @@ public class SubjectService {
         	logger.warn("{}{}", IS_STUDIED, ServiceStatusCode.BAD_REQUEST_STATUS);
         	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if (!subjectRepository.existsByName(subjectName)) {
+        if (subjectRepository.findByName(subjectName) == null) {
         	logger.warn("{}{}", IS_STUDIED, "Subject name not exist.");
         	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

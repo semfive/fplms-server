@@ -110,6 +110,8 @@ namespace DiscussionService.Controllers
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(questionId);
+                var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(question.StudentId);
+
                 var dto = new StudentUpvote()
                 {
                     QuestionId = question.Id,
@@ -120,11 +122,15 @@ namespace DiscussionService.Controllers
                 if (studentUpvote != null)
                 {
                     _repositoryWrapper.StudentUpvoteRepository.DeleteStudentUpvote(dto);
+                    author.Point -= 1;
+                    _repositoryWrapper.StudentRepository.Update(author);
                     await _repositoryWrapper.SaveAsync();
                     return NoContent();
                 }
 
                 _repositoryWrapper.StudentUpvoteRepository.CreateStudentUpvote(dto);
+                author.Point += 1;
+                _repositoryWrapper.StudentRepository.Update(author);
                 await _repositoryWrapper.SaveAsync();
                 return NoContent();
             }

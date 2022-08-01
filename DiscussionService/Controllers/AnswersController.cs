@@ -6,6 +6,11 @@ using DiscussionService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.RegularExpressions;
+
 namespace DiscussionService.Controllers
 {
     [ApiController]
@@ -14,10 +19,12 @@ namespace DiscussionService.Controllers
     {
         private IRepositoryWrapper _repositoryWrapper;
         private IMapper _mapper;
-        public AnswersController(IRepositoryWrapper repositoryWrapper, IMapper mapper)
+        private IConfiguration _config;
+        public AnswersController(IRepositoryWrapper repositoryWrapper, IMapper mapper, IConfiguration config)
         {
             _repositoryWrapper = repositoryWrapper;
             _mapper = mapper;
+            _config = config;
         }
 
         [HttpGet]
@@ -84,13 +91,31 @@ namespace DiscussionService.Controllers
                 }
 
                 var answer = _mapper.Map<Answer>(createAnswerDto);
-                var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
+                Student student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
 
                 answer.Id = Guid.NewGuid();
                 answer.StudentId = student.Id;
 
                 _repositoryWrapper.AnswerRepository.CreateAnswer(answer);
                 await _repositoryWrapper.SaveAsync();
+
+                var question = await _repositoryWrapper.QuestionRepository.GetQuestionByIdAsync(createAnswerDto.QuestionId);
+                var questionAuthor = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(question.StudentId);
+
+                using (var httpClient = new HttpClient())
+                {
+                    var notification = new
+                    {
+                        title = student.Name + " has posted an answer to your question of " + question.Title,
+                        url = "http://fplms-fe.vercel.app/discussion-view/" + question.Id,
+                        userEmail = questionAuthor.Email
+                    };
+                    var json = JsonConvert.SerializeObject(notification);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var notificationResult = httpClient.PostAsync(_config.GetConnectionString("NotificationService"), data);
+                    notificationResult.Wait();
+                }
 
                 return Created("~api/discussion/answers/" + answer.Id, createAnswerDto);
             }
@@ -116,6 +141,8 @@ namespace DiscussionService.Controllers
 
                 var student = await _repositoryWrapper.StudentRepository.GetStudentByEmailAsync(userEmail);
                 var answer = await _repositoryWrapper.AnswerRepository.GetAnswerByIdAsync(answerId);
+                var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(answer.StudentId);
+
                 var dto = new StudentAnswerUpvote()
                 {
                     AnswerId = answer.Id,
@@ -126,11 +153,15 @@ namespace DiscussionService.Controllers
                 if (studentUpvote != null)
                 {
                     _repositoryWrapper.StudentAnswerUpvoteRepository.DeleteStudentAnswerUpvote(dto);
+                    author.Point -= 1;
+                    _repositoryWrapper.StudentRepository.Update(author);
                     await _repositoryWrapper.SaveAsync();
                     return NoContent();
                 }
 
                 _repositoryWrapper.StudentAnswerUpvoteRepository.CreateStudentAnswerUpvote(dto);
+                author.Point += 1;
+                _repositoryWrapper.StudentRepository.Update(author);
                 await _repositoryWrapper.SaveAsync();
                 return NoContent();
             }
@@ -176,6 +207,19 @@ namespace DiscussionService.Controllers
                     {
                         a.Accepted = !a.Accepted;
                         question.Solved = !a.Accepted;
+
+                        if (a.Accepted == true)
+                        {
+                            var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(a.StudentId);
+                            author.Point += 10;
+                            _repositoryWrapper.StudentRepository.Update(author);
+                        }
+                        else
+                        {
+                            var author = await _repositoryWrapper.StudentRepository.GetStudentByIdAsync(a.StudentId);
+                            author.Point -= 10;
+                            _repositoryWrapper.StudentRepository.Update(author);
+                        }
                     }
                     else
                     {
