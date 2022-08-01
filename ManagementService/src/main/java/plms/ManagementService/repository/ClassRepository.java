@@ -45,7 +45,7 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Query(nativeQuery = true, value = "select id from CLASS where SEMESTER_code = ?1 limit 1")
     Integer findClassBySemester(String code);
 
-    @Query(nativeQuery = true, value = "select id from CLASS where SUBJECT_id = ?1 limit 1")
-    Integer findClassBySubject(Integer subjectId);
+    @Query(nativeQuery = true, value = "select id from CLASS where SUBJECT_id = ?1 and SEMESTER_code = ?2 limit 1")
+    Integer findClassBySubjectAndSemester(Integer subjectId, String code);
 
 }

@@ -21,6 +21,8 @@ public class Subject {
     private Integer id;
     @Column
     private String name;
+    @Column(name = "is_disable")
+    private Boolean isDisable;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
     private List<Class> classList;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
