@@ -48,7 +48,7 @@ public class NotificationService {
             Group group = groupRepository.findOneById(meetingDTO.getGroupId());
             Set<String> studentEmailInGroupSet = group.getStudentGroupSet().stream().map(studentGroup -> studentGroup.getStudent().getEmail()).collect(Collectors.toSet());
             for (String studentEmail : studentEmailInGroupSet) {
-                sendNotification(new NotificationDTO("You have meeting at " + meetingDTO.getScheduleTime() + " in " + group.getClassEntity().getName() + "from lecturer"
+                sendNotification(new NotificationDTO("Your " + group.getClassEntity().getName() + " lecturer has scheduled meeting with you and your group at " +  meetingDTO.getScheduleTime()
                         , meetingDTO.getLink(), studentEmail));
             }
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class NotificationService {
     public void sendReportNotification(CycleReportDTO cycleReportDTO) {
         try {
             Group group = groupRepository.findOneById(cycleReportDTO.getGroupId());
-            sendNotification(new NotificationDTO("Cycle report of  " + group.getNumber() + " in " + group.getClassEntity().getName()
+            sendNotification(new NotificationDTO("Group" + group.getNumber() + " of " + group.getClassEntity().getName() + " class has submitted a cycle report"
                     , "class/" + group.getClassEntity().getId() + "/group/" + group.getId() + "view=" + cycleReportDTO.getGroupId(), group.getClassEntity().getLecturer().getEmail()));
         } catch (Exception e) {
             logger.error("{}{}", "Send report: ", e);
@@ -71,7 +71,7 @@ public class NotificationService {
             Group group = groupRepository.findOneById(cycleReportDTO.getGroupId());
             Set<String> studentEmailInGroupSet = group.getStudentGroupSet().stream().map(studentGroup -> studentGroup.getStudent().getEmail()).collect(Collectors.toSet());
             for (String studentEmail : studentEmailInGroupSet) {
-                sendNotification(new NotificationDTO("Feedback of  " + cycleReportDTO.getTitle() + " in " + group.getClassEntity().getName()
+                sendNotification(new NotificationDTO("Your " + group.getClassEntity().getName() +" lecturer has feedback on your "+ cycleReportDTO.getTitle() + " report"
                         ,"class/" + group.getClassEntity().getId() + "/group/" + group.getId() + "view=" + cycleReportDTO.getGroupId(), studentEmail));
             }
         } catch (Exception e) {

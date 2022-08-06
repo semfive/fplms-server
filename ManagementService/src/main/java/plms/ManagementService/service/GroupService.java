@@ -83,6 +83,7 @@ public class GroupService {
             group.setId(null);
             group.setClassEntity(new Class(createGroupRequest.getClassId()));
             group.setNumber(index);
+            group.setIsDisable(false);
             groupRepository.save(group);
         }
         logger.info("{}{}", GET_GROUP_OF_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
@@ -114,6 +115,7 @@ public class GroupService {
         group.setClassEntity(new Class(classId));
         if (groupDTO.getProjectDTO() != null)
         	group.setProject(new Project(groupDTO.getProjectDTO().getId()));
+        group.setIsDisable(false);
         groupRepository.save(group);
         logger.info("Update group success");
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);

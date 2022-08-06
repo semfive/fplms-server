@@ -28,7 +28,6 @@ public class Lecturer {
     @Column(name = "is_disable",insertable = false)
     private Boolean isDisable;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
-    @JsonManagedReference
     private Set<Class> classSet;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "lecturer")
     private Set<Meeting> meetingSet;

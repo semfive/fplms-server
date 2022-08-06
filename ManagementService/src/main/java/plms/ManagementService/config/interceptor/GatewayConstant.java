@@ -24,7 +24,9 @@ public class GatewayConstant {
     }
 
     public static void addApiEntities() {
-        apiEntities.add(new ApiEntity("checkAdminRole", "/api/management/auth", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("Remove student from class","/api/management/classes/{classId:\\d+}/students/{studentId:\\d+}",DELETE_METHOD, combineRoles(ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("checkAdminRole", "/api/management/valid", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
+        apiEntities.add(new ApiEntity("checkRole", "/api/management/valid/role", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));
 
         apiEntities.add(new ApiEntity("getClassByLecturer", "/api/management/classes", GET_METHOD, ROLE_LECTURER));
         apiEntities.add(new ApiEntity("getClassDetail", "/api/management/classes/{classId:\\d+}", GET_METHOD, combineRoles(ROLE_STUDENT,ROLE_LECTURER)));

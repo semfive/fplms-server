@@ -138,13 +138,20 @@ public class ClassService {
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE);
     }
 
+    @Transactional
     public Response<Set<ClassDTO>> getClassOfLecture(String lectureEmail) {
         Lecturer lecturer = lecturerRepository.findOneByEmail(lectureEmail);
         if (lecturer == null) {
             logger.warn("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
             return new Response<>(ServiceStatusCode.UNAUTHENTICATED_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
         }
-        Set<ClassDTO> classDTOSet = lecturer.getClassSet().stream().map(classEntity -> {
+        Set<Class> classSet = lecturer.getClassSet();
+        if(classSet == null) {
+            logger.warn("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+            return new Response<>(ServiceStatusCode.UNAUTHENTICATED_STATUS, ServiceMessage.INVALID_ARGUMENT_MESSAGE);
+        }
+        classSet = classSet.stream().filter(c -> !c.getIsDisable()).collect(Collectors.toSet());
+        Set<ClassDTO> classDTOSet = classSet.stream().map(classEntity -> {
             ClassDTO classDTO = modelMapper.map(classEntity, ClassDTO.class);
             classDTO.setSubjectId(classEntity.getSubject().getId());
             return classDTO;
@@ -215,12 +222,14 @@ public class ClassService {
                     .map(student -> modelMapper.map(student, StudentInClassResponse.class)).collect(Collectors.toSet());
             studentInClassResponseSet.stream()
                     .forEach(studentInClassResponse -> {
-                        Group group= studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId);
-                        studentInClassResponse.setGroupId(group.getId());
-                        studentInClassResponse
-                                .setGroupNumber(group.getNumber());
-                        studentInClassResponse
-                                .setIsLeader(studentGroupRepository.findStudentLeaderRoleInClass(studentInClassResponse.getId(), classId) == 1); // change to boolean type
+                        Group group= groupRepository.findOneById(studentRepository.findGroupByStudentIdAndClassId(studentInClassResponse.getId(), classId));
+                        if(group != null) {
+                            studentInClassResponse.setGroupId(group.getId());
+                            studentInClassResponse
+                                    .setGroupNumber(group.getNumber());
+                            studentInClassResponse
+                                    .setIsLeader(studentGroupRepository.findStudentLeaderRoleInClass(studentInClassResponse.getId(), classId) == 1); // change to boolean type
+                        }
                     });
             logger.info("{}{}", GET_STUDENT_IN_CLASS_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
             return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, studentInClassResponseSet);
