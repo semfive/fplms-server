@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fplms-auth-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fplms-authservice
+  template:
+    metadata:
+      labels:
+        app: fplms-authservice
+    spec:
+      containers:
+        - name: fplms-authservice
+          image: quachhengtony/fplms-authservice:latest
+          imagePullPolicy: Always
+          # resources:
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-authservice-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: fplms-authservice
+  ports:
+    - name: fplms-authservice
+      protocol: TCP
+      port: 7209
+      targetPort: 7209

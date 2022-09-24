@@ -1,0 +1,176 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: fplms-managementdb-deployment
+# spec:
+#   selector:
+#     matchLabels:
+#       app: fplms-managementdb
+#   strategy:
+#     type: Recreate
+#   template:
+#     metadata:
+#       labels:
+#         app: fplms-managementdb
+#     spec:
+#       # terminationGracePeriodSeconds: 30
+#       # securityContext:
+#       #   fsGroup: 1000
+#       containers:
+#         - name: fplms-managementdb
+#           image: mysql
+#           ports:
+#             - containerPort: 3306
+#           readinessProbe:
+#             tcpSocket:
+#               port: 3306
+#             initialDelaySeconds: 30
+#             periodSeconds: 120
+#           livenessProbe:
+#             tcpSocket:
+#               port: 3306
+#             initialDelaySeconds: 30
+#             periodSeconds: 120
+#           resources:
+#             limits:
+#               memory: 512Mi
+#               cpu: 500m
+#           env:
+#             - name: MYSQL_ROOT_PASSWORD
+#               value: "fplms"
+#             - name: MYSQL_DATABASE
+#               value: "managementdb"
+#           volumeMounts:
+#             - mountPath: /var/lib/mysql
+#               name: fplms-managementdb
+#       volumes:
+#         - name: fplms-managementdb
+#           persistentVolumeClaim:
+#             claimName: fplms-managementdb-claim
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: fplms-managementdb-clusterip
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: fplms-managementdb
+#   ports:
+#     - name: fplms-managementdb
+#       protocol: TCP
+#       port: 3306
+#       targetPort: 3306
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: fplms-managementdb-loadbalancer
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: fplms-managementdb
+#   ports:
+#     - protocol: TCP
+#       port: 3306
+#       targetPort: 3306
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: mysql
+# spec:
+#   selector:
+#     matchLabels:
+#       app: mysql
+#   strategy:
+#     type: Recreate
+#   template:
+#     metadata:
+#       labels:
+#         app: mysql
+#     spec:
+#       containers:
+#         - image: mysql:5.6
+#           name: mysql
+#           env:
+#             - name: MYSQL_ROOT_PASSWORD
+#               value: "fplms"
+#           ports:
+#             - containerPort: 3306
+#               name: mysql
+#           volumeMounts:
+#             - name: mysql-persistent-storage
+#               mountPath: /var/lib/mysql
+#       volumes:
+#         - name: mysql-persistent-storage
+#           persistentVolumeClaim:
+#             claimName: mysql-pv-claim
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mysql
+# spec:
+#   ports:
+#     - port: 3306
+#   selector:
+#     app: mysql
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fplms-managementdb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: fplms-managementdb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: fplms-managementdb
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: fplms-managementdb
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "fplms"
+          ports:
+            - containerPort: 3307
+          volumeMounts:
+            - name: fplms-managementdb
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: fplms-managementdb
+          persistentVolumeClaim:
+            claimName: fplms-managementdb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-managementdb-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: fplms-managementdb
+  ports:
+    - name: fplms-managementdb
+      protocol: TCP
+      port: 3307
+      targetPort: 3307
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-managementdb-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: fplms-managementdb
+  ports:
+    - protocol: TCP
+      port: 3307
+      targetPort: 3307

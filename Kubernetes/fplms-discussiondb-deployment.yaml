@@ -1,0 +1,176 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: fplms-discussiondb-deployment
+# spec:
+#   selector:
+#     matchLabels:
+#       app: fplms-discussiondb
+#   strategy:
+#     type: Recreate
+#   template:
+#     metadata:
+#       labels:
+#         app: fplms-discussiondb
+#     spec:
+#       # terminationGracePeriodSeconds: 30
+#       # securityContext:
+#       #   fsGroup: 1000
+#       containers:
+#         - name: fplms-discussiondb
+#           image: mysql
+#           ports:
+#             - containerPort: 3306
+#           readinessProbe:
+#             tcpSocket:
+#               port: 3306
+#             initialDelaySeconds: 30
+#             periodSeconds: 120
+#           livenessProbe:
+#             tcpSocket:
+#               port: 3306
+#             initialDelaySeconds: 30
+#             periodSeconds: 120
+#           resources:
+#             limits:
+#               memory: 512Mi
+#               cpu: 500m
+#           env:
+#             - name: MYSQL_ROOT_PASSWORD
+#               value: "fplms"
+#             - name: MYSQL_DATABASE
+#               value: "discussiondb"
+#           volumeMounts:
+#             - mountPath: /var/lib/mysql
+#               name: fplms-discussiondb
+#       volumes:
+#         - name: fplms-discussiondb
+#           persistentVolumeClaim:
+#             claimName: fplms-discussiondb-claim
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: fplms-discussiondb-clusterip
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: fplms-discussiondb
+#   ports:
+#     - name: fplms-discussiondb
+#       protocol: TCP
+#       port: 3306
+#       targetPort: 3306
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: fplms-discussiondb-loadbalancer
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: fplms-discussiondb
+#   ports:
+#     - protocol: TCP
+#       port: 3306
+#       targetPort: 3306
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: mysql
+# spec:
+#   selector:
+#     matchLabels:
+#       app: mysql
+#   strategy:
+#     type: Recreate
+#   template:
+#     metadata:
+#       labels:
+#         app: mysql
+#     spec:
+#       containers:
+#         - image: mysql:5.6
+#           name: mysql
+#           env:
+#             - name: MYSQL_ROOT_PASSWORD
+#               value: "fplms"
+#           ports:
+#             - containerPort: 3306
+#               name: mysql
+#           volumeMounts:
+#             - name: mysql-persistent-storage
+#               mountPath: /var/lib/mysql
+#       volumes:
+#         - name: mysql-persistent-storage
+#           persistentVolumeClaim:
+#             claimName: mysql-pv-claim
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mysql
+# spec:
+#   ports:
+#     - port: 3306
+#   selector:
+#     app: mysql
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fplms-discussiondb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: fplms-discussiondb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: fplms-discussiondb
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: fplms-discussiondb
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "fplms"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: fplms-discussiondb
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: fplms-discussiondb
+          persistentVolumeClaim:
+            claimName: fplms-discussiondb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-discussiondb-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: fplms-discussiondb
+  ports:
+    - name: fplms-discussiondb
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fplms-discussiondb-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: fplms-discussiondb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
