@@ -1,6 +1,7 @@
 package plms.ManagementService.config.interceptor;
 
 
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,11 @@ import plms.ManagementService.model.dto.EmailVerifyDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.Base64;
+
+import static plms.ManagementService.config.interceptor.GatewayConstant.*;
+
 
 @Service
 public class GatewayInterceptor implements HandlerInterceptor {
@@ -92,7 +98,7 @@ public class GatewayInterceptor implements HandlerInterceptor {
             throw new WrongTokenException();
         emailVerifyDTO.setRole(emailVerifyDTO.getRole().trim().toUpperCase());
         if (adminEmail.equals(emailVerifyDTO.getEmail())) {
-            emailVerifyDTO.setRole(emailVerifyDTO.getRole() + GatewayConstant.ROLE_SPLIT_STRING + GatewayConstant.ROLE_ADMIN);
+            emailVerifyDTO.setRole(emailVerifyDTO.getRole() + GatewayConstant.ROLE_SPLIT_STRING + ROLE_ADMIN);
         }
         logger.info("Path:{} VerifyDTO:{}", servletPath, emailVerifyDTO);
         ApiEntity apiEntity = getMatchingAPI(httpMethod, servletPath);
@@ -126,7 +132,17 @@ public class GatewayInterceptor implements HandlerInterceptor {
     }
 
     private EmailVerifyDTO getEmailVerifiedEntity(String token) {
-        return getWebClientBuilder().build().get().uri(verifyUrl).header(GatewayConstant.AUTHORIZATION_HEADER, token)
-                .retrieve().bodyToMono(EmailVerifyDTO.class).block();
+        String[] chunks = token.split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        String payload = new String(decoder.decode(chunks[1]));
+        System.out.println(payload);
+        var emailVerify = new Gson().fromJson(payload,EmailVerifyDTO.class);
+        if(emailVerify.getEmail().endsWith("@fpt.edu.vn"))
+            emailVerify.setRole(ROLE_STUDENT);
+        if(emailVerify.getEmail().endsWith("@fe.edu.vn")||emailVerify.getEmail().contains("fe@"))
+            emailVerify.setRole(ROLE_LECTURER);
+        if(emailVerify.getRole() == null)
+            return null;
+        return emailVerify;
     }
 }
