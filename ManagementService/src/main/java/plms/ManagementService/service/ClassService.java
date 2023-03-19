@@ -147,8 +147,11 @@ public class ClassService {
         Set<ClassDTO> classDTOSet = lecturer.getClassSet().stream().map(classEntity -> {
             ClassDTO classDTO = modelMapper.map(classEntity, ClassDTO.class);
             classDTO.setSubjectId(classEntity.getSubject().getId());
+            if(classEntity.getIsDisable())
+                return null;
             return classDTO;
         }).collect(Collectors.toSet());
+        classDTOSet = classDTOSet.stream().filter(c -> c != null).collect(Collectors.toSet());
         logger.info("{}{}", GET_CLASS_OF_LECTURER_MESSAGE, ServiceMessage.SUCCESS_MESSAGE);
         return new Response<>(ServiceStatusCode.OK_STATUS, ServiceMessage.SUCCESS_MESSAGE, classDTOSet);
     }
